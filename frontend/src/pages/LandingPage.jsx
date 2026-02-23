@@ -57,10 +57,10 @@ const PARTICLES = [
 ];
 
 const STATS = [
-  { label: 'Students Expected', target: 500,   suffix: '+' },
-  { label: 'Colleges',          target: 25,    suffix: '+' },
+  { label: 'Students Expected', target: 700,   suffix: '+' },
+  { label: 'Colleges',          target: 125,   suffix: '+' },
   { label: 'Events',            target: 5,     suffix: '' },
-  { label: 'Prize Pool (₹)',    target: 50000, suffix: '+' },
+  { label: 'Prize Pool (₹)',    target: 65000, suffix: '+' },
 ];
 
 const MODES = [
