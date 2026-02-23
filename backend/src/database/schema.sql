@@ -3,7 +3,6 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================
 -- USERS
--- Stores participant details collected during registration
 -- ============================================================
 CREATE TABLE IF NOT EXISTS users (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -16,19 +15,17 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- ============================================================
 -- EVENTS
--- Stores all Geofest events available for registration
 -- ============================================================
 CREATE TABLE IF NOT EXISTS events (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   title       VARCHAR(150) NOT NULL,
   description TEXT,
-  price       NUMERIC(10, 2) NOT NULL DEFAULT 0
+  price       NUMERIC(10, 2) NOT NULL DEFAULT 0,
+  max_members INT NOT NULL DEFAULT 1
 );
 
 -- ============================================================
 -- REGISTRATIONS
--- Links a user to one or more events
--- Status: PENDING (not paid) | PAID (payment confirmed)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS registrations (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -41,8 +38,6 @@ CREATE TABLE IF NOT EXISTS registrations (
 
 -- ============================================================
 -- PAYMENTS
--- Records confirmed Razorpay payments for a user
--- One payment can cover multiple event registrations
 -- ============================================================
 CREATE TABLE IF NOT EXISTS payments (
   id                   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),

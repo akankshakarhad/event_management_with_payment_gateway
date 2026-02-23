@@ -82,12 +82,22 @@ export default function RegisterPage() {
     setUserIds(null);
   }, [mode]);
 
-  const totalPrice = events
-    .filter((e) => selectedIds.includes(e.id))
+  const selectedEvents = events.filter((e) => selectedIds.includes(e.id));
+  const maxAllowed = selectedEvents.length
+    ? Math.min(...selectedEvents.map((e) => e.max_members ?? 4))
+    : 4;
+
+  const totalPrice = selectedEvents
     .reduce((s, e) => s + parseFloat(e.price), 0) * (mode === 'group' ? members.length : 1);
 
-  const toggleEvent = (id) =>
-    setIds((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
+  const toggleEvent = (id) => {
+    setIds((p) => {
+      const next = p.includes(id) ? p.filter((x) => x !== id) : [...p, id];
+      const nextSelected = events.filter((e) => next.includes(e.id));
+      if (nextSelected.some((e) => (e.max_members ?? 4) === 1)) setMode('individual');
+      return next;
+    });
+  };
 
   /* ── Validation ── */
   const validateMember = (m, i) => {
@@ -107,6 +117,7 @@ export default function RegisterPage() {
     if (!selectedIds.length) e.events = 'Select at least one event';
     if (mode === 'group' && !teamName.trim()) e.teamName = 'Team name is required';
     if (mode === 'group' && members.length < 2) e.members = 'Add at least 2 members for group';
+    if (members.length > maxAllowed) e.members = `Selected events allow max ${maxAllowed} member${maxAllowed > 1 ? 's' : ''}`;
     return e;
   };
 
@@ -171,7 +182,7 @@ export default function RegisterPage() {
   /* ── Member helpers ── */
   const updateMember = (i, key, val) =>
     setMembers((p) => p.map((m, idx) => idx === i ? { ...m, [key]: val } : m));
-  const addMember    = () => members.length < 4 && setMembers((p) => [...p, { ...EMPTY_MEMBER }]);
+  const addMember    = () => members.length < maxAllowed && setMembers((p) => [...p, { ...EMPTY_MEMBER }]);
   const removeMember = (i) => setMembers((p) => p.filter((_, idx) => idx !== i));
 
   const iconMap = {
@@ -250,11 +261,11 @@ export default function RegisterPage() {
               ))}
             </AnimatePresence>
 
-            {mode === 'group' && members.length < 4 && (
+            {mode === 'group' && members.length < maxAllowed && (
               <motion.button type="button" onClick={addMember}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 className="w-full glass border border-dashed border-indigo-600 rounded-2xl py-3 text-indigo-400 hover:text-indigo-300 text-sm font-semibold transition">
-                + Add Team Member ({members.length}/4)
+                + Add Team Member ({members.length}/{maxAllowed})
               </motion.button>
             )}
             {errors.members && <p className="text-red-400 text-xs">{errors.members}</p>}
@@ -277,7 +288,12 @@ export default function RegisterPage() {
                     }`}>
                     <input type="checkbox" checked={selectedIds.includes(ev.id)}
                       onChange={() => toggleEvent(ev.id)} className="accent-indigo-500 w-4 h-4 shrink-0" />
-                    <span className="text-sm flex-1 min-w-0">{iconMap[ev.title] || '🌍'} {ev.title}</span>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-sm">{iconMap[ev.title] || '🌍'} {ev.title}</span>
+                      <span className="ml-2 text-[10px] text-emerald-400">
+                        {ev.max_members === 1 ? '· Individual only' : ev.max_members === 4 ? '· 4 members' : `· Max ${ev.max_members}`}
+                      </span>
+                    </div>
                     <span className="text-indigo-400 font-bold text-sm shrink-0">₹{ev.price}</span>
                   </motion.label>
                 ))}

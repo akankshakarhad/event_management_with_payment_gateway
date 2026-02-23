@@ -69,9 +69,11 @@ const MODES = [
 ];
 
 const EVENTS_PREVIEW = [
-  { emoji: '🧠', title: 'Quiz Competition',    price: 199, desc: 'Technical quiz on geotechnical engineering, soil mechanics & foundation design.' },
-  { emoji: '🎤', title: 'GeoTalk',             price: 199, desc: 'Present innovative ideas, research & emerging trends in geotechnical engineering.' },
-  { emoji: '🔗', title: 'Connecting the Dots', price: 199, desc: 'Solve real-world engineering problems by integrating multi-disciplinary concepts.' },
+  { emoji: '🧠', title: 'Quiz Competition',             price: 199, members: 'Max 2 members',     desc: 'Inter-college geoscience & geotechnical engineering quiz.' },
+  { emoji: '🔗', title: 'Connecting the Dots',          price: 199, members: 'Max 3 members',     desc: 'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.' },
+  { emoji: '🎤', title: 'Geotalk (Paper Presentation)', price: 199, members: 'Max 2 members',     desc: 'Present your research paper or innovative idea in geotechnical / civil engineering.' },
+  { emoji: '🏗️', title: 'Project Display',              price: 499, members: 'Exactly 4 members', desc: 'Showcase your engineering project or working model. Team of exactly 4.' },
+  { emoji: '💻', title: 'Midas Software Workshop',      price: 199, members: 'Individual only',   desc: 'Hands-on training on MIDAS geotechnical software.' },
 ];
 
 const OBJECTIVES = [
@@ -87,27 +89,28 @@ const SCHEDULE = [
     day: 'Day 1', date: '17 March 2026',
     color: 'from-indigo-600 to-purple-600',
     items: [
-      { time: 'Morning',   label: 'Inauguration Programme' },
-      { time: 'Morning',   label: 'Quiz Competition / MIDAS Workshop' },
-      { time: 'All Day',   label: 'Project Display Competition' },
-      { time: 'Afternoon', label: 'Project Evaluation' },
+      { time: '9:00 AM',   label: 'Inauguration Programme' },
+      { time: '10:30 AM',  label: 'Quiz Competition' },
+      { time: '10:30 AM',  label: 'Midas Software Workshop' },
+      { time: '10:00 AM',  label: 'Project Display Competition (All Day)' },
+      { time: '2:30 PM',   label: 'Project Evaluation & Results' },
     ],
   },
   {
     day: 'Day 2', date: '18 March 2026',
     color: 'from-emerald-600 to-teal-600',
     items: [
-      { time: 'Morning',   label: 'Connecting the Dots Competition' },
-      { time: 'Morning',   label: 'GeoTalk Presentations' },
-      { time: 'All Day',   label: 'Project Display Competition' },
-      { time: 'Evening',   label: 'Valedictory Function' },
+      { time: '9:30 AM',   label: 'Connecting the Dots Competition' },
+      { time: '11:00 AM',  label: 'Geotalk (Paper Presentation)' },
+      { time: '10:00 AM',  label: 'Project Display Competition (All Day)' },
+      { time: '4:30 PM',   label: 'Valedictory Function' },
     ],
   },
 ];
 
 const FACULTY_ADVISORS = [
-  { name: 'Dr. Vidya Khanapure', role: 'Faculty Advisor, IGS Student Chapter' },
-  { name: 'Dr. Smita K. Patil',  role: 'Dean, School of Engineering' },
+  { name: 'Dr. Smita K. Patil',  role: 'Dean, School of Engineering',        initials: 'SP', photo: null },
+  { name: 'Dr. Vidya Khanapure', role: 'Faculty Advisor, IGS Student Chapter', initials: 'VK', photo: null },
 ];
 
 const FACULTY_COORDINATORS = [
@@ -290,30 +293,13 @@ export default function LandingPage() {
               <motion.div key={ev.title}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-5 sm:p-6 card-hover">
+                className="glass rounded-2xl p-5 sm:p-6 card-hover flex flex-col">
                 <div className="text-3xl sm:text-4xl mb-3">{ev.emoji}</div>
                 <h3 className="text-base sm:text-lg font-bold mb-1">{ev.title}</h3>
-                <p className="text-gray-400 text-xs sm:text-sm mb-4 leading-relaxed">{ev.desc}</p>
-                <span className="text-indigo-400 font-bold">₹{ev.price}</span>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Additional events */}
-          <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {[
-              { emoji: '🏗️', title: 'Project Display Competition', price: '₹499 (Group)', desc: 'Showcase your engineering projects and models.' },
-              { emoji: '💻', title: 'MIDAS Workshop',              price: 'Details soon',  desc: 'Hands-on workshop on MIDAS geotechnical software.' },
-            ].map((ev, i) => (
-              <motion.div key={ev.title}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-4 sm:p-6 flex items-center gap-3 sm:gap-4 card-hover">
-                <span className="text-3xl sm:text-4xl shrink-0">{ev.emoji}</span>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold mb-0.5 text-sm sm:text-base truncate">{ev.title}</h3>
-                  <p className="text-gray-400 text-xs mb-1">{ev.desc}</p>
-                  <span className="text-indigo-400 font-bold text-sm">{ev.price}</span>
+                <p className="text-gray-400 text-xs sm:text-sm mb-3 leading-relaxed flex-1">{ev.desc}</p>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-indigo-400 font-bold">₹{ev.price}</span>
+                  <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">{ev.members}</span>
                 </div>
               </motion.div>
             ))}
@@ -394,12 +380,17 @@ export default function LandingPage() {
               <motion.div key={f.name}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-5 sm:p-6 text-center card-hover">
-                <div className="w-12 sm:w-16 h-12 sm:h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3">
-                  🎓
+                className="glass rounded-2xl p-6 sm:p-8 text-center card-hover">
+                <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-full mx-auto mb-4 overflow-hidden border-2 border-indigo-500/40 shadow-lg shadow-indigo-500/20">
+                  {f.photo
+                    ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
+                    : <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white">
+                        {f.initials}
+                      </div>
+                  }
                 </div>
-                <h3 className="font-bold text-white mb-1 text-sm sm:text-base">{f.name}</h3>
-                <p className="text-indigo-400 text-xs">{f.role}</p>
+                <h3 className="font-bold text-white mb-1 text-base sm:text-lg">{f.name}</h3>
+                <p className="text-indigo-400 text-xs sm:text-sm">{f.role}</p>
               </motion.div>
             ))}
           </div>

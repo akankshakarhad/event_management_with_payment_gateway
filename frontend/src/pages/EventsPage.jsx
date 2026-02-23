@@ -74,7 +74,12 @@ export default function EventsPage() {
                   {ev.description || 'Showcase your knowledge and skills in this exciting event.'}
                 </p>
 
-                <div className="mt-5 sm:mt-6 flex items-center justify-between gap-3">
+                <div className="mt-4 mb-3">
+                  <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+                    {ev.max_members === 1 ? 'Individual only' : ev.max_members === 4 ? 'Exactly 4 members' : `Max ${ev.max_members} members`}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between gap-3">
                   <span className="bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 px-3 py-1 rounded-full text-sm font-bold shrink-0">
                     ₹{ev.price}
                   </span>
