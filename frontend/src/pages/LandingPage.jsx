@@ -109,20 +109,20 @@ const SCHEDULE = [
 ];
 
 const FACULTY_ADVISORS = [
-  { name: 'Dr. Smita K. Patil',  role: 'Dean, School of Engineering',        initials: 'SP', photo: null },
-  { name: 'Dr. Vidya Khanapure', role: 'Faculty Advisor, IGS Student Chapter', initials: 'VK', photo: null },
+  { name: 'Dr. Smita K. Patil',  role: 'Dean, School of Engineering',        initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
+  { name: 'Dr. Vidya Khanapure', role: 'Faculty Advisor, IGS Student Chapter', initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
 ];
 
 const FACULTY_COORDINATORS = [
-  'Dr. Aniket V. Dahasahastra',
-  'Dr. Ramala Rakesh Kumar Reddy',
-  'Dr. Vijendra Kumar',
-  'Dr. Dinesh S. Aswar',
-  'Dr. Dyana Joseline',
-  'Dr. Vidya Khanapure',
-  'Dr. Mohammed Maaze',
-  'Dr. Shashank B. S',
-  'Dr. S. Senthamizh Sankar',
+  { name: 'Dr. Aniket V. Dahasahastra',    initials: 'AD', photo: '/geofest_faculty_photos/Dr_Aniket_V_Dahasahastra.jpg' },
+  { name: 'Dr. Ramala Rakesh Kumar Reddy', initials: 'RR', photo: '/geofest_faculty_photos/Dr_Ramala_Rakesh_Kumar_Reddy.jpg' },
+  { name: 'Dr. Vijendra Kumar',            initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vijendra_Kumar.jpg' },
+  { name: 'Dr. Dinesh S. Aswar',           initials: 'DA', photo: '/geofest_faculty_photos/Dr_Dinesh_S_Aswar.jpg' },
+  { name: 'Dr. Dyana Joseline',            initials: 'DJ', photo: '/geofest_faculty_photos/Dr_Dyana_Joseline.jpg' },
+  { name: 'Dr. Vidya Khanapure',           initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
+  { name: 'Dr. Mohammed Maaze',            initials: 'MM', photo: null },
+  { name: 'Dr. Shashank B. S',             initials: 'SS', photo: '/geofest_faculty_photos/Dr_Shashank_B_S.jpg' },
+  { name: 'Dr. S. Senthamizh Sankar',      initials: 'SS', photo: '/geofest_faculty_photos/Dr_S_Senthamizh_Sankar.jpg' },
 ];
 
 const OFFICE_BEARERS = [
@@ -398,13 +398,21 @@ export default function LandingPage() {
           {/* Coordinators */}
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
             <h3 className="text-base sm:text-lg font-bold text-gray-300 mb-4 text-center">Faculty Coordinators</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
-              {FACULTY_COORDINATORS.map((name, i) => (
-                <motion.div key={name}
-                  initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
+              {FACULTY_COORDINATORS.map((f, i) => (
+                <motion.div key={f.name}
+                  initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ delay: i * 0.04 }}
-                  className="glass rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-center text-xs sm:text-sm text-gray-300">
-                  {name}
+                  className="glass rounded-2xl p-4 flex flex-col items-center text-center card-hover">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 overflow-hidden border-2 border-indigo-500/30 shadow-md shadow-indigo-500/10 flex-shrink-0">
+                    {f.photo
+                      ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
+                      : <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                          {f.initials}
+                        </div>
+                    }
+                  </div>
+                  <span className="text-xs sm:text-sm text-gray-300 font-medium leading-snug">{f.name}</span>
                 </motion.div>
               ))}
             </div>
