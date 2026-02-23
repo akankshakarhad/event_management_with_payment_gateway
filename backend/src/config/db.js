@@ -1,16 +1,19 @@
 const { Pool } = require('pg');
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-});
+const pool = new Pool(
+  process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
+    : {
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        database: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+      }
+);
 
 pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL client error:', err.message);
-  process.exit(-1);
 });
 
 const connectDB = async () => {
@@ -20,7 +23,7 @@ const connectDB = async () => {
     client.release();
   } catch (err) {
     console.error('PostgreSQL connection failed:', err.message);
-    process.exit(1);
+    throw err;
   }
 };
 

@@ -1,0 +1,13 @@
+{
+  "name": "event-management-with-payment-gateway",
+  "version": "1.0.0",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "razorpay": "^2.9.2",
+    "uuid": "^10.0.0"
+  }
+}
