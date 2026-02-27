@@ -167,7 +167,7 @@ export default function LandingPage() {
 
           {/* Venue pill */}
           <motion.div variants={fade}
-            className="inline-flex flex-wrap justify-center gap-x-2 mb-4 px-3 sm:px-4 py-1.5 rounded-full glass text-indigo-300 text-sm sm:text-base font-semibold tracking-wider uppercase">
+            className="inline-flex flex-wrap justify-center gap-x-2 mb-4 px-4 sm:px-6 py-2 rounded-full glass text-indigo-300 text-base sm:text-xl font-extrabold tracking-wider uppercase">
             <span>NICMAR University, Pune</span>
             <span className="opacity-50">•</span>
             <span>17–18 March 2026</span>
