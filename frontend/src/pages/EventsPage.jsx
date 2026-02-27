@@ -31,11 +31,10 @@ export default function EventsPage() {
   }, []);
 
   return (
-    <div className="pt-14 sm:pt-16 min-h-screen bg-slate-950 text-white overflow-x-hidden">
+    <div className="pt-14 sm:pt-16 min-h-screen text-white overflow-x-hidden">
 
       {/* Header */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-slate-900 to-slate-950 py-14 sm:py-20 px-4 text-center">
-        <div className="absolute w-56 sm:w-72 h-56 sm:h-72 rounded-full bg-indigo-600 blur-[80px] sm:blur-[100px] opacity-20 top-0 left-1/2 -translate-x-1/2" />
+      <div className="relative overflow-hidden bg-black/50 py-14 sm:py-20 px-4 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="relative z-10">
           <h1 className="text-4xl sm:text-5xl font-extrabold mb-3">
             Our <span className="shimmer-text">Events</span>
@@ -80,13 +79,13 @@ export default function EventsPage() {
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <span className="bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 px-3 py-1 rounded-full text-sm font-bold shrink-0">
+                  <span className="bg-amber-600/20 border border-amber-500/30 text-amber-300 px-3 py-1 rounded-full text-sm font-bold shrink-0">
                     ₹{ev.price}
                   </span>
                   <motion.button
                     whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                     onClick={() => navigate('/register')}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-indigo-500/20 w-full sm:w-auto text-center">
+                    className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold px-4 py-2 rounded-xl transition shadow-lg shadow-amber-500/20 w-full sm:w-auto text-center">
                     Register →
                   </motion.button>
                 </div>

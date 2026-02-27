@@ -5,7 +5,7 @@ export default function FailurePage() {
   const navigate = useNavigate();
 
   return (
-    <div className="pt-14 sm:pt-16 min-h-screen bg-slate-950 text-white flex items-center justify-center px-4">
+    <div className="pt-14 sm:pt-16 min-h-screen text-white flex items-center justify-center px-4">
       <motion.div
         initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
         className="glass rounded-3xl p-6 sm:p-10 max-w-md w-full text-center">
@@ -25,7 +25,7 @@ export default function FailurePage() {
         <div className="space-y-3">
           <motion.button onClick={() => navigate('/register')}
             whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-            className="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg transition">
+            className="w-full py-3.5 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold rounded-xl shadow-lg transition">
             Try Again
           </motion.button>
           <motion.button onClick={() => navigate('/')}

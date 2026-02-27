@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  background-image: url('/bg_2.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: rgba(15, 8, 3, 0.72);
+}
+
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   50%       { transform: translateY(-24px) rotate(3deg); }
@@ -9,10 +23,6 @@
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-16px); }
-}
-@keyframes orb-pulse {
-  0%, 100% { opacity: 0.15; transform: scale(1); }
-  50%       { opacity: 0.3;  transform: scale(1.15); }
 }
 @keyframes shimmer {
   0%   { background-position: -400% 0; }
@@ -24,11 +34,8 @@
 .float-3 { animation: float      6s ease-in-out infinite 3s; }
 .float-4 { animation: float-slow 8s ease-in-out infinite 0.5s; }
 
-.orb   { animation: orb-pulse 5s ease-in-out infinite; }
-.orb-2 { animation: orb-pulse 7s ease-in-out infinite 2s; }
-
 .shimmer-text {
-  background: linear-gradient(90deg, #818cf8, #c084fc, #f472b6, #818cf8);
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #d97706, #f59e0b);
   background-size: 400% 100%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -47,5 +54,5 @@
 }
 .card-hover:hover {
   transform: translateY(-6px);
-  box-shadow: 0 20px 40px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 20px 40px rgba(180, 120, 30, 0.25);
 }

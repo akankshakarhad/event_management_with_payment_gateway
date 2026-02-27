@@ -64,7 +64,7 @@ const STATS = [
 ];
 
 const MODES = [
-  { icon: '🧑‍🎓', title: 'Individual', desc: 'Compete solo. Demonstrate your knowledge in geotechnical & civil engineering.', path: '/register?mode=individual', color: 'from-indigo-500 to-purple-600' },
+  { icon: '🧑‍🎓', title: 'Individual', desc: 'Compete solo. Demonstrate your knowledge in geotechnical & civil engineering.', path: '/register?mode=individual', color: 'from-amber-500 to-amber-700' },
   { icon: '👥', title: 'Team',        desc: 'Register as a team of 2–4. Collaborate, compete and conquer together.',         path: '/register?mode=group',       color: 'from-emerald-500 to-teal-600' },
 ];
 
@@ -87,7 +87,7 @@ const OBJECTIVES = [
 const SCHEDULE = [
   {
     day: 'Day 1', date: '17 March 2026',
-    color: 'from-indigo-600 to-purple-600',
+    color: 'from-amber-600 to-amber-700',
     items: [
       { time: '9:00 AM',   label: 'Inauguration Programme' },
       { time: '10:30 AM',  label: 'Quiz Competition' },
@@ -151,14 +151,10 @@ export default function LandingPage() {
   const countdown = useCountdown();
 
   return (
-    <div className="pt-14 sm:pt-16 bg-slate-950 text-white overflow-x-hidden">
+    <div className="pt-14 sm:pt-16 text-white overflow-x-hidden">
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 py-16">
-        <div className="orb   absolute w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-indigo-600 blur-[100px] sm:blur-[120px] -top-20 -left-20" />
-        <div className="orb-2 absolute w-64 sm:w-80 h-64 sm:h-80 rounded-full bg-purple-600 blur-[80px] sm:blur-[100px] bottom-10 right-0" />
-        <div className="orb   absolute w-48 sm:w-64 h-48 sm:h-64 rounded-full bg-cyan-500   blur-[70px] sm:blur-[90px] top-1/2 left-1/2 -translate-x-1/2" />
-
         {PARTICLES.map((p, i) => <Particle key={i} {...p} />)}
 
         <motion.div className="relative z-10 text-center max-w-5xl mx-auto w-full"
@@ -167,7 +163,7 @@ export default function LandingPage() {
 
           {/* Venue pill */}
           <motion.div variants={fade}
-            className="inline-flex flex-wrap justify-center gap-x-2 mb-4 px-4 sm:px-6 py-2 rounded-full glass text-indigo-300 text-base sm:text-xl font-extrabold tracking-wider uppercase">
+            className="inline-flex flex-wrap justify-center gap-x-2 mb-4 px-5 sm:px-8 py-2.5 rounded-full glass text-amber-300 text-lg sm:text-2xl font-extrabold tracking-wider uppercase">
             <span>NICMAR University, Pune</span>
             <span className="opacity-50">•</span>
             <span>17–18 March 2026</span>
@@ -181,16 +177,16 @@ export default function LandingPage() {
 
           {/* Theme */}
           <motion.div variants={fade} className="mb-2">
-            <span className="text-xl sm:text-2xl md:text-3xl font-bold text-indigo-300 tracking-widest uppercase">
+            <span className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-300 tracking-widest uppercase">
               STRATA
             </span>
           </motion.div>
 
-          <motion.p variants={fade} className="text-gray-400 text-base sm:text-lg mb-2 max-w-xl mx-auto italic px-2">
+          <motion.p variants={fade} className="text-gray-200 text-base sm:text-lg mb-2 max-w-xl mx-auto italic px-2">
             Engineering the Ground Beneath the Future
           </motion.p>
 
-          <motion.p variants={fade} className="text-gray-500 text-xs sm:text-sm mb-8 sm:mb-10 max-w-xl mx-auto px-2">
+          <motion.p variants={fade} className="text-gray-300 text-xs sm:text-sm mb-8 sm:mb-10 max-w-xl mx-auto px-2">
             National Level Technical & Academic Festival — Indian Geotechnical Society Student Chapter
           </motion.p>
 
@@ -198,7 +194,7 @@ export default function LandingPage() {
           <motion.div variants={fade} className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-10 sm:mb-14 px-4 sm:px-0">
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
               onClick={() => navigate('/register')}
-              className="w-full sm:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-xl shadow-indigo-500/30 transition">
+              className="w-full sm:w-auto px-8 py-4 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-xl shadow-xl shadow-amber-500/30 transition">
               Register Now →
             </motion.button>
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}
@@ -213,7 +209,7 @@ export default function LandingPage() {
             className="glass rounded-2xl px-4 sm:px-6 py-4 sm:py-5 inline-flex gap-4 sm:gap-8 mx-auto">
             {[['Days', countdown.days], ['Hrs', countdown.hours], ['Min', countdown.minutes], ['Sec', countdown.seconds]].map(([label, val]) => (
               <div key={label} className="text-center min-w-[40px] sm:min-w-[52px]">
-                <div className="text-3xl sm:text-4xl font-extrabold text-indigo-300 tabular-nums">
+                <div className="text-3xl sm:text-4xl font-extrabold text-amber-300 tabular-nums">
                   {String(val).padStart(2, '0')}
                 </div>
                 <div className="text-[10px] sm:text-xs text-gray-500 mt-1 uppercase tracking-wider">{label}</div>
@@ -230,14 +226,14 @@ export default function LandingPage() {
       </section>
 
       {/* ── STATS ── */}
-      <section className="bg-slate-900 py-12 sm:py-16 px-4">
+      <section className="bg-black/55 py-12 sm:py-16 px-4">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
           {STATS.map((s, i) => (
             <motion.div key={s.label}
               initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: i * 0.1 }}
               className="text-center glass rounded-2xl py-6 sm:py-8 px-2 sm:px-4">
-              <div className="text-3xl sm:text-4xl font-extrabold text-indigo-400">
+              <div className="text-3xl sm:text-4xl font-extrabold text-amber-400">
                 <Counter target={s.target} suffix={s.suffix} />
               </div>
               <div className="text-gray-400 text-xs sm:text-sm mt-2">{s.label}</div>
@@ -274,7 +270,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── EVENTS PREVIEW ── */}
-      <section className="bg-slate-900 py-14 sm:py-20 px-4">
+      <section className="bg-black/55 py-14 sm:py-20 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="flex items-center justify-between mb-8 sm:mb-10 flex-wrap gap-3">
@@ -283,7 +279,7 @@ export default function LandingPage() {
               <p className="text-gray-400 mt-1 text-sm">Compete in one or multiple events.</p>
             </div>
             <button onClick={() => navigate('/events')}
-              className="text-indigo-400 hover:text-indigo-300 text-sm font-semibold border border-indigo-700 px-4 py-2 rounded-lg hover:border-indigo-500 transition whitespace-nowrap">
+              className="text-amber-400 hover:text-amber-300 text-sm font-semibold border border-amber-700 px-4 py-2 rounded-lg hover:border-amber-500 transition whitespace-nowrap">
               View All →
             </button>
           </motion.div>
@@ -298,7 +294,7 @@ export default function LandingPage() {
                 <h3 className="text-base sm:text-lg font-bold mb-1">{ev.title}</h3>
                 <p className="text-gray-400 text-xs sm:text-sm mb-3 leading-relaxed flex-1">{ev.desc}</p>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="text-indigo-400 font-bold">₹{ev.price}</span>
+                  <span className="text-amber-400 font-bold">₹{ev.price}</span>
                   <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">{ev.members}</span>
                 </div>
               </motion.div>
@@ -340,7 +336,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PARTICIPATION MODES ── */}
-      <section className="bg-slate-900 py-14 sm:py-20 px-4">
+      <section className="bg-black/55 py-14 sm:py-20 px-4">
         <div className="max-w-4xl mx-auto text-center mb-10 sm:mb-12">
           <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-3xl sm:text-4xl font-extrabold mb-3">How do you want to compete?</motion.h2>
@@ -381,16 +377,16 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className="glass rounded-2xl p-6 sm:p-8 text-center card-hover">
-                <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-full mx-auto mb-4 overflow-hidden border-2 border-indigo-500/40 shadow-lg shadow-indigo-500/20">
+                <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-full mx-auto mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
                   {f.photo
                     ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
-                    : <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-3xl font-bold text-white">
+                    : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-3xl font-bold text-white">
                         {f.initials}
                       </div>
                   }
                 </div>
                 <h3 className="font-bold text-white mb-1 text-base sm:text-lg">{f.name}</h3>
-                <p className="text-indigo-400 text-xs sm:text-sm">{f.role}</p>
+                <p className="text-amber-400 text-xs sm:text-sm">{f.role}</p>
               </motion.div>
             ))}
           </div>
@@ -404,10 +400,10 @@ export default function LandingPage() {
                   initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ delay: i * 0.04 }}
                   className="glass rounded-2xl p-4 flex flex-col items-center text-center card-hover">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 overflow-hidden border-2 border-indigo-500/30 shadow-md shadow-indigo-500/10 flex-shrink-0">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 overflow-hidden border-2 border-amber-500/30 shadow-md shadow-amber-500/10 flex-shrink-0">
                     {f.photo
                       ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-lg font-bold text-white">
+                      : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-lg font-bold text-white">
                           {f.initials}
                         </div>
                     }
@@ -421,7 +417,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── OFFICE BEARERS ── */}
-      <section className="bg-slate-900 py-14 sm:py-20 px-4">
+      <section className="bg-black/55 py-14 sm:py-20 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-center mb-10 sm:mb-12">
@@ -475,14 +471,14 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className="glass rounded-2xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 card-hover">
-                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-lg sm:text-xl shrink-0">
+                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-lg sm:text-xl shrink-0">
                   {c.icon}
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-white text-sm truncate">{c.name}</p>
                   <p className="text-gray-400 text-xs mb-0.5">{c.role}</p>
                   <a href={`tel:${c.phone.replace(/\s/g, '')}`}
-                    className="text-indigo-400 hover:text-indigo-300 text-sm font-mono transition">
+                    className="text-amber-400 hover:text-amber-300 text-sm font-mono transition">
                     {c.phone}
                   </a>
                 </div>
@@ -495,7 +491,7 @@ export default function LandingPage() {
             className="glass rounded-2xl p-5 sm:p-6 text-center">
             <p className="text-gray-400 text-sm mb-1">Email us at</p>
             <a href="mailto:Igssc@pune.nicmar.ac.in"
-              className="text-indigo-400 hover:text-indigo-300 text-base sm:text-lg font-semibold transition break-all">
+              className="text-amber-400 hover:text-amber-300 text-base sm:text-lg font-semibold transition break-all">
               Igssc@pune.nicmar.ac.in
             </a>
             <p className="text-gray-500 text-xs mt-3">📍 NICMAR University Campus, Pune</p>
@@ -504,8 +500,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── FOOTER CTA ── */}
-      <section className="bg-slate-900 py-14 sm:py-20 px-4 text-center">
+      <section className="bg-black/55 py-14 sm:py-20 px-4 text-center">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
+          <div className="flex items-center justify-center gap-6 mb-8">
+            <img src="/NICMAR_LOGO1.jpeg" alt="NICMAR Logo" className="h-14 sm:h-16 w-auto object-contain" />
+            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-14 sm:h-16 w-auto object-contain" />
+          </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold mb-4 px-2">
             Ready to <span className="shimmer-text">dig deeper</span>?
           </h2>
@@ -513,7 +513,7 @@ export default function LandingPage() {
           <p className="text-gray-500 text-xs sm:text-sm mb-8">17–18 March 2026 • NICMAR University, Pune</p>
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/register')}
-            className="w-full sm:w-auto px-8 sm:px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-base sm:text-lg rounded-xl shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 transition">
+            className="w-full sm:w-auto px-8 sm:px-10 py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold text-base sm:text-lg rounded-xl shadow-2xl shadow-amber-500/30 hover:shadow-amber-500/50 transition">
             Register for GeoFest 2026
           </motion.button>
         </motion.div>

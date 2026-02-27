@@ -42,7 +42,7 @@ export default function AdminPage() {
   const pendingCount = rows.filter((r) => r.status === 'PENDING').length;
 
   return (
-    <div className="pt-16 min-h-screen bg-slate-950 text-white">
+    <div className="pt-16 min-h-screen text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
 
         {/* Header */}
@@ -64,7 +64,7 @@ export default function AdminPage() {
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {[
-            { label: 'Total',   value: rows.length,  color: 'text-indigo-400'  },
+            { label: 'Total',   value: rows.length,  color: 'text-amber-400'  },
             { label: 'Paid',    value: paidCount,    color: 'text-emerald-400' },
             { label: 'Pending', value: pendingCount, color: 'text-yellow-400'  },
           ].map((s) => (
@@ -83,7 +83,7 @@ export default function AdminPage() {
               <button key={t.value} onClick={() => setStatus(t.value)}
                 className={`px-4 py-2 rounded-lg text-xs font-semibold transition ${
                   status === t.value
-                    ? 'bg-indigo-600 text-white shadow shadow-indigo-500/30'
+                    ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
                     : 'text-gray-400 hover:text-white'
                 }`}>
                 {t.label}
@@ -92,7 +92,7 @@ export default function AdminPage() {
           </div>
 
           <select value={eventId} onChange={(e) => setEventId(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            className="bg-slate-800 border border-slate-700 text-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
             <option value="">All Events</option>
             {events.map((ev) => (
               <option key={ev.id} value={ev.id}>{ev.title}</option>
@@ -139,7 +139,7 @@ export default function AdminPage() {
                     <td className="px-5 py-3.5 text-gray-400">{r.phone}</td>
                     <td className="px-5 py-3.5 text-gray-400 max-w-[160px] truncate">{r.college}</td>
                     <td className="px-5 py-3.5 text-gray-300">{r.event_title}</td>
-                    <td className="px-5 py-3.5 text-indigo-400 font-semibold">₹{r.price}</td>
+                    <td className="px-5 py-3.5 text-amber-400 font-semibold">₹{r.price}</td>
                     <td className="px-5 py-3.5">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                         r.status === 'PAID'

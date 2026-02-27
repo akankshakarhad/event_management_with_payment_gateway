@@ -8,7 +8,7 @@ const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '' };
 
 const inputCls = (err) =>
   `w-full bg-slate-800 border rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500
-   focus:outline-none focus:ring-2 focus:ring-indigo-500 transition
+   focus:outline-none focus:ring-2 focus:ring-amber-500 transition
    ${err ? 'border-red-500' : 'border-slate-700'}`;
 
 /* ─── Single member form block ─── */
@@ -19,7 +19,7 @@ function MemberForm({ member, idx, onChange, onRemove, errors = {}, isLeader }) 
       exit={{ opacity: 0, y: -10 }}
       className="glass rounded-2xl p-5 space-y-3">
       <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-semibold text-indigo-400">
+        <span className="text-sm font-semibold text-amber-400">
           {isLeader ? '👑 Team Leader' : `👤 Member ${idx}`}
         </span>
         {!isLeader && (
@@ -163,7 +163,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="pt-14 sm:pt-16 min-h-screen bg-slate-950 text-white overflow-x-hidden">
+    <div className="pt-14 sm:pt-16 min-h-screen text-white overflow-x-hidden">
       <div className="max-w-2xl mx-auto px-4 py-8 sm:py-12">
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 sm:mb-8">
@@ -183,7 +183,7 @@ export default function RegisterPage() {
                 <button type="button" key={m} onClick={() => setMode(m)}
                   className={`flex-1 py-3 rounded-xl text-sm font-bold capitalize transition-all ${
                     mode === m
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+                      ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/30'
                       : 'text-gray-400 hover:text-white'
                   }`}>
                   {m === 'individual' ? '🧑‍🎓 Individual' : '👥 Group (2–4)'}
@@ -228,7 +228,7 @@ export default function RegisterPage() {
             {mode === 'group' && members.length < maxAllowed && (
               <motion.button type="button" onClick={addMember}
                 whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-                className="w-full glass border border-dashed border-indigo-600 rounded-2xl py-3 text-indigo-400 hover:text-indigo-300 text-sm font-semibold transition">
+                className="w-full glass border border-dashed border-amber-600 rounded-2xl py-3 text-amber-400 hover:text-amber-300 text-sm font-semibold transition">
                 + Add Team Member ({members.length}/{maxAllowed})
               </motion.button>
             )}
@@ -247,18 +247,18 @@ export default function RegisterPage() {
                   <motion.label key={ev.id} whileHover={{ scale: 1.01 }}
                     className={`flex items-center gap-3 rounded-xl px-3 sm:px-4 py-3 sm:py-3.5 cursor-pointer transition-all border ${
                       selectedIds.includes(ev.id)
-                        ? 'border-indigo-500 bg-indigo-600/15'
+                        ? 'border-amber-500 bg-amber-600/15'
                         : 'border-slate-700 bg-slate-800/50 hover:border-slate-600'
                     }`}>
                     <input type="checkbox" checked={selectedIds.includes(ev.id)}
-                      onChange={() => toggleEvent(ev.id)} className="accent-indigo-500 w-4 h-4 shrink-0" />
+                      onChange={() => toggleEvent(ev.id)} className="accent-amber-500 w-4 h-4 shrink-0" />
                     <div className="flex-1 min-w-0">
                       <span className="text-sm">{iconMap[ev.title] || '🌍'} {ev.title}</span>
                       <span className="ml-2 text-[10px] text-emerald-400">
                         {ev.max_members === 1 ? '· Individual only' : ev.max_members === 4 ? '· 4 members' : `· Max ${ev.max_members}`}
                       </span>
                     </div>
-                    <span className="text-indigo-400 font-bold text-sm shrink-0">₹{ev.price}</span>
+                    <span className="text-amber-400 font-bold text-sm shrink-0">₹{ev.price}</span>
                   </motion.label>
                 ))}
               </div>
@@ -277,13 +277,13 @@ export default function RegisterPage() {
                     </span>
                   )}
                 </div>
-                <div className="text-2xl font-extrabold text-indigo-400">₹{totalPrice}</div>
+                <div className="text-2xl font-extrabold text-amber-400">₹{totalPrice}</div>
               </motion.div>
             )}
 
             <motion.button type="submit" disabled={submitting}
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
-              className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-xl shadow-indigo-500/20 hover:shadow-indigo-500/40 transition disabled:opacity-60">
+              className="w-full py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold rounded-xl shadow-xl shadow-amber-500/20 hover:shadow-amber-500/40 transition disabled:opacity-60">
               {submitting ? 'Registering...' : `Register ${mode === 'group' ? 'Team' : 'Now'} →`}
             </motion.button>
           </form>
