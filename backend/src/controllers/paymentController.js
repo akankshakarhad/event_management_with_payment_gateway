@@ -20,6 +20,10 @@ const resolveUserIds = (body) => {
 // Body: { userId } OR { userIds: ['uid1','uid2',...] }
 const createOrder = async (req, res, next) => {
   try {
+    console.log('[PhonePe] create-order called');
+    console.log('[PhonePe] ENV — MERCHANT_ID:', process.env.PHONEPE_MERCHANT_ID || 'MISSING');
+    console.log('[PhonePe] ENV — BASE_URL:', process.env.PHONEPE_BASE_URL || 'MISSING');
+    console.log('[PhonePe] ENV — SALT_KEY:', process.env.PHONEPE_SALT_KEY ? 'SET' : 'MISSING');
     const userIds = resolveUserIds(req.body);
     if (!userIds.length) {
       return res.status(400).json({ success: false, message: 'userId or userIds is required' });
@@ -57,7 +61,9 @@ const createOrder = async (req, res, next) => {
       paymentInstrument:     { type: 'PAY_PAGE' },
     };
 
+    console.log('[PhonePe] payload:', JSON.stringify(phonePePayload));
     const { base64Payload, checksum } = buildRequest(phonePePayload, PAY_ENDPOINT);
+    console.log('[PhonePe] calling:', `${BASE_URL}${PAY_ENDPOINT}`);
 
     const phonePeResponse = await axios.post(
       `${BASE_URL}${PAY_ENDPOINT}`,
