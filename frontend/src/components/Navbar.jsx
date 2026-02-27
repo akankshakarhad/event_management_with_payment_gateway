@@ -45,7 +45,7 @@ export default function Navbar() {
           {/* College logos — desktop */}
           <div className="hidden md:flex items-center gap-4 absolute left-1/2 -translate-x-1/2">
             <img src="/NICMAR_LOGO1.jpeg" alt="NICMAR Logo" className="h-12 w-auto object-contain rounded-xl shadow-[0_0_18px_4px_rgba(200,200,200,0.35)]" />
-            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-14 w-auto object-contain rounded-xl shadow-[0_0_18px_4px_rgba(200,200,200,0.35)]" />
+            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-12 w-auto object-contain rounded-xl shadow-[0_0_18px_4px_rgba(200,200,200,0.35)]" />
           </div>
 
           {/* Desktop nav */}
