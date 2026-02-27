@@ -177,7 +177,7 @@ export default function LandingPage() {
 
           {/* Theme */}
           <motion.div variants={fade} className="mb-2">
-            <span className="text-xl sm:text-2xl md:text-3xl font-bold text-amber-300 tracking-widest uppercase">
+            <span className="text-2xl sm:text-3xl md:text-5xl font-bold text-amber-300 tracking-widest uppercase">
               STRATA
             </span>
           </motion.div>
