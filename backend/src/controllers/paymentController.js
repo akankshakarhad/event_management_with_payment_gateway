@@ -86,11 +86,14 @@ const createOrder = async (req, res, next) => {
       data: { redirectUrl },
     });
   } catch (err) {
-    // Forward PhonePe API errors in a readable form
+    // Log full PhonePe error for debugging
+    console.error('[PhonePe] create-order error:', JSON.stringify(err.response?.data || err.message));
+    console.error('[PhonePe] ENV CHECK — MERCHANT_ID:', process.env.PHONEPE_MERCHANT_ID, '| BASE_URL:', process.env.PHONEPE_BASE_URL);
     if (err.response?.data) {
       return res.status(502).json({
         success: false,
         message: err.response.data.message || 'PhonePe API error',
+        code: err.response.data.code,
       });
     }
     next(err);
