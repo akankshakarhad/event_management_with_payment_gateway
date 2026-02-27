@@ -72,7 +72,7 @@ const EVENTS_PREVIEW = [
   { emoji: '🧠', title: 'Quiz Competition',             price: 199, members: 'Max 2 members',     desc: 'Inter-college geoscience & geotechnical engineering quiz.' },
   { emoji: '🔗', title: 'Connecting the Dots',          price: 199, members: 'Max 3 members',     desc: 'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.' },
   { emoji: '🎤', title: 'Geotalk (Paper Presentation)', price: 199, members: 'Max 2 members',     desc: 'Present your research paper or innovative idea in geotechnical / civil engineering.' },
-  { emoji: '🏗️', title: 'Project Display',              price: 499, members: 'Exactly 4 members', desc: 'Showcase your engineering project or working model. Team of exactly 4.' },
+  { emoji: '🏗️', title: 'Project Display',              price: 199, members: 'Exactly 4 members', desc: 'Showcase your engineering project or working model. Team of exactly 4.' },
   { emoji: '💻', title: 'Midas Software Workshop',      price: 199, members: 'Individual only',   desc: 'Hands-on training on MIDAS geotechnical software.' },
 ];
 

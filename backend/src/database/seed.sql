@@ -18,7 +18,7 @@ INSERT INTO events (title, description, price, max_members) VALUES
 
   ('Project Display',
    'Showcase your engineering project or working model. Team of exactly 4 members.',
-   499.00, 4),
+   199.00, 4),
 
   ('Midas Software Workshop',
    'Hands-on training on MIDAS geotechnical software. Individual participation only.',
