@@ -40,12 +40,13 @@ CREATE TABLE IF NOT EXISTS registrations (
 -- PAYMENTS
 -- ============================================================
 CREATE TABLE IF NOT EXISTS payments (
-  id                   UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id              UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  amount               NUMERIC(10, 2) NOT NULL,
-  razorpay_order_id    VARCHAR(100),
-  razorpay_payment_id  VARCHAR(100),
-  status               VARCHAR(10) NOT NULL DEFAULT 'PENDING'
-                                   CHECK (status IN ('PENDING', 'PAID', 'FAILED')),
-  created_at           TIMESTAMP   NOT NULL DEFAULT NOW()
+  id                       UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id                  UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  amount                   NUMERIC(10, 2) NOT NULL,
+  merchant_transaction_id  VARCHAR(100),              -- ID sent to PhonePe
+  phonepe_transaction_id   VARCHAR(100),              -- ID returned by PhonePe on success
+  user_ids                 TEXT,                      -- JSON array of all user UUIDs (for groups)
+  status                   VARCHAR(10) NOT NULL DEFAULT 'PENDING'
+                                       CHECK (status IN ('PENDING', 'PAID', 'FAILED')),
+  created_at               TIMESTAMP   NOT NULL DEFAULT NOW()
 );

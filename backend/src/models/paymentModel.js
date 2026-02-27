@@ -1,24 +1,39 @@
 const { pool } = require('../config/db');
 
-const createPending = async (userId, amount, razorpayOrderId) => {
+// Create a PENDING payment record
+// user_ids is an array of UUIDs (team leader + members) stored as JSON string
+const createPending = async (userId, amount, merchantTransactionId, userIds = []) => {
   const { rows } = await pool.query(
-    `INSERT INTO payments (user_id, amount, razorpay_order_id, status)
-     VALUES ($1, $2, $3, 'PENDING')
+    `INSERT INTO payments (user_id, amount, merchant_transaction_id, user_ids, status)
+     VALUES ($1, $2, $3, $4, 'PENDING')
      RETURNING *`,
-    [userId, amount, razorpayOrderId]
+    [userId, amount, merchantTransactionId, JSON.stringify(userIds)]
   );
   return rows[0];
 };
 
-const markPaid = async (razorpayOrderId, razorpayPaymentId) => {
+// Mark payment as PAID using merchantTransactionId
+const markPaid = async (merchantTransactionId, phonePeTransactionId) => {
   const { rows } = await pool.query(
     `UPDATE payments
-     SET status = 'PAID', razorpay_payment_id = $1
-     WHERE razorpay_order_id = $2
+     SET status = 'PAID', phonepe_transaction_id = $1
+     WHERE merchant_transaction_id = $2
      RETURNING *`,
-    [razorpayPaymentId, razorpayOrderId]
+    [phonePeTransactionId, merchantTransactionId]
   );
   return rows[0] || null;
 };
 
-module.exports = { createPending, markPaid };
+// Mark payment as FAILED using merchantTransactionId
+const markFailed = async (merchantTransactionId) => {
+  const { rows } = await pool.query(
+    `UPDATE payments
+     SET status = 'FAILED'
+     WHERE merchant_transaction_id = $1
+     RETURNING *`,
+    [merchantTransactionId]
+  );
+  return rows[0] || null;
+};
+
+module.exports = { createPending, markPaid, markFailed };

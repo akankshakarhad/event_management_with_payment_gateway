@@ -1,18 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
 
-/* ─── Razorpay SDK loader ─── */
-const loadRazorpay = () =>
-  new Promise((resolve) => {
-    if (window.Razorpay) return resolve(true);
-    const s = document.createElement('script');
-    s.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    s.onload  = () => resolve(true);
-    s.onerror = () => resolve(false);
-    document.body.appendChild(s);
-  });
 
 const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '' };
 
@@ -59,7 +49,6 @@ function MemberForm({ member, idx, onChange, onRemove, errors = {}, isLeader }) 
 
 /* ─── Main Page ─── */
 export default function RegisterPage() {
-  const navigate  = useNavigate();
   const [params]  = useSearchParams();
   const initMode  = params.get('mode') === 'group' ? 'group' : 'individual';
 
@@ -145,34 +134,9 @@ export default function RegisterPage() {
   const handlePayment = async () => {
     setPaying(true);
     try {
-      const sdk = await loadRazorpay();
-      if (!sdk) { alert('Razorpay SDK failed to load.'); setPaying(false); return; }
-
-      const orderRes = await api.post('/create-order', { userIds });
-      const { orderId, amount, currency, keyId } = orderRes.data.data;
-      const leader = members[0];
-
-      const options = {
-        key: keyId, amount, currency,
-        name: 'GeoFest 2026',
-        description: mode === 'group' ? `Team: ${teamName}` : 'Individual Registration',
-        order_id: orderId,
-        prefill: { name: leader.name, email: leader.email, contact: leader.phone },
-        handler: async (resp) => {
-          try {
-            await api.post('/verify-payment', {
-              razorpay_order_id:   resp.razorpay_order_id,
-              razorpay_payment_id: resp.razorpay_payment_id,
-              razorpay_signature:  resp.razorpay_signature,
-              userIds,
-            });
-            navigate('/success');
-          } catch { navigate('/failure'); }
-        },
-        modal: { ondismiss: () => { setPaying(false); navigate('/failure'); } },
-        theme: { color: '#4f46e5' },
-      };
-      new window.Razorpay(options).open();
+      const res = await api.post('/create-order', { userIds });
+      // Redirect user to PhonePe's hosted payment page
+      window.location.href = res.data.data.redirectUrl;
     } catch (err) {
       alert(err.response?.data?.message || 'Could not initiate payment.');
       setPaying(false);
