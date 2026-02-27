@@ -36,7 +36,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <img src="/GEOFEST_2026.jpeg" alt="GeoFest 2026" className="h-10 sm:h-12 w-10 sm:w-12 object-contain rounded-full bg-white/10 p-0.5" />
-            <div className="flex flex-col leading-none">
+            <div className="hidden sm:flex flex-col leading-none">
               <span className="text-white font-extrabold text-lg sm:text-xl tracking-widest uppercase shimmer-text">GeoFest 2026</span>
               <span className="text-amber-400 text-[9px] sm:text-[10px] font-semibold tracking-widest uppercase">Strata</span>
             </div>
