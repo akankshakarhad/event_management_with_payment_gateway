@@ -65,7 +65,7 @@ export default function EventsPage() {
                 transition={{ delay: i * 0.08 }}
                 className="glass rounded-2xl p-5 sm:p-7 flex flex-col card-hover group">
 
-                <div className="text-4xl sm:text-5xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div className="text-6xl sm:text-7xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
                   {getIcon(ev.title)}
                 </div>
 

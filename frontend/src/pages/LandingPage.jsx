@@ -294,7 +294,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className="glass rounded-2xl p-5 sm:p-6 card-hover flex flex-col">
-                <div className="text-3xl sm:text-4xl mb-3">{ev.emoji}</div>
+                <div className="text-5xl sm:text-6xl mb-3">{ev.emoji}</div>
                 <h3 className="text-base sm:text-lg font-bold mb-1">{ev.title}</h3>
                 <p className="text-gray-400 text-xs sm:text-sm mb-3 leading-relaxed flex-1">{ev.desc}</p>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
