@@ -161,6 +161,12 @@ export default function LandingPage() {
           variants={{ show: { transition: { staggerChildren: 0.15 } } }}
           initial="hidden" animate="show">
 
+          {/* College logos */}
+          <motion.div variants={fade} className="flex items-center justify-center gap-12 sm:gap-20 mb-6">
+            <img src="/NICMAR_LOGO1.jpeg" alt="NICMAR Logo" className="h-12 sm:h-16 md:h-20 w-auto object-contain rounded-2xl shadow-[0_0_24px_6px_rgba(200,200,200,0.3)]" />
+            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-12 sm:h-16 md:h-20 w-auto object-contain rounded-2xl shadow-[0_0_24px_6px_rgba(200,200,200,0.3)]" />
+          </motion.div>
+
           {/* Venue pill */}
           <motion.div variants={fade}
             className="inline-flex flex-wrap justify-center gap-x-2 mb-4 px-5 sm:px-8 py-2.5 rounded-full glass text-amber-300 text-lg sm:text-2xl font-extrabold tracking-wider uppercase">
