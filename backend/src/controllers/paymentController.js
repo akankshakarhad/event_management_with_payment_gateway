@@ -22,10 +22,6 @@ const createOrder = async (req, res, next) => {
     const { BASE_URL, MERCHANT_ID } = getConfig();
     const APP_BASE_URL = process.env.APP_BASE_URL || 'http://localhost:5000';
 
-    console.log('[PhonePe] create-order called');
-    console.log('[PhonePe] ENV — MERCHANT_ID:', MERCHANT_ID || 'MISSING');
-    console.log('[PhonePe] ENV — BASE_URL:', BASE_URL || 'MISSING');
-
     const userIds = resolveUserIds(req.body);
     if (!userIds.length) {
       return res.status(400).json({ success: false, message: 'userId or userIds is required' });
@@ -63,9 +59,7 @@ const createOrder = async (req, res, next) => {
       paymentInstrument:     { type: 'PAY_PAGE' },
     };
 
-    console.log('[PhonePe] payload:', JSON.stringify(phonePePayload));
     const { base64Payload, checksum } = buildRequest(phonePePayload, PAY_ENDPOINT);
-    console.log('[PhonePe] calling:', `${BASE_URL}${PAY_ENDPOINT}`);
 
     const phonePeResponse = await axios.post(
       `${BASE_URL}${PAY_ENDPOINT}`,
