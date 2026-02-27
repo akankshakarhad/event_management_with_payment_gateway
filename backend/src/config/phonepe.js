@@ -1,12 +1,16 @@
 const crypto = require('crypto');
 
-const BASE_URL   = process.env.PHONEPE_BASE_URL;
-const MERCHANT_ID = process.env.PHONEPE_MERCHANT_ID;
-const SALT_KEY   = process.env.PHONEPE_SALT_KEY;
-const SALT_INDEX = process.env.PHONEPE_SALT_INDEX || '1';
+// Read env vars as getters so they are resolved at request time, not module load time
+const getConfig = () => ({
+  BASE_URL:   process.env.PHONEPE_BASE_URL,
+  MERCHANT_ID: process.env.PHONEPE_MERCHANT_ID,
+  SALT_KEY:   process.env.PHONEPE_SALT_KEY,
+  SALT_INDEX: process.env.PHONEPE_SALT_INDEX || '1',
+});
 
 // Build Base64 payload + X-VERIFY checksum for a given API endpoint path
 function buildRequest(payload, endpoint) {
+  const { SALT_KEY, SALT_INDEX } = getConfig();
   const base64Payload = Buffer.from(JSON.stringify(payload)).toString('base64');
   const hash = crypto
     .createHash('sha256')
@@ -18,6 +22,7 @@ function buildRequest(payload, endpoint) {
 
 // Verify X-VERIFY header from PhonePe Status API response
 function verifyResponseChecksum(base64Response, xVerify) {
+  const { SALT_KEY } = getConfig();
   const [receivedHash] = xVerify.split('###');
   const expectedHash = crypto
     .createHash('sha256')
@@ -26,4 +31,4 @@ function verifyResponseChecksum(base64Response, xVerify) {
   return receivedHash === expectedHash;
 }
 
-module.exports = { BASE_URL, MERCHANT_ID, SALT_INDEX, buildRequest, verifyResponseChecksum };
+module.exports = { getConfig, buildRequest, verifyResponseChecksum };
