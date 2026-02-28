@@ -46,6 +46,7 @@ export default function EventsPage() {
   const [galleryFetched, setGalleryFetched] = useState(false);
   const [galleryFilter, setGalleryFilter]   = useState(''); // '' = All, else event_id
   const [lightbox, setLightbox]             = useState(null);
+  const [sidebarOpen, setSidebarOpen]       = useState(false);
 
   useEffect(() => {
     api.get('/events')
@@ -185,23 +186,47 @@ export default function EventsPage() {
                 ? galleryPhotos.filter((p) => p.event_id === galleryFilter)
                 : galleryPhotos;
               return (
-                <div className="flex flex-col lg:flex-row gap-6 items-start">
+                <div className="relative flex gap-6 items-start">
 
-                  {/* ── Side panel — all screens ── */}
-                  <aside className="w-full lg:w-56 shrink-0 lg:sticky lg:top-24">
-                    <div className="glass rounded-2xl border border-slate-700/50 overflow-hidden">
+                  {/* ── Mobile backdrop ── */}
+                  {sidebarOpen && (
+                    <div
+                      className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+                      onClick={() => setSidebarOpen(false)}
+                    />
+                  )}
+
+                  {/* ── Side panel — drawer on mobile, sticky sidebar on desktop ── */}
+                  <aside className={`
+                    fixed lg:sticky top-14 lg:top-24 left-0
+                    h-[calc(100vh-56px)] lg:h-auto
+                    w-72 lg:w-56
+                    z-40 lg:z-auto
+                    shrink-0
+                    overflow-y-auto lg:overflow-visible
+                    transition-transform duration-300 ease-in-out lg:!translate-x-0
+                    ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+                  `}>
+                    <div className="glass rounded-r-2xl lg:rounded-2xl border border-slate-700/50 overflow-hidden h-full lg:h-auto">
                       {/* Panel header */}
-                      <div className="px-4 py-3.5 border-b border-slate-700/50 flex items-center gap-2">
-                        <span className="text-base">🗂</span>
-                        <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">
-                          Filter by Event
-                        </span>
+                      <div className="px-4 py-3.5 border-b border-slate-700/50 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base">🗂</span>
+                          <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">
+                            Filter by Event
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => setSidebarOpen(false)}
+                          className="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-slate-700/60 transition text-sm">
+                          ✕
+                        </button>
                       </div>
 
                       {/* All Photos */}
                       <div className="p-2">
                         <button
-                          onClick={() => setGalleryFilter('')}
+                          onClick={() => { setGalleryFilter(''); setSidebarOpen(false); }}
                           className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between group ${
                             galleryFilter === ''
                               ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20'
@@ -230,7 +255,7 @@ export default function EventsPage() {
                           const logo = getLogo(ev.title);
                           return (
                             <button key={ev.id}
-                              onClick={() => setGalleryFilter(ev.id)}
+                              onClick={() => { setGalleryFilter(ev.id); setSidebarOpen(false); }}
                               className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between group mb-0.5 ${
                                 isActive
                                   ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20'
@@ -258,11 +283,29 @@ export default function EventsPage() {
                   </aside>
 
                   {/* ── Photo grid ── */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-gray-500 text-xs mb-4">
+                  <div className="flex-1 min-w-0 w-full">
+
+                    {/* Mobile: count + filter toggle button */}
+                    <div className="flex items-center justify-between mb-4 lg:hidden">
+                      <p className="text-gray-500 text-xs">
+                        {filtered.length} photo{filtered.length !== 1 ? 's' : ''}
+                        {galleryFilter ? ` · ${normalizeTitle(events.find(e => e.id === galleryFilter)?.title || '')}` : ''}
+                      </p>
+                      <button
+                        onClick={() => setSidebarOpen(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-xl text-xs font-semibold text-gray-300 border border-slate-700/50 hover:text-white hover:border-amber-500/40 transition">
+                        <span>🗂</span>
+                        Filter
+                        {galleryFilter && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 ml-0.5" />}
+                      </button>
+                    </div>
+
+                    {/* Desktop: just the count */}
+                    <p className="hidden lg:block text-gray-500 text-xs mb-4">
                       {filtered.length} photo{filtered.length !== 1 ? 's' : ''}
                       {galleryFilter ? ` · ${normalizeTitle(events.find(e => e.id === galleryFilter)?.title || '')}` : ''}
                     </p>
+
                     {filtered.length === 0 ? (
                       <div className="text-center py-20 text-gray-600">
                         <div className="text-5xl mb-3">📭</div>
@@ -277,15 +320,14 @@ export default function EventsPage() {
                             transition={{ delay: i * 0.04 }}
                             onClick={() => setLightbox(photo)}
                             className="group cursor-pointer">
-                            {/* 16:9 box with border */}
-                            <div className="relative aspect-video rounded-xl overflow-hidden
-                                            bg-[#130e07] border border-slate-700/60
+                            <div className="relative rounded-xl overflow-hidden
+                                            border border-slate-700/60
                                             group-hover:border-amber-500/50 group-hover:shadow-lg
                                             group-hover:shadow-amber-500/10 transition-all duration-300">
                               <img
                                 src={photo.image_data}
                                 alt={photo.description || 'Event photo'}
-                                className="w-full h-full object-contain p-1"
+                                className="w-full h-auto"
                               />
                               {/* Hover overlay */}
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
