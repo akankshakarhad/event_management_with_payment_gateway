@@ -44,7 +44,7 @@ const inputCls = (err) =>
    ${err ? 'border-red-500' : 'border-slate-700'}`;
 
 /* ─── Single participant block ─── */
-function MemberForm({ member, idx, onChange, onRemove, errors = {} }) {
+function MemberForm({ member, idx, onChange, onRemove, removable = true, errors = {} }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
@@ -54,7 +54,7 @@ function MemberForm({ member, idx, onChange, onRemove, errors = {} }) {
         <span className="text-sm font-semibold text-amber-400">
           👤 Participant {idx}
         </span>
-        {idx > 1 && (
+        {idx > 1 && removable && (
           <button type="button" onClick={onRemove}
             className="text-red-400 hover:text-red-300 text-xs transition">
             ✕ Remove
@@ -144,7 +144,7 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-          {indOnly ? 'Individual' : `Upto ${ev.max_members}`}
+          {indOnly ? 'Individual' : title === 'Connecting The Dots' ? 'Exactly 3' : title === 'Project Display' ? 'Exactly 4' : `Upto ${ev.max_members}`}
         </span>
         <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full border shrink-0
           ${isSelected
@@ -190,6 +190,7 @@ export default function RegisterPage() {
   }, []);
 
   const maxAllowed    = selectedEvent?.max_members ?? 4;
+  const minAllowed    = norm(selectedEvent?.title) === 'Connecting The Dots' ? 3 : 1;
   const conflictTitle = selectedEvent ? getConflict(selectedEvent.title) : null;
   const totalPrice    = selectedEvent
     ? parseFloat(selectedEvent.price)
@@ -201,7 +202,8 @@ export default function RegisterPage() {
   const selectEvent = (ev) => {
     if (selectedEvent?.id === ev.id) { closeModal(); return; }
     setSelEv(ev);
-    setMembers([{ ...EMPTY_MEMBER }]);
+    const initCount = norm(ev.title) === 'Connecting The Dots' ? 3 : 1;
+    setMembers(Array.from({ length: initCount }, () => ({ ...EMPTY_MEMBER })));
     setErrors({});
     setReg(false);
     setUserIds(null);
@@ -334,7 +336,7 @@ export default function RegisterPage() {
                       {norm(selectedEvent.title)}
                     </h2>
                     <p className="text-[11px] text-gray-400">
-                      {maxAllowed === 1 ? 'Individual only' : `Upto ${maxAllowed} participants`}
+                      {maxAllowed === 1 ? 'Individual only' : norm(selectedEvent.title) === 'Connecting The Dots' ? 'Exactly 3 participants' : norm(selectedEvent.title) === 'Project Display' ? 'Exactly 4 participants' : `Upto ${maxAllowed} participants`}
                       <span className="mx-1.5 text-gray-600">·</span>
                       <span className="text-amber-400 font-semibold">₹{selectedEvent.price} flat fee</span>
                     </p>
@@ -363,6 +365,7 @@ export default function RegisterPage() {
                           <MemberForm key={i} member={m} idx={i + 1}
                             onChange={(key, val) => updateMember(i, key, val)}
                             onRemove={() => removeMember(i)}
+                            removable={members.length > minAllowed}
                             errors={Object.fromEntries(
                               Object.entries(errors)
                                 .filter(([k]) => k.startsWith(`${i}_`))
@@ -373,7 +376,7 @@ export default function RegisterPage() {
                       </AnimatePresence>
 
                       {/* Add participant */}
-                      {maxAllowed > 1 && members.length < maxAllowed && (
+                      {maxAllowed > 1 && members.length < maxAllowed && minAllowed < maxAllowed && (
                         <motion.button type="button" onClick={addMember}
                           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                           className="w-full bg-slate-800 border border-dashed border-amber-600 rounded-2xl py-3

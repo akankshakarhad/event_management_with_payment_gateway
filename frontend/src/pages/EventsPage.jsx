@@ -93,7 +93,7 @@ export default function EventsPage() {
 
                 <div className="mt-4 mb-3">
                   <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                    {ev.max_members === 1 ? 'Individual only' : ev.max_members === 4 ? 'Exactly 4 members' : `Upto ${ev.max_members} members`}
+                    {ev.max_members === 1 ? 'Individual only' : normalizeTitle(ev.title) === 'Connecting The Dots' ? 'Exactly 3 members' : ev.max_members === 4 ? 'Exactly 4 members' : `Upto ${ev.max_members} members`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">

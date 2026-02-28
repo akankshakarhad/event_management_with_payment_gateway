@@ -70,7 +70,7 @@ const MODES = [
 
 const EVENTS_PREVIEW = [
   { logo: '/Logos_Events/Quiz.png',       title: 'Quiz Competition',        price: 199, members: 'Upto 2 members',    desc: 'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.' },
-  { logo: '/Logos_Events/Connecting.png', title: 'Connecting The Dots',     price: 199, members: 'Upto 3 members',    desc: 'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.' },
+  { logo: '/Logos_Events/Connecting.png', title: 'Connecting The Dots',     price: 199, members: 'Exactly 3 members', desc: 'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.' },
   { logo: '/Logos_Events/GeoTalk.png',    title: 'Geotalk',                 price: 199, members: 'Upto 2 members',    desc: 'Present your research paper or innovative idea in Geotechnical / civil engineering.' },
   { logo: '/Logos_Events/Project.png',    title: 'Project Display',         price: 199, members: 'Exactly 4 members', desc: 'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.' },
   { logo: '/Logos_Events/Midas.png',      title: 'Midas Software Workshop', price: 199, members: 'Individual only',   desc: 'Expert workshop on MIDAS applications in Geotechnical engineering and design.' },
@@ -189,8 +189,8 @@ export default function LandingPage() {
 
           {/* College logos */}
           <motion.div variants={fade} className="flex items-center justify-center gap-12 sm:gap-20 mb-6">
-            <img src="/NICMAR_LOGO1.jpeg" alt="NICMAR Logo" className="h-12 sm:h-16 md:h-20 w-auto object-contain rounded-2xl shadow-[0_0_24px_6px_rgba(200,200,200,0.3)]" />
-            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-12 sm:h-16 md:h-20 w-auto object-contain rounded-2xl shadow-[0_0_24px_6px_rgba(200,200,200,0.3)]" />
+            <img src="/NICMAR_LOGO1.jpeg" alt="NICMAR Logo" className="h-20 sm:h-24 md:h-28 w-auto object-contain rounded-2xl shadow-[0_0_24px_6px_rgba(200,200,200,0.3)]" />
+            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-20 sm:h-24 md:h-28 w-auto object-contain rounded-2xl shadow-[0_0_24px_6px_rgba(200,200,200,0.3)]" />
           </motion.div>
 
           {/* Venue pill */}
@@ -375,31 +375,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── PARTICIPATION MODES ── */}
-      <section className="bg-black/55 py-14 sm:py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center mb-10 sm:mb-12">
-          <motion.h2 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="text-3xl sm:text-4xl font-extrabold mb-3">How do you want to compete?</motion.h2>
-          <p className="text-gray-400 text-sm sm:text-base">Choose your style — go solo or bring your crew.</p>
-        </div>
-        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-          {MODES.map((m, i) => (
-            <motion.div key={m.title}
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-              whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-              onClick={() => navigate(m.path)}
-              className={`cursor-pointer rounded-2xl p-6 sm:p-8 bg-gradient-to-br ${m.color} shadow-xl text-white`}>
-              <div className="text-4xl sm:text-5xl mb-3 sm:mb-4">{m.icon}</div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2">{m.title} Registration</h3>
-              <p className="text-white/80 text-sm leading-relaxed">{m.desc}</p>
-              <div className="mt-5 sm:mt-6 text-sm font-semibold underline underline-offset-4 opacity-80">
-                Register as {m.title} →
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </section>
 
       {/* ── ORGANIZING COMMITTEE ── */}
       <section className="py-14 sm:py-20 px-4">
@@ -615,8 +590,8 @@ export default function LandingPage() {
       <section className="bg-black/55 py-14 sm:py-20 px-4 text-center">
         <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
           <div className="flex items-center justify-center gap-6 mb-8">
-            <img src="/NICMAR_LOGO1.jpeg" alt="NICMAR Logo" className="h-14 sm:h-16 w-auto object-contain" />
-            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-14 sm:h-16 w-auto object-contain" />
+            <img src="/NICMAR_LOGO1.jpeg" alt="NICMAR Logo" className="h-20 sm:h-24 w-auto object-contain" />
+            <img src="/NICMARLOGO2.jpeg"  alt="NICMAR Logo 2" className="h-20 sm:h-24 w-auto object-contain" />
           </div>
           <h2 className="text-3xl sm:text-5xl font-extrabold mb-4 px-2">
             Ready to <span className="shimmer-text">dig deeper</span>?
