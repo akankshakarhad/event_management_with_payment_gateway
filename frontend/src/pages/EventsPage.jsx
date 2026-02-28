@@ -303,7 +303,7 @@ export default function EventsPage() {
                             className="group cursor-pointer">
                             {/* 16:9 box with border */}
                             <div className="relative aspect-video rounded-xl overflow-hidden
-                                            bg-slate-900 border border-slate-700/60
+                                            bg-[#130e07] border border-slate-700/60
                                             group-hover:border-amber-500/50 group-hover:shadow-lg
                                             group-hover:shadow-amber-500/10 transition-all duration-300">
                               <img
@@ -369,13 +369,30 @@ export default function EventsPage() {
               <div className="rounded-xl sm:rounded-2xl overflow-hidden border border-white/10
                               shadow-[0_0_60px_rgba(0,0,0,0.9)]">
                 {/* 16:9 photo */}
-                <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
+                <div className="relative w-full bg-[#130e07]" style={{ paddingBottom: '56.25%' }}>
                   <img
                     src={lightbox.image_data}
                     alt={lightbox.description || 'Event photo'}
                     className="absolute inset-0 w-full h-full object-contain"
                   />
                 </div>
+
+                {/* Description bar — only shown when there's something to display */}
+                {(lightbox.event_title || lightbox.description) && (
+                  <div className="px-4 py-3 bg-[#130e07] border-t border-white/[0.07] flex items-center gap-2">
+                    {lightbox.event_title && (
+                      <span className="text-amber-400 text-xs font-semibold shrink-0">
+                        {normalizeTitle(lightbox.event_title)}
+                      </span>
+                    )}
+                    {lightbox.event_title && lightbox.description && (
+                      <span className="text-gray-600 text-xs shrink-0">·</span>
+                    )}
+                    {lightbox.description && (
+                      <p className="text-gray-300 text-xs">{lightbox.description}</p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Close button — floats top-right outside the frame */}
