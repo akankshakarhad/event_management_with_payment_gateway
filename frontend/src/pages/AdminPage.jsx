@@ -30,13 +30,14 @@ export default function AdminPage() {
   const [galleryPhotos, setGalleryPhotos]   = useState([]);
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [galleryError, setGalleryError]     = useState('');
-  const [uploadFile, setUploadFile]         = useState(null);
-  const [uploadPreview, setUploadPreview]   = useState('');
-  const [uploadDesc, setUploadDesc]         = useState('');
-  const [uploading, setUploading]           = useState(false);
-  const [uploadMsg, setUploadMsg]           = useState('');
-  const [deletingId, setDeletingId]         = useState('');
-  const [lightbox, setLightbox]             = useState(null); // photo object
+  const [uploadFile, setUploadFile]           = useState(null);
+  const [uploadPreview, setUploadPreview]     = useState('');
+  const [uploadDesc, setUploadDesc]           = useState('');
+  const [uploadEventId, setUploadEventId]     = useState('');
+  const [uploading, setUploading]             = useState(false);
+  const [uploadMsg, setUploadMsg]             = useState('');
+  const [deletingId, setDeletingId]           = useState('');
+  const [lightbox, setLightbox]               = useState(null); // photo object
   const fileInputRef = useRef(null);
 
   // ── Fetch registrations ──
@@ -108,6 +109,7 @@ export default function AdminPage() {
       const formData = new FormData();
       formData.append('image', uploadFile);
       formData.append('description', uploadDesc);
+      if (uploadEventId) formData.append('eventId', uploadEventId);
       await api.post('/admin/gallery', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -117,6 +119,7 @@ export default function AdminPage() {
       setUploadFile(null);
       setUploadPreview('');
       setUploadDesc('');
+      setUploadEventId('');
       if (fileInputRef.current) fileInputRef.current.value = '';
       setUploadMsg('Photo uploaded successfully!');
       fetchGallery();
@@ -355,6 +358,17 @@ export default function AdminPage() {
                 </div>
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange}
                   className="hidden" />
+
+                <select
+                  value={uploadEventId}
+                  onChange={(e) => setUploadEventId(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 text-gray-300 rounded-xl px-4 py-3 text-sm
+                             focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
+                  <option value="">Select Event (optional)</option>
+                  {events.map((ev) => (
+                    <option key={ev.id} value={ev.id}>{ev.title}</option>
+                  ))}
+                </select>
 
                 <textarea
                   value={uploadDesc}

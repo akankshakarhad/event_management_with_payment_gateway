@@ -33,11 +33,13 @@ const uploadPhoto = async (req, res, next) => {
 
     const imageData = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
     const description = (req.body.description || '').trim();
+    const eventId     = req.body.eventId || null;
 
     const photo = await galleryModel.create({
       imageData,
       imageType: file.mimetype,
       description,
+      eventId,
     });
 
     res.json({ success: true, data: photo });

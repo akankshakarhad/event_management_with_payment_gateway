@@ -49,6 +49,10 @@ const ensureGalleryTable = async () => {
       uploaded_at TIMESTAMP   NOT NULL DEFAULT NOW()
     )
   `);
+  await pool.query(`
+    ALTER TABLE event_gallery
+      ADD COLUMN IF NOT EXISTS event_id UUID REFERENCES events(id) ON DELETE SET NULL
+  `);
   console.log('Gallery table ready.');
 };
 

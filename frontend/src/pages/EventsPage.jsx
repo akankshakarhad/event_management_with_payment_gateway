@@ -44,6 +44,7 @@ export default function EventsPage() {
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [galleryError, setGalleryError]     = useState('');
   const [galleryFetched, setGalleryFetched] = useState(false);
+  const [galleryFilter, setGalleryFilter]   = useState(''); // '' = All, else event_id
   const [lightbox, setLightbox]             = useState(null);
 
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function EventsPage() {
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+    if (tab === 'events') setGalleryFilter('');
     if (tab === 'gallery' && !galleryFetched) {
       setGalleryLoading(true);
       api.get('/gallery')
@@ -162,7 +164,7 @@ export default function EventsPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
-            className="max-w-6xl mx-auto px-4 py-10 sm:py-16">
+            className="max-w-7xl mx-auto px-4 py-10 sm:py-14">
 
             {galleryLoading ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -178,35 +180,170 @@ export default function EventsPage() {
                 <p className="text-lg font-semibold mb-1">No photos yet</p>
                 <p className="text-sm">Check back after the event!</p>
               </div>
-            ) : (
-              <>
-                <p className="text-gray-500 text-sm mb-6 text-center">
-                  {galleryPhotos.length} photo{galleryPhotos.length !== 1 ? 's' : ''} from the event
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
-                  {galleryPhotos.map((photo, i) => (
-                    <motion.div key={photo.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: i * 0.04 }}
-                      onClick={() => setLightbox(photo)}
-                      className="group relative aspect-square rounded-2xl overflow-hidden bg-slate-800 cursor-pointer">
-                      <img
-                        src={photo.image_data}
-                        alt={photo.description || 'Event photo'}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      {photo.description && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent
-                                        opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                          <p className="text-white text-xs line-clamp-3">{photo.description}</p>
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
+            ) : (() => {
+              const filtered = galleryFilter
+                ? galleryPhotos.filter((p) => p.event_id === galleryFilter)
+                : galleryPhotos;
+              return (
+                <div className="flex gap-6 items-start">
+
+                  {/* ── Side panel — desktop ── */}
+                  <aside className="hidden lg:block w-56 shrink-0 sticky top-24">
+                    <div className="glass rounded-2xl border border-slate-700/50 overflow-hidden">
+                      {/* Panel header */}
+                      <div className="px-4 py-3.5 border-b border-slate-700/50 flex items-center gap-2">
+                        <span className="text-base">🗂</span>
+                        <span className="text-xs font-bold text-gray-300 uppercase tracking-widest">
+                          Filter by Event
+                        </span>
+                      </div>
+
+                      {/* All Photos */}
+                      <div className="p-2">
+                        <button
+                          onClick={() => setGalleryFilter('')}
+                          className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between group ${
+                            galleryFilter === ''
+                              ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20'
+                              : 'text-gray-400 hover:text-white hover:bg-slate-700/60'
+                          }`}>
+                          <span className="flex items-center gap-2">
+                            <span className={`text-base ${galleryFilter === '' ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>🖼</span>
+                            All Photos
+                          </span>
+                          <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-md ${
+                            galleryFilter === ''
+                              ? 'bg-white/20 text-white'
+                              : 'bg-slate-700 text-gray-400'
+                          }`}>
+                            {galleryPhotos.length}
+                          </span>
+                        </button>
+
+                        {/* Divider */}
+                        <div className="my-2 border-t border-slate-700/40" />
+
+                        {/* Per-event buttons */}
+                        {events.map((ev) => {
+                          const count = galleryPhotos.filter((p) => p.event_id === ev.id).length;
+                          const isActive = galleryFilter === ev.id;
+                          const logo = getLogo(ev.title);
+                          return (
+                            <button key={ev.id}
+                              onClick={() => setGalleryFilter(ev.id)}
+                              className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between group mb-0.5 ${
+                                isActive
+                                  ? 'bg-amber-600 text-white shadow-lg shadow-amber-500/20'
+                                  : 'text-gray-400 hover:text-white hover:bg-slate-700/60'
+                              }`}>
+                              <span className="flex items-center gap-2 min-w-0">
+                                {logo
+                                  ? <img src={logo} alt="" className="w-4 h-4 object-contain shrink-0 opacity-80" />
+                                  : <span className="text-sm shrink-0 opacity-60">🌍</span>
+                                }
+                                <span className="truncate">{normalizeTitle(ev.title)}</span>
+                              </span>
+                              <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ml-1 ${
+                                isActive
+                                  ? 'bg-white/20 text-white'
+                                  : 'bg-slate-700 text-gray-400'
+                              }`}>
+                                {count}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </aside>
+
+                  {/* ── Mobile horizontal filter chips ── */}
+                  <div className="lg:hidden flex gap-2 overflow-x-auto pb-3 mb-2 w-full">
+                    {[{ id: '', label: 'All', count: galleryPhotos.length }, ...events.map((ev) => ({
+                      id: ev.id,
+                      label: normalizeTitle(ev.title),
+                      count: galleryPhotos.filter((p) => p.event_id === ev.id).length,
+                    }))].map((item) => (
+                      <button key={item.id}
+                        onClick={() => setGalleryFilter(item.id)}
+                        className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition border ${
+                          galleryFilter === item.id
+                            ? 'bg-amber-600 text-white border-amber-500/50 shadow shadow-amber-500/20'
+                            : 'bg-slate-800/70 text-gray-400 border-slate-700/50 hover:text-white hover:border-slate-600'
+                        }`}>
+                        {item.label}
+                        <span className={`text-[10px] px-1 py-0.5 rounded ${
+                          galleryFilter === item.id ? 'bg-white/20' : 'bg-slate-700 text-gray-500'
+                        }`}>
+                          {item.count}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* ── Photo grid ── */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-gray-500 text-xs mb-4">
+                      {filtered.length} photo{filtered.length !== 1 ? 's' : ''}
+                      {galleryFilter ? ` · ${normalizeTitle(events.find(e => e.id === galleryFilter)?.title || '')}` : ''}
+                    </p>
+                    {filtered.length === 0 ? (
+                      <div className="text-center py-20 text-gray-600">
+                        <div className="text-5xl mb-3">📭</div>
+                        <p>No photos for this event yet.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+                        {filtered.map((photo, i) => (
+                          <motion.div key={photo.id}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.04 }}
+                            onClick={() => setLightbox(photo)}
+                            className="group cursor-pointer">
+                            {/* 16:9 box with border */}
+                            <div className="relative aspect-video rounded-xl overflow-hidden
+                                            bg-slate-900 border border-slate-700/60
+                                            group-hover:border-amber-500/50 group-hover:shadow-lg
+                                            group-hover:shadow-amber-500/10 transition-all duration-300">
+                              <img
+                                src={photo.image_data}
+                                alt={photo.description || 'Event photo'}
+                                className="w-full h-full object-contain p-1"
+                              />
+                              {/* Hover overlay */}
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
+                                              transition-opacity duration-300 flex items-center justify-center">
+                                <div className="bg-white/10 backdrop-blur-sm border border-white/20
+                                                rounded-full px-4 py-1.5 text-white text-xs font-semibold">
+                                  View Photo
+                                </div>
+                              </div>
+                            </div>
+                            {/* Caption below */}
+                            {(photo.event_title || photo.description) && (
+                              <div className="mt-1.5 px-1 flex items-center gap-1.5">
+                                {photo.event_title && (
+                                  <span className="text-amber-400 text-[11px] font-semibold shrink-0">
+                                    {normalizeTitle(photo.event_title)}
+                                  </span>
+                                )}
+                                {photo.event_title && photo.description && (
+                                  <span className="text-gray-600 text-[11px]">·</span>
+                                )}
+                                {photo.description && (
+                                  <p className="text-gray-400 text-[11px] truncate">{photo.description}</p>
+                                )}
+                              </div>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </>
-            )}
+              );
+            })()}
           </motion.div>
         )}
       </AnimatePresence>
@@ -219,28 +356,39 @@ export default function EventsPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setLightbox(null)}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
             <motion.div
-              initial={{ scale: 0.88, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.88, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+              initial={{ scale: 0.88, opacity: 0, y: 24 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.88, opacity: 0, y: 16 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 22 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative max-w-4xl w-full">
-              <img
-                src={lightbox.image_data}
-                alt={lightbox.description || 'Event photo'}
-                className="w-full rounded-2xl object-contain max-h-[82vh] shadow-2xl"
-              />
-              {lightbox.description && (
-                <p className="text-gray-300 text-center mt-4 text-sm px-4">{lightbox.description}</p>
-              )}
+              className="relative w-full max-w-5xl">
+
+              {/* Photo frame — no title bar */}
+              <div className="rounded-xl sm:rounded-2xl overflow-hidden border border-white/10
+                              shadow-[0_0_60px_rgba(0,0,0,0.9)]">
+                {/* 16:9 photo */}
+                <div className="relative w-full bg-black" style={{ paddingBottom: '56.25%' }}>
+                  <img
+                    src={lightbox.image_data}
+                    alt={lightbox.description || 'Event photo'}
+                    className="absolute inset-0 w-full h-full object-contain"
+                  />
+                </div>
+              </div>
+
+              {/* Close button — floats top-right outside the frame */}
               <button
                 onClick={() => setLightbox(null)}
-                className="absolute -top-4 -right-4 bg-slate-700 hover:bg-red-600 text-white w-9 h-9
-                           rounded-full text-base flex items-center justify-center transition shadow-lg">
+                className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 w-8 h-8 sm:w-9 sm:h-9
+                           bg-slate-800 hover:bg-red-600 border border-white/10 text-white
+                           rounded-full flex items-center justify-center text-sm transition-colors shadow-lg">
                 ✕
               </button>
+
+              {/* Glow */}
+              <div className="absolute -inset-2 rounded-3xl bg-amber-500/8 blur-2xl -z-10 pointer-events-none" />
             </motion.div>
           </motion.div>
         )}
