@@ -3,19 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '../api';
 
-const EVENT_ICONS = {
-  'Quiz Competition':            '🧠',
-  'GeoTalk':                     '🎤',
-  'Connecting the Dots':         '🔗',
-  'Project Display Competition': '🏗️',
-  'MIDAS Workshop':              '💻',
-  // legacy keys kept for fallback
-  'Paper Presentation':          '📄',
-  'Poster Presentation':         '🎨',
-  'Field Mapping':               '🗺️',
-  'Rock Identification':         '🪨',
+const EVENT_LOGOS = {
+  // current titles
+  'GeoFest Arena Quiz':          '/Logos_Events/Quiz.png',
+  'GeoTalk':                     '/Logos_Events/GeoTalk.png',
+  'Connecting the Dots':         '/Logos_Events/Connecting.png',
+  'GeoFest Project Expo':        '/Logos_Events/Project.png',
+  'Midas Software Workshop':     '/Logos_Events/Midas.png',
+  // legacy DB titles (pre-reseed)
+  'Quiz Competition':            '/Logos_Events/Quiz.png',
+  'Geotalk (Paper Presentation)':'/Logos_Events/GeoTalk.png',
+  'Project Display':             '/Logos_Events/Project.png',
+  'Project Display Competition': '/Logos_Events/Project.png',
+  'MIDAS Workshop':              '/Logos_Events/Midas.png',
 };
-const getIcon = (title) => EVENT_ICONS[title] || '🌍';
+const getLogo = (title) => EVENT_LOGOS[title] || null;
 
 export default function EventsPage() {
   const [events, setEvents]   = useState([]);
@@ -64,8 +66,11 @@ export default function EventsPage() {
                 transition={{ delay: i * 0.08 }}
                 className="glass rounded-2xl p-5 sm:p-7 flex flex-col card-hover group">
 
-                <div className="text-6xl sm:text-7xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
-                  {getIcon(ev.title)}
+                <div className="h-20 sm:h-24 mb-3 sm:mb-4 flex items-center group-hover:scale-110 transition-transform duration-300">
+                  {getLogo(ev.title)
+                    ? <img src={getLogo(ev.title)} alt={ev.title} className="h-full w-auto object-contain" />
+                    : <span className="text-6xl sm:text-7xl">🌍</span>
+                  }
                 </div>
 
                 <h3 className="text-lg sm:text-xl font-bold mb-2">{ev.title}</h3>
@@ -75,7 +80,7 @@ export default function EventsPage() {
 
                 <div className="mt-4 mb-3">
                   <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
-                    {ev.max_members === 1 ? 'Individual only' : ev.max_members === 4 ? 'Exactly 4 members' : `Max ${ev.max_members} members`}
+                    {ev.max_members === 1 ? 'Individual only' : ev.max_members === 4 ? 'Exactly 4 members' : `Upto ${ev.max_members} members`}
                   </span>
                 </div>
                 <div className="flex items-center justify-between gap-3">

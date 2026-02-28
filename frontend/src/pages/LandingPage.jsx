@@ -69,19 +69,19 @@ const MODES = [
 ];
 
 const EVENTS_PREVIEW = [
-  { emoji: '🧠', title: 'Quiz Competition',             price: 199, members: 'Max 2 members',     desc: 'Inter-college geoscience & geotechnical engineering quiz.' },
-  { emoji: '🔗', title: 'Connecting the Dots',          price: 199, members: 'Max 3 members',     desc: 'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.' },
-  { emoji: '🎤', title: 'Geotalk (Paper Presentation)', price: 199, members: 'Max 2 members',     desc: 'Present your research paper or innovative idea in geotechnical / civil engineering.' },
-  { emoji: '🏗️', title: 'Project Display',              price: 199, members: 'Exactly 4 members', desc: 'Showcase your engineering project or working model. Team of exactly 4.' },
-  { emoji: '💻', title: 'Midas Software Workshop',      price: 199, members: 'Individual only',   desc: 'Hands-on training on MIDAS geotechnical software.' },
+  { logo: '/Logos_Events/Quiz.png',       title: 'GeoFest Arena Quiz',    price: 199, members: 'Upto 2 members',   desc: 'Technical quiz testing geotechnical knowledge, speed, accuracy, and analytical thinking.' },
+  { logo: '/Logos_Events/Connecting.png', title: 'Connecting the Dots',   price: 199, members: 'Upto 3 members',   desc: 'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.' },
+  { logo: '/Logos_Events/GeoTalk.png',    title: 'GeoTalk',               price: 199, members: 'Upto 2 members',   desc: 'Present your research paper or innovative idea in geotechnical / civil engineering.' },
+  { logo: '/Logos_Events/Project.png',    title: 'GeoFest Project Expo',  price: 199, members: 'Exactly 4 members', desc: 'Showcase innovative geotechnical projects, models, prototypes, and engineering solutions.' },
+  { logo: '/Logos_Events/Midas.png',      title: 'Midas Software Workshop', price: 199, members: 'Individual only', desc: 'Expert workshop on MIDAS applications in geotechnical engineering and design.' },
 ];
 
 const OBJECTIVES = [
-  { icon: '🌍', text: 'Promote geotechnical engineering awareness' },
-  { icon: '💡', text: 'Encourage innovation and research' },
-  { icon: '🧩', text: 'Develop analytical and problem-solving skills' },
-  { icon: '🏛️', text: 'Provide academic and industry exposure' },
-  { icon: '🤝', text: 'Strengthen technical collaboration among students' },
+  { logo: '/about%20logos%20geofest/Promote.png',    text: 'Promote geotechnical engineering awareness' },
+  { logo: '/about%20logos%20geofest/Encourage.png',  text: 'Encourage innovation and research' },
+  { logo: '/about%20logos%20geofest/Develope.png',   text: 'Develop analytical and problem-solving skills' },
+  { logo: '/about%20logos%20geofest/Provide.png',    text: 'Provide academic and industry exposure' },
+  { logo: '/about%20logos%20geofest/Strengthen.png', text: 'Strengthen technical collaboration among students' },
 ];
 
 const SCHEDULE = [
@@ -89,40 +89,72 @@ const SCHEDULE = [
     day: 'Day 1', date: '17 March 2026',
     color: 'from-amber-600 to-amber-700',
     items: [
-      { time: '9:00 AM',   label: 'Inauguration Programme' },
-      { time: '10:30 AM',  label: 'Quiz Competition' },
-      { time: '10:30 AM',  label: 'Midas Software Workshop' },
-      { time: '10:00 AM',  label: 'Project Display Competition (All Day)' },
-      { time: '2:30 PM',   label: 'Project Evaluation & Results' },
+      { time: '09:30 AM – 12:30 PM', label: 'Inauguration Programme & Key Note Sessions' },
+      { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
+      { time: '01:30 PM – 04:00 PM', label: 'GeoFest Arena Quiz & Midas Software Workshop' },
+      { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
+      { time: '04:20 PM – 05:00 PM', label: 'Project Evaluation' },
+      { time: '09:30 AM – 05:00 PM', label: 'GeoFest Project Expo (Whole Day)' },
     ],
   },
   {
     day: 'Day 2', date: '18 March 2026',
     color: 'from-emerald-600 to-teal-600',
     items: [
-      { time: '9:30 AM',   label: 'Connecting the Dots Competition' },
-      { time: '11:00 AM',  label: 'Geotalk (Paper Presentation)' },
-      { time: '10:00 AM',  label: 'Project Display Competition (All Day)' },
-      { time: '4:30 PM',   label: 'Valedictory Function' },
+      { time: '09:30 AM – 12:30 PM', label: 'First Round: Connecting the Dots & GeoTalk' },
+      { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
+      { time: '01:30 PM – 04:00 PM', label: 'Final Round: Connecting the Dots & GeoTalk' },
+      { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
+      { time: '04:20 PM – 05:00 PM', label: 'Valedictory Function' },
+      { time: '09:30 AM – 05:00 PM', label: 'GeoFest Project Expo (Whole Day)' },
     ],
   },
 ];
 
 const FACULTY_ADVISORS = [
-  { name: 'Dr. Smita K. Patil',  role: 'Dean, School of Engineering',        initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
-  { name: 'Dr. Vidya Khanapure', role: 'Faculty Advisor, IGS Student Chapter', initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
+  { name: 'Dr. Smita Krishnarao Patil', role: 'Dean, School of Engineering',                                   initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
+  { name: 'Dr. Shashank B S',           role: 'Head, School of Engineering',                                   initials: 'SB', photo: '/geofest_faculty_photos/Dr_Shashank_B_S.jpg' },
+  { name: 'Dr. Vidya Khanapure',        role: 'Faculty Advisor, IGS Student Chapter NICMAR University Pune',   initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
+  { name: 'Dr. Adinath Damale',         role: 'Controller of Examination, NICMAR University, Pune',            initials: 'AD', photo: '/geofest_faculty_photos/Dr_Adinath_Damale_new001.png' },
 ];
 
 const FACULTY_COORDINATORS = [
-  { name: 'Dr. Aniket V. Dahasahastra',    initials: 'AD', photo: '/geofest_faculty_photos/Dr_Aniket_V_Dahasahastra.jpg' },
-  { name: 'Dr. Ramala Rakesh Kumar Reddy', initials: 'RR', photo: '/geofest_faculty_photos/Dr_Ramala_Rakesh_Kumar_Reddy.jpg' },
-  { name: 'Dr. Vijendra Kumar',            initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vijendra_Kumar.jpg' },
   { name: 'Dr. Dinesh S. Aswar',           initials: 'DA', photo: '/geofest_faculty_photos/Dr_Dinesh_S_Aswar.jpg' },
+  { name: 'Dr. Mohammed Rihan Maaze',      initials: 'MM', photo: null },
+  { name: 'Dr. Vijendra Kumar',            initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vijendra_Kumar.jpg' },
+  { name: 'Dr. Aniket Dahasahastra',       initials: 'AD', photo: '/geofest_faculty_photos/Dr_Aniket_V_Dahasahastra.jpg' },
+  { name: 'Dr. Ramala Rakesh Kumar Reddy', initials: 'RR', photo: '/geofest_faculty_photos/Dr_Ramala_Rakesh_Kumar_Reddy.jpg' },
   { name: 'Dr. Dyana Joseline',            initials: 'DJ', photo: '/geofest_faculty_photos/Dr_Dyana_Joseline.jpg' },
-  { name: 'Dr. Vidya Khanapure',           initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
-  { name: 'Dr. Mohammed Maaze',            initials: 'MM', photo: null },
-  { name: 'Dr. Shashank B. S',             initials: 'SS', photo: '/geofest_faculty_photos/Dr_Shashank_B_S.jpg' },
-  { name: 'Dr. S. Senthamizh Sankar',      initials: 'SS', photo: '/geofest_faculty_photos/Dr_S_Senthamizh_Sankar.jpg' },
+  { name: 'Dr. Senthamizh Sankar',         initials: 'SS', photo: '/geofest_faculty_photos/Dr_S_Senthamizh_Sankar.jpg' },
+];
+
+const COMMITTEE_ROLES = [
+  { role: 'CHIEF PATRON',  name: 'Dr. Vijay Gupchup',            designation: 'President, NICMAR University, Pune',                              initials: 'VG', photo: '/geofest_faculty_photos/vijay-gupchup.jpg.jpeg' },
+  { role: 'PATRON',        name: 'Dr. Mrs. Sushma S. Kulkarni',  designation: 'Vice Chancellor, NICMAR University, Pune',                        initials: 'SK', photo: '/geofest_faculty_photos/dr-sushma-kulkarni.jpg.jpeg' },
+  { role: 'CONVENER',      name: 'Dr. Anilkumar L Agarwal',      designation: 'Dean Academics, NICMAR University, Pune',                         initials: 'AA', photo: '/geofest_faculty_photos/Agarwal_Anil.jpeg' },
+  { role: 'CO-CONVENER',   name: 'Dr. Smita Krishnarao Patil',   designation: 'Associate Professor and Dean, SOE NICMAR University, Pune',        initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
+];
+
+const IGS_COMMITTEE = [
+  { name: 'Prof. Mrs. Suman Jain',  role: 'Chairperson, IGS Pune Chapter' },
+  { name: 'Er. Vikas Patil',        role: 'Imm. Past Chairman' },
+  { name: 'Er. Deepali Kulkarni',   role: 'Honorary Secretary' },
+  { name: 'Dr. R. D. Nalwade',      role: 'Honorary Treasurers' },
+  { name: 'Dr. S M Nawghare',       role: 'Honorary Treasurer' },
+  { name: 'Er. Ramesh Kulkarni',    role: 'Founder Member & Mentor' },
+];
+
+const EXEC_COMMITTEE = [
+  'Dr. Krishnaiah Chevva',
+  'Er. Annapoorni Iyer',
+  'Er. Vidya Joshi',
+  'Dr. Raviraj Sorate',
+  'Dr. Sachin Jain',
+  'Dr. Sudarshan Bobade',
+  'Er. Rohit Pote',
+  'Dr. Shrikant Shinde',
+  'Er. Babasaheb Jagtap',
+  'Er. Sudarshan Shinde',
 ];
 
 const OFFICE_BEARERS = [
@@ -137,12 +169,6 @@ const SUPPORTING_ROLES = [
   { name: 'Waghmare Pranav Vaibhav', role: 'Online Events & Training Head' },
 ];
 
-const CONTACTS = [
-  { name: 'Pranav Waghmare',     phone: '+91 70200 16722', role: 'Student Coordinator', icon: '🎓' },
-  { name: 'Aman Bagwan',         phone: '+91 77418 82200', role: 'Student Coordinator', icon: '🎓' },
-  { name: 'Dr. Shashank B. S',   phone: '+91 99017 29657', role: 'Faculty Contact',     icon: '👨‍🏫' },
-  { name: 'Dr. Vidya Khanapure', phone: '+91 88880 67441', role: 'Faculty Contact',     icon: '👨‍🏫' },
-];
 
 const fade = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0 } };
 
@@ -188,13 +214,18 @@ export default function LandingPage() {
             </span>
           </motion.div>
 
-          <motion.p variants={fade} className="text-gray-200 text-base sm:text-lg mb-2 max-w-xl mx-auto italic px-2">
-            Engineering the Ground Beneath the Future
+          <motion.p variants={fade} className="text-gray-200 text-base sm:text-lg mb-2 max-w-2xl mx-auto italic px-2">
+            Foundation Engineering: The Anchor We Secure, For Every Megastructure to Endure.
           </motion.p>
 
-          <motion.p variants={fade} className="text-gray-300 text-xs sm:text-sm mb-8 sm:mb-10 max-w-xl mx-auto px-2">
-            National Level Technical & Academic Festival — Indian Geotechnical Society Student Chapter
-          </motion.p>
+          <motion.div variants={fade} className="mb-8 sm:mb-10 max-w-xl mx-auto px-2 space-y-1">
+            <p className="text-white text-sm sm:text-base font-bold tracking-wide">
+              National Level Technical &amp; Academic Festival
+            </p>
+            <p className="text-gray-400 text-xs sm:text-sm">
+              Organised by Indian Geotechnical Society Student Chapter, NICMAR University Pune
+            </p>
+          </motion.div>
 
           {/* CTAs */}
           <motion.div variants={fade} className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mb-10 sm:mb-14 px-4 sm:px-0">
@@ -253,11 +284,12 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="text-center mb-10 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">About <span className="shimmer-text">GeoFest</span></h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">About <span className="shimmer-text">GeoFest — STRATA</span></h2>
             <p className="text-gray-400 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base px-2">
-              GeoFest is the flagship technical festival conducted under the Indian Geotechnical Society (IGS)
-              Student Chapter at NICMAR University. The festival promotes academic excellence, innovation, and
-              practical learning through competitions, workshops, and technical interactions.
+              GeoFest — STRATA 2026 is the fifth national-level technical fest in the series, hosted at NICMAR University,
+              Pune, and organized by the Indian Geotechnical Society (IGS) Student Chapter of NICMAR University, Pune.
+              Geo-Fest aims to strengthen technical foundations by engaging students through competitions, case studies,
+              and interactive learning experiences in the field of Geotechnical engineering.
             </p>
           </motion.div>
 
@@ -267,7 +299,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.08 }}
                 className="glass rounded-2xl px-4 sm:px-5 py-3 sm:py-4 flex items-center gap-3 sm:gap-4 card-hover">
-                <span className="text-xl sm:text-2xl shrink-0">{obj.icon}</span>
+                <img src={obj.logo} alt={obj.text} className="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0 logo-glow" />
                 <span className="text-gray-300 text-sm">{obj.text}</span>
               </motion.div>
             ))}
@@ -286,7 +318,7 @@ export default function LandingPage() {
             </div>
             <button onClick={() => navigate('/events')}
               className="text-amber-400 hover:text-amber-300 text-sm font-semibold border border-amber-700 px-4 py-2 rounded-lg hover:border-amber-500 transition whitespace-nowrap">
-              View All →
+              Know More →
             </button>
           </motion.div>
 
@@ -296,7 +328,9 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className="glass rounded-2xl p-5 sm:p-6 card-hover flex flex-col">
-                <div className="text-5xl sm:text-6xl mb-3">{ev.emoji}</div>
+                <div className="h-16 sm:h-20 mb-3 flex items-center">
+                  <img src={ev.logo} alt={ev.title} className="h-full w-auto object-contain" />
+                </div>
                 <h3 className="text-base sm:text-lg font-bold mb-1">{ev.title}</h3>
                 <p className="text-gray-400 text-xs sm:text-sm mb-3 leading-relaxed flex-1">{ev.desc}</p>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -315,7 +349,7 @@ export default function LandingPage() {
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-center mb-10 sm:mb-12">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">Event <span className="shimmer-text">Schedule</span></h2>
-            <p className="text-gray-400 text-sm sm:text-base">Two days of engineering excellence — 17 & 18 March 2026</p>
+            <p className="text-white font-bold text-sm sm:text-base">Two days of engineering excellence — 17 & 18 March 2026</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
@@ -330,8 +364,8 @@ export default function LandingPage() {
                 <div className="glass rounded-b-2xl p-4 space-y-3">
                   {day.items.map((item, j) => (
                     <div key={j} className="flex items-start gap-3">
-                      <span className="text-[11px] text-gray-500 w-16 sm:w-20 shrink-0 mt-0.5">{item.time}</span>
-                      <span className="text-sm text-gray-200 leading-relaxed">{item.label}</span>
+                      <span className="text-xs sm:text-sm text-white w-28 sm:w-44 shrink-0 mt-0.5 font-mono font-bold">{item.time}</span>
+                      <span className="text-sm sm:text-base text-gray-200 leading-relaxed">{item.label}</span>
                     </div>
                   ))}
                 </div>
@@ -367,8 +401,75 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FACULTY ── */}
+      {/* ── ORGANIZING COMMITTEE ── */}
       <section className="py-14 sm:py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="text-center mb-10 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">Organizing <span className="shimmer-text">Committee</span></h2>
+            <p className="text-gray-400 text-sm sm:text-base">GeoFest 2026 — NICMAR University, Pune</p>
+          </motion.div>
+
+          {/* Chief Patron, Patron, Convener, Co-Convener */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-10">
+            {COMMITTEE_ROLES.map((c, i) => (
+              <motion.div key={c.role}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="glass rounded-2xl p-3 sm:p-6 text-center card-hover border border-amber-500/10">
+                <div className="w-14 sm:w-24 h-14 sm:h-24 rounded-full mx-auto mb-2 sm:mb-3 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
+                  {c.photo
+                    ? <img src={c.photo} alt={c.name} className="w-full h-full object-cover" />
+                    : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-lg sm:text-2xl font-bold text-white">{c.initials}</div>
+                  }
+                </div>
+                <span className="inline-block text-[9px] sm:text-xs font-extrabold tracking-[0.15em] uppercase text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 mb-2 sm:mb-3">
+                  {c.role}
+                </span>
+                <h3 className="font-bold text-white text-xs sm:text-lg mb-1">{c.name}</h3>
+                <p className="text-gray-400 text-[10px] sm:text-sm leading-relaxed">{c.designation}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* IGS Pune Chapter Executive Committee */}
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="mb-10">
+            <h3 className="text-lg sm:text-xl font-extrabold text-center text-white mb-6">
+              IGS Pune Chapter <span className="shimmer-text">Executive Committee</span>
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+              {IGS_COMMITTEE.map((m, i) => (
+                <motion.div key={m.name}
+                  initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }} transition={{ delay: i * 0.07 }}
+                  className="glass rounded-xl px-4 sm:px-5 py-3 sm:py-4 card-hover">
+                  <p className="font-semibold text-sm text-white">{m.name}</p>
+                  <p className="text-amber-400 text-xs mt-0.5">{m.role}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Executive Committee Members */}
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+            <h3 className="text-base sm:text-lg font-bold text-center text-gray-300 mb-5">Executive Committee Members</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3">
+              {EXEC_COMMITTEE.map((name, i) => (
+                <motion.div key={name}
+                  initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }} transition={{ delay: i * 0.05 }}
+                  className="glass rounded-xl px-3 py-2.5 text-center">
+                  <p className="text-xs sm:text-sm text-gray-300 font-medium leading-snug">{name}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── FACULTY ── */}
+      <section className="bg-black/55 py-14 sm:py-20 px-4">
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-center mb-10 sm:mb-12">
@@ -376,45 +477,45 @@ export default function LandingPage() {
             <p className="text-gray-400 text-sm sm:text-base">Guiding minds, shaping engineers.</p>
           </motion.div>
 
-          {/* Advisors */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
+          {/* Set 1 — 2×2 grid */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
             {FACULTY_ADVISORS.map((f, i) => (
               <motion.div key={f.name}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-6 sm:p-8 text-center card-hover">
-                <div className="w-24 sm:w-28 h-24 sm:h-28 rounded-full mx-auto mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
+                className="glass rounded-2xl p-3 sm:p-8 text-center card-hover">
+                <div className="w-16 sm:w-28 h-16 sm:h-28 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
                   {f.photo
                     ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
-                    : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-3xl font-bold text-white">
+                    : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xl sm:text-3xl font-bold text-white">
                         {f.initials}
                       </div>
                   }
                 </div>
-                <h3 className="font-bold text-white mb-1 text-base sm:text-lg">{f.name}</h3>
-                <p className="text-amber-400 text-xs sm:text-sm">{f.role}</p>
+                <h3 className="font-bold text-white mb-1 text-xs sm:text-lg">{f.name}</h3>
+                <p className="text-amber-400 text-[10px] sm:text-sm">{f.role}</p>
               </motion.div>
             ))}
           </div>
 
-          {/* Coordinators */}
+          {/* Set 2 — 3×3 grid */}
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <h3 className="text-base sm:text-lg font-bold text-gray-300 mb-4 text-center">Faculty Coordinators</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
+            <h3 className="text-base sm:text-lg font-bold text-gray-300 mb-4 text-center">Faculty Members</h3>
+            <div className="grid grid-cols-3 gap-3 sm:gap-5">
               {FACULTY_COORDINATORS.map((f, i) => (
                 <motion.div key={f.name}
                   initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ delay: i * 0.04 }}
-                  className="glass rounded-2xl p-4 flex flex-col items-center text-center card-hover">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mb-3 overflow-hidden border-2 border-amber-500/30 shadow-md shadow-amber-500/10 flex-shrink-0">
+                  className="glass rounded-2xl p-2 sm:p-4 flex flex-col items-center text-center card-hover">
+                  <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full mb-2 sm:mb-3 overflow-hidden border-2 border-amber-500/30 shadow-md shadow-amber-500/10 flex-shrink-0">
                     {f.photo
                       ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-lg font-bold text-white">
+                      : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-sm sm:text-lg font-bold text-white">
                           {f.initials}
                         </div>
                     }
                   </div>
-                  <span className="text-xs sm:text-sm text-gray-300 font-medium leading-snug">{f.name}</span>
+                  <span className="text-[10px] sm:text-sm text-gray-300 font-medium leading-snug">{f.name}</span>
                 </motion.div>
               ))}
             </div>
@@ -471,36 +572,35 @@ export default function LandingPage() {
             <p className="text-gray-400 text-sm sm:text-base">IGS Student Chapter — NICMAR University, Pune</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
-            {CONTACTS.map((c, i) => (
-              <motion.div key={c.name}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 card-hover">
-                <div className="w-10 sm:w-12 h-10 sm:h-12 rounded-full bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-lg sm:text-xl shrink-0">
-                  {c.icon}
-                </div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-white text-sm truncate">{c.name}</p>
-                  <p className="text-gray-400 text-xs mb-0.5">{c.role}</p>
-                  <a href={`tel:${c.phone.replace(/\s/g, '')}`}
-                    className="text-amber-400 hover:text-amber-300 text-sm font-mono transition">
-                    {c.phone}
-                  </a>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Email */}
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="glass rounded-2xl p-5 sm:p-6 text-center">
+          {/* Email & Location */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="glass rounded-2xl p-5 sm:p-8 text-center mb-6 sm:mb-8">
             <p className="text-gray-400 text-sm mb-1">Email us at</p>
             <a href="mailto:Igssc@pune.nicmar.ac.in"
-              className="text-amber-400 hover:text-amber-300 text-base sm:text-lg font-semibold transition break-all">
+              className="text-amber-400 hover:text-amber-300 text-base sm:text-xl font-semibold transition break-all">
               Igssc@pune.nicmar.ac.in
             </a>
-            <p className="text-gray-500 text-xs mt-3">📍 NICMAR University Campus, Pune</p>
+            <p className="text-gray-400 text-sm mt-4 flex items-center justify-center gap-1.5">
+              <span>📍</span>
+              <span>NICMAR University, 25/1, Balewadi, Pune, Maharashtra 411045</span>
+            </p>
+          </motion.div>
+
+          {/* Google Maps */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-2xl overflow-hidden border border-white/10 shadow-xl">
+            <iframe
+              title="NICMAR University Pune"
+              src="https://maps.google.com/maps?q=NICMAR+University+Pune&output=embed"
+              width="100%"
+              height="400"
+              style={{ border: 0, display: 'block' }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
           </motion.div>
         </div>
       </section>
