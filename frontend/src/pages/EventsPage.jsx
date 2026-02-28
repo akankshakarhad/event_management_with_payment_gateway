@@ -186,21 +186,21 @@ export default function EventsPage() {
                 ? galleryPhotos.filter((p) => p.event_id === galleryFilter)
                 : galleryPhotos;
               return (
-                <div className="relative flex gap-6 items-start">
+                <div className="relative flex gap-6 items-start overflow-hidden lg:overflow-visible">
 
                   {/* ── Mobile backdrop ── */}
                   {sidebarOpen && (
                     <div
-                      className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+                      className="absolute inset-0 z-30 bg-black/60 lg:hidden"
                       onClick={() => setSidebarOpen(false)}
                     />
                   )}
 
                   {/* ── Side panel — drawer on mobile, sticky sidebar on desktop ── */}
                   <aside className={`
-                    fixed lg:sticky top-14 lg:top-24 left-0
-                    h-[calc(100vh-56px)] lg:h-auto
-                    w-72 lg:w-56
+                    absolute lg:sticky top-0 lg:top-24 left-0
+                    h-full lg:h-auto min-h-full
+                    w-64 lg:w-56
                     z-40 lg:z-auto
                     shrink-0
                     overflow-y-auto lg:overflow-visible
