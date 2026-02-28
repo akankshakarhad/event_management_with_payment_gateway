@@ -8,8 +8,8 @@ const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '' };
 const TITLE_MAP = {
   'Quiz Competition':             'GeoFest Arena Quiz',
   'Geotalk (Paper Presentation)': 'GeoTalk',
-  'Project Display':              'GeoFest Project Expo',
-  'Project Display Competition':  'GeoFest Project Expo',
+  'Project Display':              'GeoFest Project Display',
+  'Project Display Competition':  'GeoFest Project Display',
   'MIDAS Workshop':               'Midas Software Workshop',
 };
 const norm = (t) => TITLE_MAP[t] || t;
@@ -18,7 +18,7 @@ const EVENT_LOGOS = {
   'GeoFest Arena Quiz':      '/Logos_Events/Quiz.png',
   'GeoTalk':                 '/Logos_Events/GeoTalk.png',
   'Connecting the Dots':     '/Logos_Events/Connecting.png',
-  'GeoFest Project Expo':    '/Logos_Events/Project.png',
+  'GeoFest Project Display':    '/Logos_Events/Project.png',
   'Midas Software Workshop': '/Logos_Events/Midas.png',
 };
 const getLogo = (t) => EVENT_LOGOS[norm(t)] || null;
@@ -191,7 +191,7 @@ export default function RegisterPage() {
   const maxAllowed    = selectedEvent?.max_members ?? 4;
   const conflictTitle = selectedEvent ? getConflict(selectedEvent.title) : null;
   const totalPrice    = selectedEvent
-    ? parseFloat(selectedEvent.price) * members.length
+    ? parseFloat(selectedEvent.price)
     : 0;
 
   const closeModal = () => { setSelEv(null); setReg(false); setUserIds(null); };
@@ -335,7 +335,7 @@ export default function RegisterPage() {
                     <p className="text-[11px] text-gray-400">
                       {maxAllowed === 1 ? 'Individual only' : `Upto ${maxAllowed} participants`}
                       <span className="mx-1.5 text-gray-600">·</span>
-                      <span className="text-amber-400 font-semibold">₹{selectedEvent.price} / person</span>
+                      <span className="text-amber-400 font-semibold">₹{selectedEvent.price} flat fee</span>
                     </p>
                   </div>
                   <button onClick={closeModal}
@@ -388,7 +388,7 @@ export default function RegisterPage() {
                         <div>
                           <p className="text-xs text-gray-500 mb-0.5">Registration Amount</p>
                           <p className="text-sm text-gray-400">
-                            {members.length} participant{members.length > 1 ? 's' : ''} × ₹{selectedEvent.price}
+                            {members.length} participant{members.length > 1 ? 's' : ''}
                           </p>
                         </div>
                         <div className="text-right">

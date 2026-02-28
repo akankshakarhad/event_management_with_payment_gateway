@@ -7,8 +7,8 @@ import api from '../api';
 const TITLE_MAP = {
   'Quiz Competition':             'GeoFest Arena Quiz',
   'Geotalk (Paper Presentation)': 'GeoTalk',
-  'Project Display':              'GeoFest Project Expo',
-  'Project Display Competition':  'GeoFest Project Expo',
+  'Project Display':              'GeoFest Project Display',
+  'Project Display Competition':  'GeoFest Project Display',
   'MIDAS Workshop':               'Midas Software Workshop',
 };
 const normalizeTitle = (title) => TITLE_MAP[title] || title;
@@ -17,7 +17,7 @@ const EVENT_LOGOS = {
   'GeoFest Arena Quiz':      '/Logos_Events/Quiz.png',
   'GeoTalk':                 '/Logos_Events/GeoTalk.png',
   'Connecting the Dots':     '/Logos_Events/Connecting.png',
-  'GeoFest Project Expo':    '/Logos_Events/Project.png',
+  'GeoFest Project Display':    '/Logos_Events/Project.png',
   'Midas Software Workshop': '/Logos_Events/Midas.png',
 };
 const getLogo = (title) => EVENT_LOGOS[normalizeTitle(title)] || null;
