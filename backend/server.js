@@ -39,9 +39,23 @@ const migrateEvents = async () => {
   console.log('Event migration applied.');
 };
 
+const ensureGalleryTable = async () => {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS event_gallery (
+      id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+      image_data  TEXT        NOT NULL,
+      image_type  VARCHAR(50) NOT NULL DEFAULT 'image/jpeg',
+      description TEXT        NOT NULL DEFAULT '',
+      uploaded_at TIMESTAMP   NOT NULL DEFAULT NOW()
+    )
+  `);
+  console.log('Gallery table ready.');
+};
+
 const start = async () => {
   await connectDB();
   await migrateEvents();
+  await ensureGalleryTable();
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });

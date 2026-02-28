@@ -6,6 +6,7 @@ const eventsRouter        = require('./routes/events');
 const registrationsRouter = require('./routes/registrations');
 const paymentsRouter      = require('./routes/payments');
 const adminRouter         = require('./routes/admin');
+const galleryRouter       = require('./routes/gallery');
 
 const app = express();
 
@@ -13,11 +14,12 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use('/api/health', healthRouter);
-app.use('/api/events', eventsRouter);
-app.use('/api',        registrationsRouter);
-app.use('/api',        paymentsRouter);
-app.use('/api/admin',  adminRouter);
+app.use('/api/health',  healthRouter);
+app.use('/api/events',  eventsRouter);
+app.use('/api',         registrationsRouter);
+app.use('/api',         paymentsRouter);
+app.use('/api/admin',   adminRouter);
+app.use('/api/gallery', galleryRouter);
 
 // 404 handler
 app.use((req, res) => {
