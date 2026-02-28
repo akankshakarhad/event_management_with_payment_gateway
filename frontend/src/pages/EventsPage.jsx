@@ -23,6 +23,15 @@ const EVENT_LOGOS = {
 };
 const getLogo = (title) => EVENT_LOGOS[normalizeTitle(title)] || null;
 
+const DESC_MAP = {
+  'Quiz Competition':        'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.',
+  'Connecting The Dots':     'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.',
+  'Geotalk':                 'Present your research paper or innovative idea in Geotechnical / civil engineering.',
+  'Project Display':         'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.',
+  'Midas Software Workshop': 'Expert workshop on MIDAS applications in Geotechnical engineering and design.',
+};
+const getDesc = (title) => DESC_MAP[normalizeTitle(title)] || null;
+
 export default function EventsPage() {
   const [events, setEvents]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +88,7 @@ export default function EventsPage() {
 
                 <h3 className="text-lg sm:text-xl font-bold mb-2">{normalizeTitle(ev.title)}</h3>
                 <p className="text-gray-400 text-sm flex-1 leading-relaxed">
-                  {ev.description || 'Showcase your knowledge and skills in this exciting event.'}
+                  {getDesc(ev.title) || ev.description}
                 </p>
 
                 <div className="mt-4 mb-3">

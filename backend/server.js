@@ -23,11 +23,11 @@ const migrateEvents = async () => {
 
   // Sync descriptions to match the landing page
   const descriptions = [
-    ['Quiz Competition',        'Technical quiz testing geotechnical knowledge, speed, accuracy, and analytical thinking.'],
-    ['Connecting The Dots',     'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.'],
-    ['Geotalk',                 'Present your research paper or innovative idea in geotechnical / civil engineering.'],
-    ['Project Display',         'Showcase innovative geotechnical projects, models, prototypes, and engineering solutions.'],
-    ['Midas Software Workshop', 'Expert workshop on MIDAS applications in geotechnical engineering and design.'],
+    ['Quiz Competition',        'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.'],
+    ['Connecting The Dots',     'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.'],
+    ['Geotalk',                 'Present your research paper or innovative idea in Geotechnical / civil engineering.'],
+    ['Project Display',         'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.'],
+    ['Midas Software Workshop', 'Expert workshop on MIDAS applications in Geotechnical engineering and design.'],
   ];
   for (const [title, desc] of descriptions) {
     await pool.query(

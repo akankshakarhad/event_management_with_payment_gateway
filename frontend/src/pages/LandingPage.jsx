@@ -64,20 +64,20 @@ const STATS = [
 ];
 
 const MODES = [
-  { icon: '🧑‍🎓', title: 'Individual', desc: 'Compete solo. Demonstrate your knowledge in geotechnical & civil engineering.', path: '/register?mode=individual', color: 'from-amber-500 to-amber-700' },
+  { icon: '🧑‍🎓', title: 'Individual', desc: 'Compete solo. Demonstrate your knowledge in Geotechnical & civil engineering.', path: '/register?mode=individual', color: 'from-amber-500 to-amber-700' },
   { icon: '👥', title: 'Team',        desc: 'Register as a team of 2–4. Collaborate, compete and conquer together.',         path: '/register?mode=group',       color: 'from-emerald-500 to-teal-600' },
 ];
 
 const EVENTS_PREVIEW = [
-  { logo: '/Logos_Events/Quiz.png',       title: 'Quiz Competition',        price: 199, members: 'Upto 2 members',    desc: 'Technical quiz testing geotechnical knowledge, speed, accuracy, and analytical thinking.' },
-  { logo: '/Logos_Events/Connecting.png', title: 'Connecting The Dots',     price: 199, members: 'Upto 3 members',    desc: 'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.' },
-  { logo: '/Logos_Events/GeoTalk.png',    title: 'Geotalk',                 price: 199, members: 'Upto 2 members',    desc: 'Present your research paper or innovative idea in geotechnical / civil engineering.' },
-  { logo: '/Logos_Events/Project.png',    title: 'Project Display',         price: 199, members: 'Exactly 4 members', desc: 'Showcase innovative geotechnical projects, models, prototypes, and engineering solutions.' },
-  { logo: '/Logos_Events/Midas.png',      title: 'Midas Software Workshop', price: 199, members: 'Individual only',   desc: 'Expert workshop on MIDAS applications in geotechnical engineering and design.' },
+  { logo: '/Logos_Events/Quiz.png',       title: 'Quiz Competition',        price: 199, members: 'Upto 2 members',    desc: 'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.' },
+  { logo: '/Logos_Events/Connecting.png', title: 'Connecting The Dots',     price: 199, members: 'Upto 3 members',    desc: 'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.' },
+  { logo: '/Logos_Events/GeoTalk.png',    title: 'Geotalk',                 price: 199, members: 'Upto 2 members',    desc: 'Present your research paper or innovative idea in Geotechnical / civil engineering.' },
+  { logo: '/Logos_Events/Project.png',    title: 'Project Display',         price: 199, members: 'Exactly 4 members', desc: 'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.' },
+  { logo: '/Logos_Events/Midas.png',      title: 'Midas Software Workshop', price: 199, members: 'Individual only',   desc: 'Expert workshop on MIDAS applications in Geotechnical engineering and design.' },
 ];
 
 const OBJECTIVES = [
-  { logo: '/about%20logos%20geofest/Promote.png',    text: 'Promote geotechnical engineering awareness' },
+  { logo: '/about%20logos%20geofest/Promote.png',    text: 'Promote Geotechnical engineering awareness' },
   { logo: '/about%20logos%20geofest/Encourage.png',  text: 'Encourage innovation and research' },
   { logo: '/about%20logos%20geofest/Develope.png',   text: 'Develop analytical and problem-solving skills' },
   { logo: '/about%20logos%20geofest/Provide.png',    text: 'Provide academic and industry exposure' },
