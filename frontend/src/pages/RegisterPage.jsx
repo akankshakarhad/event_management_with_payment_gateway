@@ -6,27 +6,27 @@ import api from '../api';
 const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '' };
 
 const TITLE_MAP = {
-  'Quiz Competition':             'GeoFest Arena Quiz',
-  'Geotalk (Paper Presentation)': 'GeoTalk',
-  'Project Display':              'GeoFest Project Display',
-  'Project Display Competition':  'GeoFest Project Display',
-  'MIDAS Workshop':               'Midas Software Workshop',
+  'GeoFest Arena Quiz':           'Quiz Competition',
+  'GeoTalk':                      'Geotalk',
+  'GeoFest Project Expo':         'Project Display',
+  'Connecting the Dots':          'Connecting The Dots',
+  'Midas Software Workshop':      'Midas Software Workshop',
 };
 const norm = (t) => TITLE_MAP[t] || t;
 
 const EVENT_LOGOS = {
-  'GeoFest Arena Quiz':      '/Logos_Events/Quiz.png',
-  'GeoTalk':                 '/Logos_Events/GeoTalk.png',
-  'Connecting the Dots':     '/Logos_Events/Connecting.png',
-  'GeoFest Project Display':    '/Logos_Events/Project.png',
+  'Quiz Competition':        '/Logos_Events/Quiz.png',
+  'Geotalk':                 '/Logos_Events/GeoTalk.png',
+  'Connecting The Dots':     '/Logos_Events/Connecting.png',
+  'Project Display':         '/Logos_Events/Project.png',
   'Midas Software Workshop': '/Logos_Events/Midas.png',
 };
 const getLogo = (t) => EVENT_LOGOS[norm(t)] || null;
 
 /* Parallel-event conflict pairs */
 const CONFLICT_PAIRS = [
-  ['GeoFest Arena Quiz', 'Midas Software Workshop'],
-  ['Connecting the Dots', 'GeoTalk'],
+  ['Quiz Competition', 'Midas Software Workshop'],
+  ['Connecting The Dots', 'Geotalk'],
 ];
 const getConflict = (title) => {
   const n = norm(title);

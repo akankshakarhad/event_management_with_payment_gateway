@@ -5,19 +5,19 @@ import api from '../api';
 
 // Normalize legacy DB titles to canonical display names
 const TITLE_MAP = {
-  'Quiz Competition':             'GeoFest Arena Quiz',
-  'Geotalk (Paper Presentation)': 'GeoTalk',
-  'Project Display':              'GeoFest Project Display',
-  'Project Display Competition':  'GeoFest Project Display',
-  'MIDAS Workshop':               'Midas Software Workshop',
+  'GeoFest Arena Quiz':           'Quiz Competition',
+  'GeoTalk':                      'Geotalk',
+  'GeoFest Project Expo':         'Project Display',
+  'Connecting the Dots':          'Connecting The Dots',
+  'Midas Software Workshop':      'Midas Software Workshop',
 };
 const normalizeTitle = (title) => TITLE_MAP[title] || title;
 
 const EVENT_LOGOS = {
-  'GeoFest Arena Quiz':      '/Logos_Events/Quiz.png',
-  'GeoTalk':                 '/Logos_Events/GeoTalk.png',
-  'Connecting the Dots':     '/Logos_Events/Connecting.png',
-  'GeoFest Project Display':    '/Logos_Events/Project.png',
+  'Quiz Competition':        '/Logos_Events/Quiz.png',
+  'Geotalk':                 '/Logos_Events/GeoTalk.png',
+  'Connecting The Dots':     '/Logos_Events/Connecting.png',
+  'Project Display':         '/Logos_Events/Project.png',
   'Midas Software Workshop': '/Logos_Events/Midas.png',
 };
 const getLogo = (title) => EVENT_LOGOS[normalizeTitle(title)] || null;

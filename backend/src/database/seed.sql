@@ -4,19 +4,19 @@
 DELETE FROM events;
 
 INSERT INTO events (title, description, price, max_members) VALUES
-  ('GeoFest Arena Quiz',
+  ('Quiz Competition',
    'Technical quiz testing geotechnical knowledge, speed, accuracy, and analytical thinking.',
    199.00, 2),
 
-  ('Connecting the Dots',
+  ('Connecting The Dots',
    'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.',
    199.00, 3),
 
-  ('GeoTalk',
+  ('Geotalk',
    'Present your research paper or innovative idea in geotechnical / civil engineering.',
    199.00, 2),
 
-  ('GeoFest Project Expo',
+  ('Project Display',
    'Showcase innovative geotechnical projects, models, prototypes, and engineering solutions.',
    199.00, 4),
 

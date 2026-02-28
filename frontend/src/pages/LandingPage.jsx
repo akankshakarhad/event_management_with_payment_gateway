@@ -69,11 +69,11 @@ const MODES = [
 ];
 
 const EVENTS_PREVIEW = [
-  { logo: '/Logos_Events/Quiz.png',       title: 'GeoFest Arena Quiz',    price: 199, members: 'Upto 2 members',   desc: 'Technical quiz testing geotechnical knowledge, speed, accuracy, and analytical thinking.' },
-  { logo: '/Logos_Events/Connecting.png', title: 'Connecting the Dots',   price: 199, members: 'Upto 3 members',   desc: 'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.' },
-  { logo: '/Logos_Events/GeoTalk.png',    title: 'GeoTalk',               price: 199, members: 'Upto 2 members',   desc: 'Present your research paper or innovative idea in geotechnical / civil engineering.' },
-  { logo: '/Logos_Events/Project.png',    title: 'GeoFest Project Display',  price: 199, members: 'Exactly 4 members', desc: 'Showcase innovative geotechnical projects, models, prototypes, and engineering solutions.' },
-  { logo: '/Logos_Events/Midas.png',      title: 'Midas Software Workshop', price: 199, members: 'Individual only', desc: 'Expert workshop on MIDAS applications in geotechnical engineering and design.' },
+  { logo: '/Logos_Events/Quiz.png',       title: 'Quiz Competition',        price: 199, members: 'Upto 2 members',    desc: 'Technical quiz testing geotechnical knowledge, speed, accuracy, and analytical thinking.' },
+  { logo: '/Logos_Events/Connecting.png', title: 'Connecting The Dots',     price: 199, members: 'Upto 3 members',    desc: 'Solve real-world geotechnical problems by connecting multi-disciplinary concepts.' },
+  { logo: '/Logos_Events/GeoTalk.png',    title: 'Geotalk',                 price: 199, members: 'Upto 2 members',    desc: 'Present your research paper or innovative idea in geotechnical / civil engineering.' },
+  { logo: '/Logos_Events/Project.png',    title: 'Project Display',         price: 199, members: 'Exactly 4 members', desc: 'Showcase innovative geotechnical projects, models, prototypes, and engineering solutions.' },
+  { logo: '/Logos_Events/Midas.png',      title: 'Midas Software Workshop', price: 199, members: 'Individual only',   desc: 'Expert workshop on MIDAS applications in geotechnical engineering and design.' },
 ];
 
 const OBJECTIVES = [
@@ -91,22 +91,22 @@ const SCHEDULE = [
     items: [
       { time: '09:30 AM – 12:30 PM', label: 'Inauguration Programme & Key Note Sessions' },
       { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
-      { time: '01:30 PM – 04:00 PM', label: 'GeoFest Arena Quiz & Midas Software Workshop' },
+      { time: '01:30 PM – 04:00 PM', label: 'Quiz Competition & Midas Software Workshop' },
       { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
       { time: '04:20 PM – 05:00 PM', label: 'Project Evaluation' },
-      { time: '09:30 AM – 05:00 PM', label: 'GeoFest Project Display (Whole Day)' },
+      { time: '09:30 AM – 05:00 PM', label: 'Project Display (Whole Day)' },
     ],
   },
   {
     day: 'Day 2', date: '18 March 2026',
     color: 'from-emerald-600 to-teal-600',
     items: [
-      { time: '09:30 AM – 12:30 PM', label: 'First Round: Connecting the Dots & GeoTalk' },
+      { time: '09:30 AM – 12:30 PM', label: 'First Round: Connecting The Dots & Geotalk' },
       { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
-      { time: '01:30 PM – 04:00 PM', label: 'Final Round: Connecting the Dots & GeoTalk' },
+      { time: '01:30 PM – 04:00 PM', label: 'Final Round: Connecting The Dots & Geotalk' },
       { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
       { time: '04:20 PM – 05:00 PM', label: 'Valedictory Function' },
-      { time: '09:30 AM – 05:00 PM', label: 'GeoFest Project Display (Whole Day)' },
+      { time: '09:30 AM – 05:00 PM', label: 'Project Display (Whole Day)' },
     ],
   },
 ];
