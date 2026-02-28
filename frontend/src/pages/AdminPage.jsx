@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import api from '../api';
 
+const ADMIN_PASSWORD = '6tfcvgY%2026GeoFest';
+
 const STATUS_TABS = [
   { label: 'All',        value: '' },
   { label: '✅ Paid',    value: 'PAID' },
@@ -9,6 +11,10 @@ const STATUS_TABS = [
 ];
 
 export default function AdminPage() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [pwInput, setPwInput]   = useState('');
+  const [pwError, setPwError]   = useState('');
+
   const [rows, setRows]       = useState([]);
   const [events, setEvents]   = useState([]);
   const [status, setStatus]   = useState('');
@@ -28,8 +34,24 @@ export default function AdminPage() {
     finally   { setLoading(false); }
   };
 
-  useEffect(() => { api.get('/events').then((r) => setEvents(r.data.data)); }, []);
-  useEffect(() => { fetchData(); }, [status, eventId]);
+  useEffect(() => {
+    if (unlocked) api.get('/events').then((r) => setEvents(r.data.data));
+  }, [unlocked]);
+
+  useEffect(() => {
+    if (unlocked) fetchData();
+  }, [unlocked, status, eventId]);
+
+  const handleUnlock = (e) => {
+    e.preventDefault();
+    if (pwInput === ADMIN_PASSWORD) {
+      setUnlocked(true);
+      setPwError('');
+    } else {
+      setPwError('Incorrect password. Please try again.');
+      setPwInput('');
+    }
+  };
 
   const handleExport = () => {
     const p = new URLSearchParams();
@@ -37,6 +59,51 @@ export default function AdminPage() {
     if (eventId) p.append('eventId', eventId);
     window.open(`/api/admin/export?${p.toString()}`, '_blank');
   };
+
+  if (!unlocked) {
+    return (
+      <div className="pt-16 min-h-screen text-white flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="w-full max-w-sm">
+          <div className="glass rounded-2xl p-8 border border-slate-700/60 shadow-2xl">
+            <div className="text-center mb-7">
+              <div className="text-4xl mb-3">🔐</div>
+              <h1 className="text-2xl font-extrabold mb-1">Admin Access</h1>
+              <p className="text-gray-500 text-sm">Enter the password to continue</p>
+            </div>
+            <form onSubmit={handleUnlock} className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-400 mb-1.5 block">Password</label>
+                <input
+                  type="password"
+                  autoFocus
+                  value={pwInput}
+                  onChange={(e) => { setPwInput(e.target.value); setPwError(''); }}
+                  placeholder="Enter admin password"
+                  className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500
+                    focus:outline-none focus:ring-2 focus:ring-amber-500 transition
+                    ${pwError ? 'border-red-500' : 'border-slate-700'}`}
+                />
+                {pwError && (
+                  <p className="text-red-400 text-xs mt-1.5">{pwError}</p>
+                )}
+              </div>
+              <motion.button
+                type="submit"
+                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                className="w-full py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold
+                           rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 transition text-sm">
+                Unlock Dashboard
+              </motion.button>
+            </form>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   const paidCount    = rows.filter((r) => r.status === 'PAID').length;
   const pendingCount = rows.filter((r) => r.status === 'PENDING').length;

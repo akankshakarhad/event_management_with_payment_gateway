@@ -144,7 +144,7 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-          {indOnly ? 'Individual' : title === 'Connecting The Dots' ? 'Exactly 3' : title === 'Project Display' ? 'Exactly 4' : `Upto ${ev.max_members}`}
+          {indOnly ? 'Individual' : title === 'Connecting The Dots' ? 'Exactly 3' : `Upto ${ev.max_members}`}
         </span>
         <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full border shrink-0
           ${isSelected
@@ -336,7 +336,7 @@ export default function RegisterPage() {
                       {norm(selectedEvent.title)}
                     </h2>
                     <p className="text-[11px] text-gray-400">
-                      {maxAllowed === 1 ? 'Individual only' : norm(selectedEvent.title) === 'Connecting The Dots' ? 'Exactly 3 participants' : norm(selectedEvent.title) === 'Project Display' ? 'Exactly 4 participants' : `Upto ${maxAllowed} participants`}
+                      {maxAllowed === 1 ? 'Individual only' : norm(selectedEvent.title) === 'Connecting The Dots' ? 'Exactly 3 participants' : `Upto ${maxAllowed} participants`}
                       <span className="mx-1.5 text-gray-600">·</span>
                       <span className="text-amber-400 font-semibold">₹{selectedEvent.price} flat fee</span>
                     </p>
