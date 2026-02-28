@@ -3,21 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import api from '../api';
 
-const EVENT_LOGOS = {
-  // current titles
-  'GeoFest Arena Quiz':          '/Logos_Events/Quiz.png',
-  'GeoTalk':                     '/Logos_Events/GeoTalk.png',
-  'Connecting the Dots':         '/Logos_Events/Connecting.png',
-  'GeoFest Project Expo':        '/Logos_Events/Project.png',
-  'Midas Software Workshop':     '/Logos_Events/Midas.png',
-  // legacy DB titles (pre-reseed)
-  'Quiz Competition':            '/Logos_Events/Quiz.png',
-  'Geotalk (Paper Presentation)':'/Logos_Events/GeoTalk.png',
-  'Project Display':             '/Logos_Events/Project.png',
-  'Project Display Competition': '/Logos_Events/Project.png',
-  'MIDAS Workshop':              '/Logos_Events/Midas.png',
+// Normalize legacy DB titles to canonical display names
+const TITLE_MAP = {
+  'Quiz Competition':             'GeoFest Arena Quiz',
+  'Geotalk (Paper Presentation)': 'GeoTalk',
+  'Project Display':              'GeoFest Project Expo',
+  'Project Display Competition':  'GeoFest Project Expo',
+  'MIDAS Workshop':               'Midas Software Workshop',
 };
-const getLogo = (title) => EVENT_LOGOS[title] || null;
+const normalizeTitle = (title) => TITLE_MAP[title] || title;
+
+const EVENT_LOGOS = {
+  'GeoFest Arena Quiz':      '/Logos_Events/Quiz.png',
+  'GeoTalk':                 '/Logos_Events/GeoTalk.png',
+  'Connecting the Dots':     '/Logos_Events/Connecting.png',
+  'GeoFest Project Expo':    '/Logos_Events/Project.png',
+  'Midas Software Workshop': '/Logos_Events/Midas.png',
+};
+const getLogo = (title) => EVENT_LOGOS[normalizeTitle(title)] || null;
 
 export default function EventsPage() {
   const [events, setEvents]   = useState([]);
@@ -73,7 +76,7 @@ export default function EventsPage() {
                   }
                 </div>
 
-                <h3 className="text-lg sm:text-xl font-bold mb-2">{ev.title}</h3>
+                <h3 className="text-lg sm:text-xl font-bold mb-2">{normalizeTitle(ev.title)}</h3>
                 <p className="text-gray-400 text-sm flex-1 leading-relaxed">
                   {ev.description || 'Showcase your knowledge and skills in this exciting event.'}
                 </p>
