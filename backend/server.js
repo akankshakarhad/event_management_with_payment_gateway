@@ -8,10 +8,11 @@ const PORT = process.env.PORT || 5000;
 const migrateEvents = async () => {
   // Rename legacy titles
   const renames = [
-    ['GeoFest Arena Quiz',  'Quiz Competition'],
-    ['GeoTalk',             'Geotalk'],
-    ['GeoFest Project Expo','Project Display'],
-    ['Connecting the Dots', 'Connecting The Dots'],
+    ['GeoFest Arena Quiz',           'Quiz Competition'],
+    ['GeoTalk',                      'Geotalk'],
+    ['Geotalk (Paper Presentation)', 'Geotalk'],
+    ['GeoFest Project Expo',         'Project Display'],
+    ['Connecting the Dots',          'Connecting The Dots'],
   ];
   for (const [oldTitle, newTitle] of renames) {
     await pool.query(

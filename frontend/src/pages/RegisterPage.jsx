@@ -6,11 +6,12 @@ import api from '../api';
 const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '' };
 
 const TITLE_MAP = {
-  'GeoFest Arena Quiz':           'Quiz Competition',
-  'GeoTalk':                      'Geotalk',
-  'GeoFest Project Expo':         'Project Display',
-  'Connecting the Dots':          'Connecting The Dots',
-  'Midas Software Workshop':      'Midas Software Workshop',
+  'GeoFest Arena Quiz':             'Quiz Competition',
+  'GeoTalk':                        'Geotalk',
+  'Geotalk (Paper Presentation)':   'Geotalk',
+  'GeoFest Project Expo':           'Project Display',
+  'Connecting the Dots':            'Connecting The Dots',
+  'Midas Software Workshop':        'Midas Software Workshop',
 };
 const norm = (t) => TITLE_MAP[t] || t;
 

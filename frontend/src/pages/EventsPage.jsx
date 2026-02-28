@@ -5,11 +5,12 @@ import api from '../api';
 
 // Normalize legacy DB titles to canonical display names
 const TITLE_MAP = {
-  'GeoFest Arena Quiz':           'Quiz Competition',
-  'GeoTalk':                      'Geotalk',
-  'GeoFest Project Expo':         'Project Display',
-  'Connecting the Dots':          'Connecting The Dots',
-  'Midas Software Workshop':      'Midas Software Workshop',
+  'GeoFest Arena Quiz':             'Quiz Competition',
+  'GeoTalk':                        'Geotalk',
+  'Geotalk (Paper Presentation)':   'Geotalk',
+  'GeoFest Project Expo':           'Project Display',
+  'Connecting the Dots':            'Connecting The Dots',
+  'Midas Software Workshop':        'Midas Software Workshop',
 };
 const normalizeTitle = (title) => TITLE_MAP[title] || title;
 
