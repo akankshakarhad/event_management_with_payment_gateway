@@ -185,10 +185,10 @@ export default function EventsPage() {
                 ? galleryPhotos.filter((p) => p.event_id === galleryFilter)
                 : galleryPhotos;
               return (
-                <div className="flex gap-6 items-start">
+                <div className="flex flex-col lg:flex-row gap-6 items-start">
 
-                  {/* ── Side panel — desktop ── */}
-                  <aside className="hidden lg:block w-56 shrink-0 sticky top-24">
+                  {/* ── Side panel — all screens ── */}
+                  <aside className="w-full lg:w-56 shrink-0 lg:sticky lg:top-24">
                     <div className="glass rounded-2xl border border-slate-700/50 overflow-hidden">
                       {/* Panel header */}
                       <div className="px-4 py-3.5 border-b border-slate-700/50 flex items-center gap-2">
@@ -256,30 +256,6 @@ export default function EventsPage() {
                       </div>
                     </div>
                   </aside>
-
-                  {/* ── Mobile horizontal filter chips ── */}
-                  <div className="lg:hidden flex gap-2 overflow-x-auto pb-3 mb-2 w-full">
-                    {[{ id: '', label: 'All', count: galleryPhotos.length }, ...events.map((ev) => ({
-                      id: ev.id,
-                      label: normalizeTitle(ev.title),
-                      count: galleryPhotos.filter((p) => p.event_id === ev.id).length,
-                    }))].map((item) => (
-                      <button key={item.id}
-                        onClick={() => setGalleryFilter(item.id)}
-                        className={`shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition border ${
-                          galleryFilter === item.id
-                            ? 'bg-amber-600 text-white border-amber-500/50 shadow shadow-amber-500/20'
-                            : 'bg-slate-800/70 text-gray-400 border-slate-700/50 hover:text-white hover:border-slate-600'
-                        }`}>
-                        {item.label}
-                        <span className={`text-[10px] px-1 py-0.5 rounded ${
-                          galleryFilter === item.id ? 'bg-white/20' : 'bg-slate-700 text-gray-500'
-                        }`}>
-                          {item.count}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
 
                   {/* ── Photo grid ── */}
                   <div className="flex-1 min-w-0">
