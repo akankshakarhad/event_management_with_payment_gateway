@@ -120,7 +120,7 @@ const FACULTY_ADVISORS = [
 
 const FACULTY_COORDINATORS = [
   { name: 'Dr. Dinesh S. Aswar',           initials: 'DA', photo: '/geofest_faculty_photos/Dr_Dinesh_S_Aswar.jpg' },
-  { name: 'Dr. Mohammed Rihan Maaze',      initials: 'MM', photo: null },
+  { name: 'Dr. Mohammed Rihan Maaze',      initials: 'MM', photo: '/geofest_faculty_photos/Dr._Mohammed_Rihan_Maaze_.jpg' },
   { name: 'Dr. Vijendra Kumar',            initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vijendra_Kumar.jpg' },
   { name: 'Dr. Aniket Dahasahastra',       initials: 'AD', photo: '/geofest_faculty_photos/Dr_Aniket_V_Dahasahastra.jpg' },
   { name: 'Dr. Ramala Rakesh Kumar Reddy', initials: 'RR', photo: '/geofest_faculty_photos/Dr_Ramala_Rakesh_Kumar_Reddy.jpg' },
@@ -158,15 +158,15 @@ const EXEC_COMMITTEE = [
 ];
 
 const OFFICE_BEARERS = [
-  { name: 'Aman Bagwan',               role: 'President',     icon: '👑' },
-  { name: 'Rajnandini Sanjay Mundhe',  role: 'Vice President', icon: '🌟' },
-  { name: 'Jiskar Yogendra Prabhakar', role: 'Treasurer',      icon: '💰' },
+  { name: 'Aman Bagwan',               role: 'President',     icon: '👑', photo: '/GeoFest_Office_Bearers_Photos/Aman_Bagwan.jpg' },
+  { name: 'Rajnandini Sanjay Mundhe',  role: 'Vice President', icon: '🌟', photo: '/GeoFest_Office_Bearers_Photos/Rajnandini_Sanjay_Mundhe.jpg' },
+  { name: 'Jiskar Yogendra Prabhakar', role: 'Treasurer',      icon: '💰', photo: '/GeoFest_Office_Bearers_Photos/Yogendra_Prabhakar_Jiskar.jpg' },
 ];
 
 const SUPPORTING_ROLES = [
-  { name: 'Sheikh Faaez Ahmed',      role: 'Social Media Head' },
-  { name: 'Kokane Om Ashok',         role: 'Head Outreach' },
-  { name: 'Waghmare Pranav Vaibhav', role: 'Online Events & Training Head' },
+  { name: 'Sheikh Faaez Ahmed',      role: 'Social Media Head',              photo: '/GeoFest_Office_Bearers_Photos/Sheikh_Faaez_Ahmed.jpg' },
+  { name: 'Kokane Om Ashok',         role: 'Head Outreach',                  photo: '/GeoFest_Office_Bearers_Photos/Om_Ashok_Kokane.jpg' },
+  { name: 'Waghmare Pranav Vaibhav', role: 'Online Events & Training Head',  photo: '/GeoFest_Office_Bearers_Photos/Pranav_Waghmare.jpg' },
 ];
 
 
@@ -406,8 +406,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-center mb-10 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">Organizing <span className="shimmer-text">Committee</span></h2>
-            <p className="text-gray-400 text-sm sm:text-base">GeoFest 2026 — NICMAR University, Pune</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">GeoFest 2026 — <span className="shimmer-text">NICMAR University, Pune</span></h2>
           </motion.div>
 
           {/* Chief Patron, Patron, Convener, Co-Convener */}
@@ -539,9 +538,10 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className="glass rounded-2xl p-5 sm:p-6 text-center card-hover">
-                <div className="w-12 sm:w-14 h-12 sm:h-14 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl mx-auto mb-3">
-                  {b.icon}
-                </div>
+                {b.photo
+                  ? <img src={b.photo} alt={b.name} className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover mx-auto mb-3 border-2 border-emerald-500/40" />
+                  : <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl mx-auto mb-3">{b.icon}</div>
+                }
                 <h3 className="font-bold text-white mb-1 text-sm sm:text-base">{b.name}</h3>
                 <p className="text-emerald-400 text-xs">{b.role}</p>
               </motion.div>
@@ -554,9 +554,15 @@ export default function LandingPage() {
               <motion.div key={r.name}
                 initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="glass rounded-xl px-4 sm:px-5 py-3 sm:py-4">
-                <p className="font-semibold text-sm text-white">{r.name}</p>
-                <p className="text-gray-400 text-xs mt-0.5">{r.role}</p>
+                className="glass rounded-xl px-4 sm:px-5 py-3 sm:py-4 flex items-center gap-3">
+                {r.photo
+                  ? <img src={r.photo} alt={r.name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-emerald-500/40" />
+                  : <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shrink-0" />
+                }
+                <div>
+                  <p className="font-semibold text-sm text-white">{r.name}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">{r.role}</p>
+                </div>
               </motion.div>
             ))}
           </div>
