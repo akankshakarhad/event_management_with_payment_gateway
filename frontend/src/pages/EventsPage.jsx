@@ -320,14 +320,14 @@ export default function EventsPage() {
                             transition={{ delay: i * 0.04 }}
                             onClick={() => setLightbox(photo)}
                             className="group cursor-pointer">
-                            <div className="relative rounded-xl overflow-hidden
+                            <div className="relative aspect-[4/3] rounded-xl overflow-hidden
                                             border border-slate-700/60
                                             group-hover:border-amber-500/50 group-hover:shadow-lg
                                             group-hover:shadow-amber-500/10 transition-all duration-300">
                               <img
                                 src={photo.image_data}
                                 alt={photo.description || 'Event photo'}
-                                className="w-full h-auto"
+                                className="w-full h-full object-cover"
                               />
                               {/* Hover overlay */}
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100
