@@ -196,9 +196,10 @@ const submitPayment = async (req, res, next) => {
       return res.status(500).json({ success: false, message: 'Failed to record payment. Try again.' });
     }
 
-    // Send admin alert email (non-blocking)
-    paymentModel.findByReferenceIdWithUser(referenceId).then((p) => {
-      if (p) sendAdminAlert({
+    // Send admin alert email (awaited so Vercel doesn't kill it before sending)
+    try {
+      const p = await paymentModel.findByReferenceIdWithUser(referenceId);
+      if (p) await sendAdminAlert({
         name:          p.name,
         email:         p.email,
         phone:         p.phone,
@@ -207,7 +208,7 @@ const submitPayment = async (req, res, next) => {
         utr:           p.utr,
         screenshotUrl: p.screenshot_url,
       });
-    }).catch(() => {});
+    } catch (_) {}
 
     res.json({
       success: true,
