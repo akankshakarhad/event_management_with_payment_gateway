@@ -72,7 +72,7 @@ const MODES = [
 const EVENTS_PREVIEW = [
   { logo: '/Logos_Events/Quiz.png',       title: 'Quiz Competition',        price: 199, members: 'Upto 2 members',    desc: 'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.' },
   { logo: '/Logos_Events/Connecting.png', title: 'Connecting The Dots',     price: 199, members: 'Exactly 3 members', desc: 'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.' },
-  { logo: '/Logos_Events/GeoTalk.png',    title: 'Geotalk',                 price: 199, members: 'Upto 2 members',    desc: 'Present your research paper or innovative idea in Geotechnical civil engineering.' },
+  { logo: '/Logos_Events/GeoTalk.png',    title: 'Geotalk',                 price: 199, members: 'Upto 2 members',    desc: 'Present your research paper or innovative idea in Geotechnical engineering.' },
   { logo: '/Logos_Events/Project.png',    title: 'Project Display',         price: 199, members: 'Upto 5 members', desc: 'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.' },
   { logo: '/Logos_Events/Midas.png',      title: 'Midas Software Workshop', price: 199, members: 'Individual only',   desc: 'Expert workshop on MIDAS applications in Geotechnical engineering and design.' },
 ];
