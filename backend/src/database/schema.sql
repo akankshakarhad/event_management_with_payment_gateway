@@ -9,8 +9,10 @@ CREATE TABLE IF NOT EXISTS users (
   name        VARCHAR(100) NOT NULL,
   email       VARCHAR(150) NOT NULL UNIQUE,
   phone       VARCHAR(15)  NOT NULL,
-  college     VARCHAR(200) NOT NULL,
-  created_at  TIMESTAMP   NOT NULL DEFAULT NOW()
+  college          VARCHAR(200) NOT NULL,
+  participant_type VARCHAR(20)  NOT NULL DEFAULT '',
+  course           VARCHAR(200) NOT NULL DEFAULT '',
+  created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================

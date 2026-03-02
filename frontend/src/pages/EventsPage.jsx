@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
 
@@ -37,6 +37,7 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   // ── Gallery ──
   const [activeTab, setActiveTab]           = useState('events'); // 'events' | 'gallery'
@@ -55,10 +56,25 @@ export default function EventsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  /* ── Deep-link from RegisterPage: ?tab=gallery&eventId=<id> ── */
+  useEffect(() => {
+    const tab     = searchParams.get('tab');
+    const eventId = searchParams.get('eventId');
+    if (tab === 'gallery') {
+      setActiveTab('gallery');
+      if (eventId) setGalleryFilter(eventId);
+      setGalleryLoading(true);
+      api.get('/gallery')
+        .then((res) => { setGalleryPhotos(res.data.data); setGalleryFetched(true); })
+        .catch(() => setGalleryError('Failed to load gallery.'))
+        .finally(() => setGalleryLoading(false));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     if (tab === 'events') setGalleryFilter('');
-    if (tab === 'gallery' && !galleryFetched) {
+    if (tab === 'gallery' && !galleryFetched && !galleryLoading) {
       setGalleryLoading(true);
       api.get('/gallery')
         .then((res) => { setGalleryPhotos(res.data.data); setGalleryFetched(true); })

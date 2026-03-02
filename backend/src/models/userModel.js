@@ -8,12 +8,12 @@ const findByEmail = async (email) => {
   return rows[0] || null;
 };
 
-const create = async ({ name, email, phone, college }) => {
+const create = async ({ name, email, phone, college, participant_type = '', course = '' }) => {
   const { rows } = await pool.query(
-    `INSERT INTO users (name, email, phone, college)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO users (name, email, phone, college, participant_type, course)
+     VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING *`,
-    [name, email, phone, college]
+    [name, email, phone, college, participant_type, course]
   );
   return rows[0];
 };

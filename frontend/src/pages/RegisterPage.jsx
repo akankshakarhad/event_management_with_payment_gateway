@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
 
 /* ─── Static maps ─── */
-const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '' };
+const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '', participant_type: '', course: '' };
 
 const TITLE_MAP = {
   'GeoFest Arena Quiz':             'Quiz Competition',
@@ -43,8 +44,42 @@ const inputCls = (err) =>
    focus:outline-none focus:ring-2 focus:ring-amber-500 transition
    ${err ? 'border-red-500' : 'border-slate-700'}`;
 
+const SCHEDULE = [
+  {
+    day: 'Day 1', date: '17 March 2026',
+    color: 'from-amber-600 to-amber-700',
+    items: [
+      { time: '09:30 AM – 12:30 PM', label: 'Inauguration Programme & Key Note Sessions' },
+      { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
+      { time: '01:30 PM – 04:00 PM', label: 'Quiz Competition & Midas Software Workshop' },
+      { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
+      { time: '04:20 PM – 05:00 PM', label: 'Project Evaluation' },
+      { time: '09:30 AM – 05:00 PM', label: 'Project Display (Whole Day)' },
+    ],
+  },
+  {
+    day: 'Day 2', date: '18 March 2026',
+    color: 'from-emerald-600 to-teal-600',
+    items: [
+      { time: '09:30 AM – 12:30 PM', label: 'First Round: Connecting The Dots & Geotalk' },
+      { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
+      { time: '01:30 PM – 04:00 PM', label: 'Final Round: Connecting The Dots & Geotalk' },
+      { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
+      { time: '04:20 PM – 05:00 PM', label: 'Valedictory Function' },
+      { time: '09:30 AM – 05:00 PM', label: 'Project Display (Whole Day)' },
+    ],
+  },
+];
+
 /* ─── Single participant block ─── */
 function MemberForm({ member, idx, onChange, onRemove, removable = true, errors = {} }) {
+  const topFields = [
+    { key: 'name',    label: 'Full Name',           placeholder: 'Arjun Kumar',              type: 'text'  },
+    { key: 'email',   label: 'Email',                placeholder: 'arjun@email.com',          type: 'email' },
+    { key: 'phone',   label: 'Phone',                placeholder: '10-digit number',          type: 'text'  },
+    { key: 'college', label: 'College / University', placeholder: 'NICMAR University',        type: 'text'  },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
@@ -61,12 +96,9 @@ function MemberForm({ member, idx, onChange, onRemove, removable = true, errors 
           </button>
         )}
       </div>
-      {[
-        { key: 'name',    label: 'Full Name',           placeholder: 'Arjun Kumar',       type: 'text'  },
-        { key: 'email',   label: 'Email',                placeholder: 'arjun@email.com',   type: 'email' },
-        { key: 'phone',   label: 'Phone',                placeholder: '10-digit number',   type: 'text'  },
-        { key: 'college', label: 'College / University', placeholder: 'NICMAR University', type: 'text'  },
-      ].map(({ key, label, placeholder, type }) => (
+
+      {/* Name, Email, Phone, College */}
+      {topFields.map(({ key, label, placeholder, type }) => (
         <div key={key}>
           <label className="text-xs text-gray-400 mb-1 block">{label}</label>
           <input type={type} className={inputCls(errors[key])}
@@ -75,6 +107,46 @@ function MemberForm({ member, idx, onChange, onRemove, removable = true, errors 
           {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
         </div>
       ))}
+
+      {/* Student / Professional toggle */}
+      <div>
+        <label className="text-xs text-gray-400 mb-2 block">Participant Type</label>
+        <div className="grid grid-cols-2 gap-2">
+          {['Student', 'Professional'].map((opt) => {
+            const active = member.participant_type === opt;
+            return (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => onChange('participant_type', opt)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200
+                  ${active
+                    ? 'bg-amber-500/15 border-amber-500 text-amber-300'
+                    : 'bg-slate-800 border-slate-700 text-gray-400 hover:border-slate-500 hover:text-gray-200'
+                  }`}>
+                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                  ${active ? 'border-amber-400 bg-amber-400' : 'border-gray-600'}`}>
+                  {active && <span className="w-1.5 h-1.5 rounded-full bg-black" />}
+                </span>
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+        {errors.participant_type && (
+          <p className="text-red-400 text-xs mt-1">{errors.participant_type}</p>
+        )}
+      </div>
+
+      {/* Course */}
+      <div>
+        <label className="text-xs text-gray-400 mb-1 block">Course</label>
+        <input type="text" className={inputCls(errors.course)}
+          placeholder="e.g. B.Tech Civil, MBA…"
+          value={member.course}
+          onChange={(e) => onChange('course', e.target.value)} />
+        {errors.course && <p className="text-red-400 text-xs mt-1">{errors.course}</p>}
+      </div>
     </motion.div>
   );
 }
@@ -82,6 +154,7 @@ function MemberForm({ member, idx, onChange, onRemove, removable = true, errors 
 /* ─── Event tile (slot events) ─── */
 function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
   const [hovered, setHovered] = useState(false);
+  const navigate = useNavigate();
   const logo     = getLogo(ev.title);
   const title    = norm(ev.title);
   const indOnly  = ev.max_members === 1;
@@ -141,7 +214,22 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
         {ev.description || 'Showcase your knowledge and skills in this exciting event.'}
       </p>
 
-      <div className="mt-3 flex items-center justify-between gap-2">
+      <div className="mt-3 flex items-center gap-2">
+        {/* Details — first, before the icons */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/events?tab=gallery&eventId=${ev.id}`);
+          }}
+          className="text-[11px] font-semibold text-gray-500 hover:text-amber-400 transition-all duration-200
+                     px-2.5 py-0.5 rounded-full border border-slate-700/60 hover:border-amber-500/30
+                     hover:bg-amber-500/5 shrink-0">
+          Details
+        </button>
+
+        <div className="flex-1" />
+
         <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full whitespace-nowrap">
           {indOnly ? 'Individual' : title === 'Connecting The Dots' ? 'Exactly 3' : `Upto ${ev.max_members}`}
         </span>
@@ -153,12 +241,26 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
           ₹{ev.price}
         </span>
       </div>
+
+      {/* GeoTalk — abstract template download */}
+      {title === 'Geotalk' && (
+        <a
+          href="/utils/abstract_template.docx"
+          download="GeoTalk_Abstract_Template.docx"
+          onClick={(e) => e.stopPropagation()}
+          className="mt-2.5 w-full flex items-center justify-center gap-1.5 py-1.5 rounded-lg
+                     text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-all duration-200
+                     border border-blue-500/20 hover:border-blue-400/40 hover:bg-blue-500/5">
+          ⬇ Download Abstract Template
+        </a>
+      )}
     </motion.div>
   );
 }
 
 /* ─── Featured Project Display Card ─── */
 function FeaturedCard({ ev, onRegister }) {
+  const navigate = useNavigate();
   const logo = getLogo(ev.title);
 
   return (
@@ -231,18 +333,32 @@ function FeaturedCard({ ev, onRegister }) {
               </span>
             </div>
 
-            {/* Register button */}
-            <motion.button
-              onClick={() => onRegister(ev)}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="w-full sm:w-auto px-10 py-4 text-base font-extrabold rounded-xl
-                         bg-gradient-to-r from-amber-500 to-yellow-400 text-black
-                         shadow-[0_4px_20px_rgba(251,191,36,0.45)]
-                         hover:shadow-[0_4px_32px_rgba(251,191,36,0.65)]
-                         transition-all duration-200">
-              Register for Project Display →
-            </motion.button>
+            {/* Buttons row */}
+            <div className="flex flex-wrap items-center gap-3">
+              <motion.button
+                onClick={() => navigate(`/events?tab=gallery&eventId=${ev.id}`)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="flex items-center gap-2 px-5 py-4 text-sm font-semibold rounded-xl
+                           border border-slate-600 hover:border-amber-500/50
+                           text-gray-400 hover:text-amber-400
+                           bg-slate-800/60 hover:bg-amber-500/5
+                           transition-all duration-200">
+                Details
+              </motion.button>
+
+              <motion.button
+                onClick={() => onRegister(ev)}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-10 py-4 text-base font-extrabold rounded-xl
+                           bg-gradient-to-r from-amber-500 to-yellow-400 text-black
+                           shadow-[0_4px_20px_rgba(251,191,36,0.45)]
+                           hover:shadow-[0_4px_32px_rgba(251,191,36,0.65)]
+                           transition-all duration-200">
+                Register for Project Display →
+              </motion.button>
+            </div>
           </div>
         </div>
 
@@ -312,6 +428,10 @@ export default function RegisterPage() {
   const [registered, setReg]      = useState(false);
 
   /* Payment flow state */
+  const [projectCategory, setProjectCategory]       = useState('');
+  const [projectCategoryOther, setProjectCatOther] = useState('');
+
+  /* Payment flow state */
   const [payInitLoading, setPayInitLoading] = useState(false);
   const [paymentData, setPaymentData]       = useState(null);
   const [utr, setUtr]                       = useState('');
@@ -360,6 +480,7 @@ export default function RegisterPage() {
   const closeModal = () => {
     setSelEv(null); setReg(false); setUserIds(null); setPaymentData(null);
     setUtr(''); setScreenshot(null); setScPreview(''); setPayError(''); setPayDone(false);
+    setProjectCategory(''); setProjectCatOther('');
   };
 
   const selectEvent = (ev) => {
@@ -372,6 +493,7 @@ export default function RegisterPage() {
     setUserIds(null);
     setPaymentData(null);
     setPayDone(false);
+    setProjectCategory(''); setProjectCatOther('');
   };
 
   const validate = () => {
@@ -382,8 +504,15 @@ export default function RegisterPage() {
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(m.email)) e[`${i}_email`]   = 'Invalid email';
       if (!m.phone.trim())                                   e[`${i}_phone`]   = 'Required';
       else if (!/^\d{10}$/.test(m.phone))                   e[`${i}_phone`]   = '10 digits only';
-      if (!m.college.trim())                                 e[`${i}_college`] = 'Required';
+      if (!m.college.trim())                                 e[`${i}_college`]           = 'Required';
+      if (!m.participant_type)                               e[`${i}_participant_type`]  = 'Please select one';
+      if (!m.course.trim())                                  e[`${i}_course`]            = 'Required';
     });
+    if (norm(selectedEvent?.title) === 'Project Display') {
+      if (!projectCategory)                                  e.project_category       = 'Please select a category';
+      if (projectCategory === 'Other' && !projectCategoryOther.trim())
+                                                             e.project_category_other = 'Please describe your category';
+    }
     return e;
   };
 
@@ -393,10 +522,14 @@ export default function RegisterPage() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({}); setSub(true);
     try {
+      const categoryValue = projectCategory === 'Other' ? projectCategoryOther : projectCategory;
       const ids = await Promise.all(
         members.map((m) =>
-          api.post('/register', { ...m, eventIds: [selectedEvent.id] })
-             .then((r) => r.data.data.user.id)
+          api.post('/register', {
+            ...m,
+            ...(norm(selectedEvent.title) === 'Project Display' && { project_category: categoryValue }),
+            eventIds: [selectedEvent.id],
+          }).then((r) => r.data.data.user.id)
         )
       );
       setUserIds(ids);
@@ -457,6 +590,38 @@ export default function RegisterPage() {
           </p>
         </motion.div>
       </div>
+
+      {/* ── Schedule ── */}
+      <section className="py-10 sm:py-14 px-4 bg-black/40">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Event <span className="shimmer-text">Schedule</span></h2>
+            <p className="text-white font-bold text-sm sm:text-base">Two days of engineering excellence — 17 & 18 March 2026</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+            {SCHEDULE.map((day, i) => (
+              <motion.div key={day.day}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
+                <div className={`rounded-t-2xl bg-gradient-to-r ${day.color} px-5 sm:px-6 py-3 sm:py-4`}>
+                  <h3 className="text-lg sm:text-xl font-extrabold">{day.day}</h3>
+                  <p className="text-white/80 text-sm">{day.date}</p>
+                </div>
+                <div className="glass rounded-b-2xl p-4 space-y-3">
+                  {day.items.map((item, j) => (
+                    <div key={j} className="flex items-start gap-3">
+                      <span className="text-xs sm:text-sm text-white w-28 sm:w-44 shrink-0 mt-0.5 font-mono font-bold">{item.time}</span>
+                      <span className="text-sm sm:text-base text-gray-200 leading-relaxed">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-10">
@@ -562,6 +727,30 @@ export default function RegisterPage() {
                         </div>
                       )}
 
+                      {/* GeoTalk — abstract submission notice */}
+                      {norm(selectedEvent.title) === 'Geotalk' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                          className="rounded-xl border border-blue-500/40 bg-blue-500/8 px-4 py-3.5 space-y-1.5">
+                          <p className="text-xs font-bold text-blue-300 uppercase tracking-widest mb-2">
+                            📄 Abstract Submission Info
+                          </p>
+                          <p className="text-xs text-blue-200 leading-relaxed">
+                            ✉️ &nbsp;The abstract template will be sent via email.
+                          </p>
+                          <p className="text-xs text-blue-200 leading-relaxed">
+                            📅 &nbsp;Last date for submission of abstract is <span className="font-bold text-white">13th March 2026</span>.
+                          </p>
+                          <p className="text-xs text-blue-200 leading-relaxed">
+                            📬 &nbsp;Submit your abstract to:&nbsp;
+                            <a href="mailto:Igssc@pune.nicmar.ac.in"
+                              className="font-bold text-amber-300 hover:text-amber-200 underline underline-offset-2 transition">
+                              Igssc@pune.nicmar.ac.in
+                            </a>
+                          </p>
+                        </motion.div>
+                      )}
+
                       <AnimatePresence>
                         {members.map((m, i) => (
                           <MemberForm key={i} member={m} idx={i + 1}
@@ -576,6 +765,57 @@ export default function RegisterPage() {
                           />
                         ))}
                       </AnimatePresence>
+
+                      {/* Project Submission Category — Project Display only */}
+                      {norm(selectedEvent.title) === 'Project Display' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+                          className="glass rounded-2xl p-5 space-y-3">
+                          <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-1">
+                            Project Submission Category
+                          </p>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['Prototype', 'Model', 'Case study', 'Other'].map((cat) => {
+                              const active = projectCategory === cat;
+                              return (
+                                <button
+                                  key={cat}
+                                  type="button"
+                                  onClick={() => { setProjectCategory(cat); setErrors((p) => ({ ...p, project_category: undefined, project_category_other: undefined })); }}
+                                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200
+                                    ${active
+                                      ? 'bg-amber-500/15 border-amber-500 text-amber-300'
+                                      : 'bg-slate-800 border-slate-700 text-gray-400 hover:border-slate-500 hover:text-gray-200'
+                                    }`}>
+                                  <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                                    ${active ? 'border-amber-400 bg-amber-400' : 'border-gray-600'}`}>
+                                    {active && <span className="w-1.5 h-1.5 rounded-full bg-black" />}
+                                  </span>
+                                  {cat}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          {errors.project_category && (
+                            <p className="text-red-400 text-xs mt-1">{errors.project_category}</p>
+                          )}
+                          {projectCategory === 'Other' && (
+                            <div>
+                              <label className="text-xs text-gray-400 mb-1 block">Please specify</label>
+                              <input
+                                type="text"
+                                className={inputCls(errors.project_category_other)}
+                                placeholder="Describe your project type..."
+                                value={projectCategoryOther}
+                                onChange={(e) => setProjectCatOther(e.target.value)}
+                              />
+                              {errors.project_category_other && (
+                                <p className="text-red-400 text-xs mt-1">{errors.project_category_other}</p>
+                              )}
+                            </div>
+                          )}
+                        </motion.div>
+                      )}
 
                       {maxAllowed > 1 && members.length < maxAllowed && minAllowed < maxAllowed && (
                         <motion.button type="button" onClick={addMember}
@@ -600,6 +840,14 @@ export default function RegisterPage() {
                           <p className="text-2xl font-extrabold text-amber-400">₹{totalPrice}</p>
                         </div>
                       </motion.div>
+
+                      {/* Mail notice — all events */}
+                      <div className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/8 px-4 py-3">
+                        <span className="text-base shrink-0 mt-0.5">📧</span>
+                        <p className="text-xs text-amber-300 font-semibold leading-relaxed">
+                          All the details and rulebook of the registered event will be shared via email after registration.
+                        </p>
+                      </div>
 
                       <motion.button type="submit" disabled={submitting}
                         whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}

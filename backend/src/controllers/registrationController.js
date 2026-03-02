@@ -5,7 +5,7 @@ const registrationModel = require('../models/registrationModel');
 // POST /api/register
 const register = async (req, res, next) => {
   try {
-    const { name, email, phone, college, eventIds } = req.body;
+    const { name, email, phone, college, participant_type, course, eventIds } = req.body;
 
     // --- Validation ---
     const missing = [];
@@ -13,6 +13,8 @@ const register = async (req, res, next) => {
     if (!email)                             missing.push('email');
     if (!phone)                             missing.push('phone');
     if (!college)                           missing.push('college');
+    if (!participant_type)                  missing.push('participant_type');
+    if (!course)                            missing.push('course');
     if (!eventIds || !eventIds.length)      missing.push('eventIds');
 
     if (missing.length) {
@@ -47,7 +49,7 @@ const register = async (req, res, next) => {
     // --- Upsert user (same email = same user) ---
     let user = await userModel.findByEmail(email);
     if (!user) {
-      user = await userModel.create({ name, email, phone, college });
+      user = await userModel.create({ name, email, phone, college, participant_type, course });
     }
 
     // --- Create registrations ---
