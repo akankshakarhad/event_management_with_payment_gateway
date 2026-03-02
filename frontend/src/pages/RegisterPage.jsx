@@ -349,7 +349,7 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
           ? <img src={logo} alt={title} className="h-full w-auto object-contain" />
           : <span className="text-5xl">🌍</span>
         }
-        {getPrize(ev.title) && <TreasureBox prize={getPrize(ev.title)} />}
+        {getPrize(ev.title) && norm(ev.title) !== 'Project Display' && <TreasureBox prize={getPrize(ev.title)} />}
       </div>
 
       <h3 className={`text-base sm:text-lg font-bold mb-1.5 ${isSelected ? 'text-amber-300' : 'text-white'}`}>
@@ -361,6 +361,9 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
       </p>
 
       <div className="mt-3 flex items-center gap-2">
+        {getPrize(ev.title) && norm(ev.title) === 'Project Display' && (
+          <TreasureBox prize={getPrize(ev.title)} />
+        )}
         {/* Details — first, before the icons */}
         <button
           type="button"
@@ -444,13 +447,12 @@ function FeaturedCard({ ev, onRegister }) {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
-          {/* Logo + Prize */}
+          {/* Logo */}
           {logo && (
-            <div className="shrink-0 flex flex-col items-center gap-2">
+            <div className="shrink-0">
               <div className="h-20 sm:h-28 flex items-center">
                 <img src={logo} alt="Project Display" className="h-full w-auto object-contain drop-shadow-[0_0_12px_rgba(251,191,36,0.4)]" />
               </div>
-              <TreasureBox prize="22,000" size="lg" />
             </div>
           )}
 
@@ -508,6 +510,11 @@ function FeaturedCard({ ev, onRegister }) {
                 Register for Project Display →
               </motion.button>
             </div>
+          </div>
+
+          {/* Prize — right side */}
+          <div className="shrink-0 flex flex-col items-center self-center">
+            <TreasureBox prize="22,000" size="lg" />
           </div>
         </div>
 
