@@ -484,7 +484,11 @@ export default function LandingPage() {
                 <motion.div key={f.name}
                   initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                  className="glass rounded-2xl p-3 sm:p-8 text-center card-hover">
+                  className={`glass rounded-2xl p-3 sm:p-8 text-center card-hover ${
+                    i === FACULTY_COORDINATORS.length - 1 && FACULTY_COORDINATORS.length % 2 !== 0
+                      ? 'col-span-2 max-w-[calc(50%-6px)] sm:max-w-[calc(50%-12px)] mx-auto w-full'
+                      : ''
+                  }`}>
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
                     {f.photo
                       ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
