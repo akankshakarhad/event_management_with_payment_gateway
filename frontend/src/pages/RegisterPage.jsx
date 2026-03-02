@@ -79,7 +79,7 @@ function MemberForm({ member, idx, onChange, onRemove, removable = true, errors 
   );
 }
 
-/* ─── Event tile ─── */
+/* ─── Event tile (slot events) ─── */
 function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
   const [hovered, setHovered] = useState(false);
   const logo     = getLogo(ev.title);
@@ -112,7 +112,6 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
         </div>
       )}
 
-      {/* Hover tooltip — only shown when hovering a blocked tile */}
       <AnimatePresence>
         {isBlocked && hovered && (
           <motion.div
@@ -158,6 +157,149 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
   );
 }
 
+/* ─── Featured Project Display Card ─── */
+function FeaturedCard({ ev, onRegister }) {
+  const logo = getLogo(ev.title);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+
+      {/* "2-Day Flagship Event" heading */}
+      <div className="text-center mb-6">
+        <span
+          className="inline-block text-xl sm:text-2xl font-extrabold tracking-wide px-8 py-2.5 rounded-full
+                     text-amber-400 border-2 border-amber-400/70
+                     shadow-[0_0_24px_rgba(251,191,36,0.45),0_0_60px_rgba(251,191,36,0.15)]
+                     bg-amber-500/5"
+          style={{ textShadow: '0 0 20px rgba(251,191,36,0.7), 0 0 40px rgba(251,191,36,0.3)' }}>
+          2-Day Flagship Event
+        </span>
+      </div>
+
+      {/* Card */}
+      <div
+        className="relative rounded-2xl border-2 border-amber-400/80 p-6 sm:p-8
+                   bg-gradient-to-br from-slate-900 via-amber-950/10 to-slate-900
+                   shadow-[0_0_50px_rgba(251,191,36,0.2),0_0_100px_rgba(251,191,36,0.08),0_8px_32px_rgba(0,0,0,0.5)]">
+
+        {/* Flagship badge */}
+        <div className="absolute top-4 right-4 flex items-center gap-1.5
+                        bg-gradient-to-r from-amber-500 to-yellow-400 text-black
+                        text-xs font-extrabold px-3 py-1.5 rounded-full
+                        shadow-[0_2px_12px_rgba(251,191,36,0.5)]">
+          🏆 Flagship Event
+        </div>
+
+        {/* Featured label */}
+        <p className="text-[11px] font-bold text-amber-400 uppercase tracking-widest mb-3">
+          ⭐ Featured Event
+        </p>
+
+        <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+          {/* Logo */}
+          {logo && (
+            <div className="h-20 sm:h-28 shrink-0 flex items-center">
+              <img src={logo} alt="Project Display" className="h-full w-auto object-contain drop-shadow-[0_0_12px_rgba(251,191,36,0.4)]" />
+            </div>
+          )}
+
+          <div className="flex-1 min-w-0">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-1"
+                style={{ textShadow: '0 0 30px rgba(251,191,36,0.2)' }}>
+              🏆 Project Display
+            </h2>
+            <p className="text-gray-300 text-sm leading-relaxed mb-5">
+              {ev.description || 'Showcase your innovative projects to expert judges and peers across both days of GeoFest 2026. An unmissable platform for builders and innovators.'}
+            </p>
+
+            {/* Info chips */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-amber-300 bg-amber-500/10 border border-amber-500/25 px-3 py-1 rounded-full">
+                🗓 Runs throughout Day 1 &amp; Day 2
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-blue-300 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full">
+                ⏳ Full-Day Exhibition &amp; Evaluation
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                🟢 Register alongside other slot events
+              </span>
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-purple-300 bg-purple-500/10 border border-purple-500/20 px-3 py-1 rounded-full">
+                👥 Upto {ev.max_members} members
+              </span>
+              <span className="flex items-center gap-1.5 text-sm font-bold text-amber-300 bg-amber-600/20 border border-amber-500/40 px-3 py-1 rounded-full">
+                ₹{ev.price}
+              </span>
+            </div>
+
+            {/* Register button */}
+            <motion.button
+              onClick={() => onRegister(ev)}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="w-full sm:w-auto px-10 py-4 text-base font-extrabold rounded-xl
+                         bg-gradient-to-r from-amber-500 to-yellow-400 text-black
+                         shadow-[0_4px_20px_rgba(251,191,36,0.45)]
+                         hover:shadow-[0_4px_32px_rgba(251,191,36,0.65)]
+                         transition-all duration-200">
+              Register for Project Display →
+            </motion.button>
+          </div>
+        </div>
+
+        <p className="text-gray-500 text-xs text-center mt-6 pt-4 border-t border-slate-700/50">
+          This event runs for both days and does not clash with slot-based events.
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── Day section ─── */
+function DaySection({ dayLabel, date, events, selectedEvent, conflictTitle, onSelect }) {
+  if (!events.length) return null;
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+      {/* Divider */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent" />
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-lg sm:text-xl font-extrabold text-amber-400">🗓 {dayLabel}</span>
+          <span className="text-base sm:text-lg font-bold text-white">— {date}</span>
+          <span className="text-sm text-gray-400 font-medium ml-1">(Choose One)</span>
+        </div>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent" />
+      </div>
+
+      {/* Warning banner */}
+      <div className="flex items-start gap-2.5 bg-amber-500/8 border border-amber-500/25 rounded-xl px-4 py-3 mb-4">
+        <span className="text-base shrink-0 mt-0.5">⚠️</span>
+        <p className="text-xs text-amber-300 font-semibold leading-relaxed">
+          These events are conducted simultaneously. You can only register for one event in this slot.
+        </p>
+      </div>
+
+      {/* 2-column grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {events.map((ev, i) => (
+          <EventTile
+            key={ev.id}
+            ev={ev}
+            index={i}
+            isSelected={selectedEvent?.id === ev.id}
+            isBlocked={selectedEvent?.id !== ev.id && conflictTitle === norm(ev.title)}
+            onClick={onSelect}
+          />
+        ))}
+      </div>
+
+      <p className="text-center text-xs text-red-400/80 mt-3 font-semibold tracking-wide">
+        🛑 Register for only one event in this slot.
+      </p>
+    </motion.div>
+  );
+}
+
 /* ═══ Main Page ═══ */
 export default function RegisterPage() {
   const [events, setEvents]       = useState([]);
@@ -199,19 +341,27 @@ export default function RegisterPage() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  /* Categorise events */
+  const projectDisplay = events.find(ev => norm(ev.title) === 'Project Display');
+  const day1Events = events.filter(ev => {
+    const n = norm(ev.title);
+    return n === 'Quiz Competition' || n === 'Midas Software Workshop';
+  });
+  const day2Events = events.filter(ev => {
+    const n = norm(ev.title);
+    return n === 'Connecting The Dots' || n === 'Geotalk';
+  });
+
   const maxAllowed    = selectedEvent?.max_members ?? 4;
   const minAllowed    = norm(selectedEvent?.title) === 'Connecting The Dots' ? 3 : 1;
   const conflictTitle = selectedEvent ? getConflict(selectedEvent.title) : null;
-  const totalPrice    = selectedEvent
-    ? parseFloat(selectedEvent.price)
-    : 0;
+  const totalPrice    = selectedEvent ? parseFloat(selectedEvent.price) : 0;
 
   const closeModal = () => {
     setSelEv(null); setReg(false); setUserIds(null); setPaymentData(null);
     setUtr(''); setScreenshot(null); setScPreview(''); setPayError(''); setPayDone(false);
   };
 
-  /* ── Select event → open modal ── */
   const selectEvent = (ev) => {
     if (selectedEvent?.id === ev.id) { closeModal(); return; }
     setSelEv(ev);
@@ -224,7 +374,6 @@ export default function RegisterPage() {
     setPayDone(false);
   };
 
-  /* ── Validation ── */
   const validate = () => {
     const e = {};
     members.forEach((m, i) => {
@@ -238,7 +387,6 @@ export default function RegisterPage() {
     return e;
   };
 
-  /* ── Submit ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate();
@@ -258,7 +406,6 @@ export default function RegisterPage() {
     } finally { setSub(false); }
   };
 
-  /* ── Step 2: Generate QR + reference ID ── */
   const handleInitiatePayment = async () => {
     setPayInitLoading(true); setPayError('');
     try {
@@ -269,14 +416,12 @@ export default function RegisterPage() {
     } finally { setPayInitLoading(false); }
   };
 
-  /* ── Screenshot file selection ── */
   const handleScreenshotChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setScreenshot(file); setScPreview(URL.createObjectURL(file)); setPayError('');
   };
 
-  /* ── Step 3: Submit UTR + screenshot ── */
   const handleSubmitPayment = async () => {
     if (!utr.trim()) { setPayError('Please enter the UTR / Transaction ID.'); return; }
     if (!screenshot) { setPayError('Please upload your payment screenshot.'); return; }
@@ -293,7 +438,6 @@ export default function RegisterPage() {
     } finally { setPaySubmitting(false); }
   };
 
-  /* ── Participant helpers ── */
   const updateMember = (i, key, val) =>
     setMembers((p) => p.map((m, idx) => idx === i ? { ...m, [key]: val } : m));
   const addMember    = () => members.length < maxAllowed && setMembers((p) => [...p, { ...EMPTY_MEMBER }]);
@@ -309,29 +453,50 @@ export default function RegisterPage() {
             Register for <span className="shimmer-text">GeoFest 2026</span>
           </h1>
           <p className="text-gray-400 max-w-lg mx-auto text-sm sm:text-base">
-            Click on an event tile to register — fill your details and pay to confirm your spot.
+            Click on an event card to register — fill your details and pay to confirm your spot.
           </p>
         </motion.div>
       </div>
 
-      {/* ── Event tiles ── */}
-      <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12">
+      {/* ── Content ── */}
+      <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-10">
 
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
-            {[1,2,3,4,5].map((i) => <div key={i} className="h-48 rounded-2xl bg-slate-800 animate-pulse" />)}
+          <div className="space-y-8">
+            <div className="h-56 rounded-2xl bg-slate-800 animate-pulse" />
+            <div className="grid grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-48 rounded-2xl bg-slate-800 animate-pulse" />
+              ))}
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
-            {events.map((ev, i) => (
-              <EventTile
-                key={ev.id} ev={ev} index={i}
-                isSelected={selectedEvent?.id === ev.id}
-                isBlocked={selectedEvent?.id !== ev.id && conflictTitle === norm(ev.title)}
-                onClick={selectEvent}
-              />
-            ))}
-          </div>
+          <>
+            {/* ── Featured: Project Display ── */}
+            {projectDisplay && (
+              <FeaturedCard ev={projectDisplay} onRegister={selectEvent} />
+            )}
+
+            {/* ── Day 1 ── */}
+            <DaySection
+              dayLabel="DAY 1"
+              date="17th March"
+              events={day1Events}
+              selectedEvent={selectedEvent}
+              conflictTitle={conflictTitle}
+              onSelect={selectEvent}
+            />
+
+            {/* ── Day 2 ── */}
+            <DaySection
+              dayLabel="DAY 2"
+              date="18th March"
+              events={day2Events}
+              selectedEvent={selectedEvent}
+              conflictTitle={conflictTitle}
+              onSelect={selectEvent}
+            />
+          </>
         )}
       </div>
 
@@ -397,7 +562,6 @@ export default function RegisterPage() {
                         </div>
                       )}
 
-                      {/* Participant forms */}
                       <AnimatePresence>
                         {members.map((m, i) => (
                           <MemberForm key={i} member={m} idx={i + 1}
@@ -413,7 +577,6 @@ export default function RegisterPage() {
                         ))}
                       </AnimatePresence>
 
-                      {/* Add participant */}
                       {maxAllowed > 1 && members.length < maxAllowed && minAllowed < maxAllowed && (
                         <motion.button type="button" onClick={addMember}
                           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
@@ -423,7 +586,6 @@ export default function RegisterPage() {
                         </motion.button>
                       )}
 
-                      {/* Total */}
                       <motion.div
                         key={totalPrice} initial={{ scale: 0.97 }} animate={{ scale: 1 }}
                         className="bg-slate-800 rounded-xl px-5 py-4 flex justify-between items-center border border-amber-500/10">
@@ -447,7 +609,6 @@ export default function RegisterPage() {
                         {submitting ? 'Registering...' : 'Register Now →'}
                       </motion.button>
                     </form>
-
                   )}
 
                   {/* STEP 2 — Registration saved, initiate payment */}
@@ -484,7 +645,6 @@ export default function RegisterPage() {
                   {registered && paymentData && !payDone && (
                     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
 
-                      {/* QR card */}
                       <div className="bg-slate-800 rounded-2xl p-5 text-center border border-slate-700/60">
                         <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3">Scan QR to Pay</p>
                         <div className="flex justify-center mb-3">
