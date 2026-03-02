@@ -119,13 +119,13 @@ const FACULTY_ADVISORS = [
 ];
 
 const FACULTY_COORDINATORS = [
-  { name: 'Dr. Dinesh S. Aswar',           initials: 'DA', photo: '/geofest_faculty_photos/Dr_Dinesh_S_Aswar.jpg' },
-  { name: 'Dr. Mohammed Rihan Maaze',      initials: 'MM', photo: '/geofest_faculty_photos/Dr._Mohammed_Rihan_Maaze_.jpg' },
-  { name: 'Dr. Vijendra Kumar',            initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vijendra_Kumar.jpg' },
-  { name: 'Dr. Aniket Dahasahastra',       initials: 'AD', photo: '/geofest_faculty_photos/Dr_Aniket_V_Dahasahastra.jpg' },
-  { name: 'Dr. Ramala Rakesh Kumar Reddy', initials: 'RR', photo: '/geofest_faculty_photos/Dr_Ramala_Rakesh_Kumar_Reddy.jpg' },
-  { name: 'Dr. Dyana Joseline',            initials: 'DJ', photo: '/geofest_faculty_photos/Dr_Dyana_Joseline.jpg' },
-  { name: 'Dr. Senthamizh Sankar',         initials: 'SS', photo: '/geofest_faculty_photos/Dr_S_Senthamizh_Sankar.jpg' },
+  { name: 'Dr. Dinesh S. Aswar',           initials: 'DA', photo: '/geofest_faculty_photos/Dr_Dinesh_S_Aswar.jpg',             role: 'Assistant Professor, NICMAR University, Pune' },
+  { name: 'Dr. Mohammed Rihan Maaze',      initials: 'MM', photo: '/geofest_faculty_photos/Dr._Mohammed_Rihan_Maaze_.jpg',     role: 'Assistant Professor, NICMAR University, Pune' },
+  { name: 'Dr. Vijendra Kumar',            initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vijendra_Kumar.jpg',             role: 'Assistant Professor, NICMAR University, Pune' },
+  { name: 'Dr. Aniket Dahasahastra',       initials: 'AD', photo: '/geofest_faculty_photos/Dr_Aniket_V_Dahasahastra.jpg',     role: 'Assistant Professor, NICMAR University, Pune' },
+  { name: 'Dr. Ramala Rakesh Kumar Reddy', initials: 'RR', photo: '/geofest_faculty_photos/Dr_Ramala_Rakesh_Kumar_Reddy.jpg', role: 'Assistant Professor, NICMAR University, Pune' },
+  { name: 'Dr. Dyana Joseline',            initials: 'DJ', photo: '/geofest_faculty_photos/Dr_Dyana_Joseline.jpg',             role: 'Assistant Professor, NICMAR University, Pune' },
+  { name: 'Dr. Senthamizh Sankar',         initials: 'SS', photo: '/geofest_faculty_photos/Dr_S_Senthamizh_Sankar.jpg',        role: 'Assistant Professor, NICMAR University, Pune' },
 ];
 
 const COMMITTEE_ROLES = [
