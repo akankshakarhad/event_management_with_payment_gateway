@@ -440,6 +440,7 @@ export default function RegisterPage() {
   const [paySubmitting, setPaySubmitting]   = useState(false);
   const [payError, setPayError]             = useState('');
   const [payDone, setPayDone]               = useState(false);
+  const [scheduleOpen, setScheduleOpen]     = useState(false);
   const fileRef = useRef(null);
 
   useEffect(() => {
@@ -591,37 +592,27 @@ export default function RegisterPage() {
         </motion.div>
       </div>
 
-      {/* ── Schedule ── */}
-      <section className="py-10 sm:py-14 px-4 bg-black/40">
-        <div className="max-w-5xl mx-auto">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-            className="text-center mb-8 sm:mb-10">
-            <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Event <span className="shimmer-text">Schedule</span></h2>
-            <p className="text-white font-bold text-sm sm:text-base">Two days of engineering excellence — 17 & 18 March 2026</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {SCHEDULE.map((day, i) => (
-              <motion.div key={day.day}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
-                <div className={`rounded-t-2xl bg-gradient-to-r ${day.color} px-5 sm:px-6 py-3 sm:py-4`}>
-                  <h3 className="text-lg sm:text-xl font-extrabold">{day.day}</h3>
-                  <p className="text-white/80 text-sm">{day.date}</p>
-                </div>
-                <div className="glass rounded-b-2xl p-4 space-y-3">
-                  {day.items.map((item, j) => (
-                    <div key={j} className="flex items-start gap-3">
-                      <span className="text-xs sm:text-sm text-white w-28 sm:w-44 shrink-0 mt-0.5 font-mono font-bold">{item.time}</span>
-                      <span className="text-sm sm:text-base text-gray-200 leading-relaxed">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
+      {/* ── Schedule button ── */}
+      <div className="max-w-5xl mx-auto px-4 pt-6">
+        <motion.button
+          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+          onClick={() => setScheduleOpen(true)}
+          className="w-full flex items-center justify-between gap-4
+                     glass border border-amber-500/30 hover:border-amber-500/70
+                     rounded-2xl px-5 py-4 transition-all duration-200 group">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🗓</span>
+            <div className="text-left">
+              <p className="text-sm font-bold text-white">View Event Schedule</p>
+              <p className="text-xs text-gray-400">17 & 18 March 2026 — Two-day programme</p>
+            </div>
           </div>
-        </div>
-      </section>
+          <span className="text-amber-400 font-bold text-sm group-hover:translate-x-1 transition-transform duration-200">
+            View →
+          </span>
+        </motion.button>
+      </div>
 
       {/* ── Content ── */}
       <div className="max-w-5xl mx-auto px-4 py-8 sm:py-12 space-y-10">
@@ -665,7 +656,72 @@ export default function RegisterPage() {
         )}
       </div>
 
-      {/* ── Modal ── */}
+      {/* ── Schedule Modal ── */}
+      <AnimatePresence>
+        {scheduleOpen && (
+          <>
+            <motion.div
+              key="sched-backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setScheduleOpen(false)}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+            />
+            <motion.div
+              key="sched-modal"
+              initial={{ opacity: 0, scale: 0.95, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 24 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+
+              <div className="relative w-full max-w-2xl max-h-[88vh] overflow-y-auto pointer-events-auto
+                              bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl">
+
+                {/* Header */}
+                <div className="sticky top-0 z-10 bg-slate-900 border-b border-slate-700/60 px-5 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">🗓</span>
+                    <div>
+                      <h2 className="text-base font-extrabold text-white">Event Schedule</h2>
+                      <p className="text-[11px] text-gray-400">17 & 18 March 2026 — NICMAR University, Pune</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setScheduleOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full
+                               text-gray-400 hover:text-white hover:bg-slate-700 transition text-lg">
+                    ✕
+                  </button>
+                </div>
+
+                {/* Body */}
+                <div className="p-5 space-y-5">
+                  {SCHEDULE.map((day, i) => (
+                    <motion.div key={day.day}
+                      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.1 }}>
+                      <div className={`rounded-t-2xl bg-gradient-to-r ${day.color} px-5 py-3`}>
+                        <h3 className="text-base font-extrabold">{day.day}</h3>
+                        <p className="text-white/80 text-xs">{day.date}</p>
+                      </div>
+                      <div className="glass rounded-b-2xl p-4 space-y-3">
+                        {day.items.map((item, j) => (
+                          <div key={j} className="flex items-start gap-3">
+                            <span className="text-xs text-white w-36 shrink-0 mt-0.5 font-mono font-bold leading-relaxed">{item.time}</span>
+                            <span className="text-sm text-gray-200 leading-relaxed">{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── Registration Modal ── */}
       <AnimatePresence>
         {selectedEvent && (
           <>
