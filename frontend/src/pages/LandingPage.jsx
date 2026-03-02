@@ -138,7 +138,7 @@ const COMMITTEE_ROLES = [
 
 const IGS_COMMITTEE = [
   { name: 'Prof. Mrs. Suman Jain',  role: 'Chairperson, IGS Pune Chapter' },
-  { name: 'Er. Vikas Patil',        role: 'Imm. Past Chairman' },
+  { name: 'Dr. Vikas Patil',        role: 'Imm. Past Chairman' },
   { name: 'Er. Deepali Kulkarni',   role: 'Honorary Secretary' },
   { name: 'Dr. R. D. Nalwade',      role: 'Honorary Treasurers' },
   { name: 'Dr. S M Nawghare',       role: 'Honorary Treasurer' },
