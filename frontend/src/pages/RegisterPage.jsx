@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
 
@@ -166,9 +166,19 @@ export default function RegisterPage() {
   const [members, setMembers]     = useState([{ ...EMPTY_MEMBER }]);
   const [errors, setErrors]       = useState({});
   const [submitting, setSub]      = useState(false);
-  const [paying, setPaying]       = useState(false);
   const [userIds, setUserIds]     = useState(null);
   const [registered, setReg]      = useState(false);
+
+  /* Payment flow state */
+  const [payInitLoading, setPayInitLoading] = useState(false);
+  const [paymentData, setPaymentData]       = useState(null);
+  const [utr, setUtr]                       = useState('');
+  const [screenshot, setScreenshot]         = useState(null);
+  const [screenshotPreview, setScPreview]   = useState('');
+  const [paySubmitting, setPaySubmitting]   = useState(false);
+  const [payError, setPayError]             = useState('');
+  const [payDone, setPayDone]               = useState(false);
+  const fileRef = useRef(null);
 
   useEffect(() => {
     api.get('/events')
@@ -196,7 +206,10 @@ export default function RegisterPage() {
     ? parseFloat(selectedEvent.price)
     : 0;
 
-  const closeModal = () => { setSelEv(null); setReg(false); setUserIds(null); };
+  const closeModal = () => {
+    setSelEv(null); setReg(false); setUserIds(null); setPaymentData(null);
+    setUtr(''); setScreenshot(null); setScPreview(''); setPayError(''); setPayDone(false);
+  };
 
   /* ── Select event → open modal ── */
   const selectEvent = (ev) => {
@@ -207,6 +220,8 @@ export default function RegisterPage() {
     setErrors({});
     setReg(false);
     setUserIds(null);
+    setPaymentData(null);
+    setPayDone(false);
   };
 
   /* ── Validation ── */
@@ -243,16 +258,39 @@ export default function RegisterPage() {
     } finally { setSub(false); }
   };
 
-  /* ── Payment ── */
-  const handlePayment = async () => {
-    setPaying(true);
+  /* ── Step 2: Generate QR + reference ID ── */
+  const handleInitiatePayment = async () => {
+    setPayInitLoading(true); setPayError('');
     try {
-      const res = await api.post('/create-order', { userIds });
-      window.location.href = res.data.data.redirectUrl;
+      const res = await api.post('/payment/initiate', { userIds });
+      setPaymentData(res.data.data);
     } catch (err) {
-      alert(err.response?.data?.message || 'Could not initiate payment.');
-      setPaying(false);
-    }
+      setPayError(err.response?.data?.message || 'Could not generate payment QR. Please try again.');
+    } finally { setPayInitLoading(false); }
+  };
+
+  /* ── Screenshot file selection ── */
+  const handleScreenshotChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setScreenshot(file); setScPreview(URL.createObjectURL(file)); setPayError('');
+  };
+
+  /* ── Step 3: Submit UTR + screenshot ── */
+  const handleSubmitPayment = async () => {
+    if (!utr.trim()) { setPayError('Please enter the UTR / Transaction ID.'); return; }
+    if (!screenshot) { setPayError('Please upload your payment screenshot.'); return; }
+    setPaySubmitting(true); setPayError('');
+    try {
+      const form = new FormData();
+      form.append('referenceId', paymentData.referenceId);
+      form.append('utr', utr.trim());
+      form.append('screenshot', screenshot);
+      await api.post('/payment/submit', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setPayDone(true);
+    } catch (err) {
+      setPayError(err.response?.data?.message || 'Submission failed. Please try again.');
+    } finally { setPaySubmitting(false); }
   };
 
   /* ── Participant helpers ── */
@@ -350,7 +388,7 @@ export default function RegisterPage() {
 
                 {/* Modal body */}
                 <div className="px-5 py-6">
-                  {!registered ? (
+                  {!registered && (
                     <form onSubmit={handleSubmit} className="space-y-4">
 
                       {errors.api && (
@@ -410,8 +448,10 @@ export default function RegisterPage() {
                       </motion.button>
                     </form>
 
-                  ) : (
-                    /* ── Payment ── */
+                  )}
+
+                  {/* STEP 2 — Registration saved, initiate payment */}
+                  {registered && !paymentData && !payDone && (
                     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                       className="text-center py-4">
                       <motion.div animate={{ rotate: [0, 15, -15, 0] }}
@@ -424,20 +464,123 @@ export default function RegisterPage() {
                       </p>
                       <p className="text-gray-400 text-sm mb-6">
                         {members.length} participant{members.length > 1 ? 's' : ''} registered.
-                        Complete payment to confirm {members.length > 1 ? 'all spots' : 'your spot'}.
+                        Complete payment via UPI to confirm {members.length > 1 ? 'all spots' : 'your spot'}.
                       </p>
                       <div className="bg-slate-800 rounded-xl px-5 py-4 mb-5">
-                        <p className="text-gray-500 text-xs mb-1">Total Amount</p>
-                        <p className="text-3xl font-extrabold shimmer-text">₹{totalPrice}</p>
+                        <p className="text-gray-500 text-xs mb-1">Amount to Pay</p>
+                        <p className="text-3xl font-extrabold shimmer-text">Rs.199</p>
                       </div>
-                      <motion.button onClick={handlePayment} disabled={paying}
+                      {payError && <p className="text-red-400 text-sm mb-3">{payError}</p>}
+                      <motion.button onClick={handleInitiatePayment} disabled={payInitLoading}
                         whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
                         className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold
                                    rounded-xl shadow-lg shadow-emerald-500/20 transition disabled:opacity-60">
-                        {paying ? 'Opening Payment...' : '💳 Pay Now & Confirm Spot'}
+                        {payInitLoading ? 'Generating QR Code...' : 'Pay Now & Confirm Spot'}
                       </motion.button>
                     </motion.div>
                   )}
+
+                  {/* STEP 3 — QR + UPI info + UTR submission */}
+                  {registered && paymentData && !payDone && (
+                    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-5">
+
+                      {/* QR card */}
+                      <div className="bg-slate-800 rounded-2xl p-5 text-center border border-slate-700/60">
+                        <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3">Scan QR to Pay</p>
+                        <div className="flex justify-center mb-3">
+                          <img src={paymentData.qrCodeBase64} alt="UPI QR Code" className="w-52 h-52 rounded-xl border-4 border-white" />
+                        </div>
+                        <div className="text-3xl font-extrabold text-amber-400 mb-1">Rs.{paymentData.amount}</div>
+                        <div className="flex items-center justify-center gap-2 mb-3">
+                          <span className="text-gray-400 text-xs">UPI ID:</span>
+                          <span className="text-white font-mono font-semibold text-sm">{paymentData.upiId}</span>
+                        </div>
+                        <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl px-4 py-3 mb-4">
+                          <p className="text-[10px] text-amber-400 font-semibold uppercase tracking-widest mb-1">
+                            Your Reference ID — note this down!
+                          </p>
+                          <p className="text-xl font-extrabold text-amber-300 tracking-widest font-mono">{paymentData.referenceId}</p>
+                        </div>
+                        <a href={paymentData.upiLink}
+                          className="inline-flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-xl text-sm shadow-lg hover:opacity-90 transition">
+                          Pay via UPI App (mobile)
+                        </a>
+                        <p className="text-gray-600 text-[10px] mt-2">Opens your UPI app automatically on mobile</p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="flex-1 h-px bg-slate-700" />
+                        <span className="text-xs text-gray-500 font-semibold">After paying, submit proof below</span>
+                        <div className="flex-1 h-px bg-slate-700" />
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-gray-400 mb-1.5 block font-semibold">
+                            UPI Reference / Transaction ID (UTR) *
+                          </label>
+                          <input type="text" value={utr}
+                            onChange={(e) => { setUtr(e.target.value); setPayError(''); }}
+                            placeholder="e.g. 407919767984"
+                            className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 transition ${payError && !utr.trim() ? 'border-red-500' : 'border-slate-700'}`}
+                            maxLength={30} />
+                          <p className="text-gray-600 text-[10px] mt-1">Find this in your UPI app under transaction history</p>
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-gray-400 mb-1.5 block font-semibold">Payment Screenshot *</label>
+                          <div onClick={() => fileRef.current?.click()}
+                            className="border-2 border-dashed border-slate-700 hover:border-emerald-500/50 rounded-xl p-4 text-center cursor-pointer transition-colors">
+                            {screenshotPreview
+                              ? <img src={screenshotPreview} alt="preview" className="max-h-36 mx-auto rounded-lg object-contain" />
+                              : <>
+                                  <div className="text-3xl mb-1">📸</div>
+                                  <p className="text-gray-400 text-xs">Click to upload screenshot</p>
+                                  <p className="text-gray-600 text-[10px] mt-0.5">JPG, JPEG, PNG — Max 5 MB</p>
+                                </>
+                            }
+                          </div>
+                          <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png" onChange={handleScreenshotChange} className="hidden" />
+                        </div>
+
+                        {payError && (
+                          <div className="bg-red-900/40 border border-red-700 text-red-300 rounded-xl px-4 py-3 text-sm">{payError}</div>
+                        )}
+
+                        <motion.button onClick={handleSubmitPayment} disabled={paySubmitting}
+                          whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                          className="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition disabled:opacity-60">
+                          {paySubmitting ? 'Submitting...' : 'Submit Payment Proof'}
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* STEP 4 — Confirmation */}
+                  {payDone && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center py-8">
+                      <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 200, delay: 0.1 }} className="text-6xl mb-5">
+                        ✅
+                      </motion.div>
+                      <h3 className="text-xl font-extrabold mb-2 text-emerald-400">Payment Submitted!</h3>
+                      <p className="text-gray-400 text-sm mb-4">
+                        We will verify your payment and confirm your spot within <strong className="text-white">24 hours</strong>.
+                      </p>
+                      <div className="bg-slate-800 rounded-xl px-5 py-4 mb-5 text-left">
+                        <p className="text-xs text-gray-500 mb-1">Reference ID</p>
+                        <p className="text-amber-300 font-mono font-bold tracking-widest text-lg">{paymentData?.referenceId}</p>
+                        <p className="text-[10px] text-gray-600 mt-2">
+                          Save this for your records. You will receive a confirmation email once verified.
+                        </p>
+                      </div>
+                      <motion.button onClick={closeModal} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
+                        className="w-full py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl transition text-sm">
+                        Close
+                      </motion.button>
+                    </motion.div>
+                  )}
+
                 </div>
               </div>
             </motion.div>

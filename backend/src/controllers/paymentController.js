@@ -1,151 +1,160 @@
-const axios                   = require('axios');
-const { v4: uuidv4 }          = require('uuid');
-const crypto                  = require('crypto');
-const { getConfig, buildRequest } = require('../config/phonepe');
-const paymentModel            = require('../models/paymentModel');
-const registrationModel       = require('../models/registrationModel');
-const { pool }                = require('../config/db');
+const QRCode       = require('qrcode');
+const paymentModel = require('../models/paymentModel');
+const { uploadToCloudinary } = require('../middleware/upload');
+const { pool }     = require('../config/db');
 
-const PAY_ENDPOINT    = '/pg/v1/pay';
+const AMOUNT   = 199;
+const UPI_ID   = process.env.UPI_ID   || 'geofest@upi';
+const UPI_NAME = process.env.UPI_NAME || 'GeoFest 2026';
 
-// Normalise: accept userId (string) OR userIds (array)
+// UTR validation: 6–30 alphanumeric characters (covers IMPS, NEFT, UPI ref formats)
+const UTR_REGEX = /^[A-Za-z0-9]{6,30}$/;
+
 const resolveUserIds = (body) => {
-  if (body.userIds && Array.isArray(body.userIds) && body.userIds.length) return body.userIds;
+  if (Array.isArray(body.userIds) && body.userIds.length) return body.userIds;
   if (body.userId) return [body.userId];
   return [];
 };
 
-// POST /api/create-order
-// Body: { userId } OR { userIds: ['uid1','uid2',...] }
-const createOrder = async (req, res, next) => {
-  try {
-    const { BASE_URL, MERCHANT_ID } = getConfig();
-    const APP_BASE_URL = process.env.APP_BASE_URL || 'http://localhost:5000';
+const generateReferenceId = () => {
+  const digits = Math.floor(100000 + Math.random() * 900000);
+  return `GF2026-${digits}`;
+};
 
+// ─────────────────────────────────────────────
+// POST /api/payment/initiate
+// Body: { userId } | { userIds: [] }
+// Returns: referenceId, upiLink, qrCodeBase64, amount, upiId
+// ─────────────────────────────────────────────
+const initiatePayment = async (req, res, next) => {
+  try {
     const userIds = resolveUserIds(req.body);
     if (!userIds.length) {
       return res.status(400).json({ success: false, message: 'userId or userIds is required' });
     }
 
-    // Get all PENDING registrations for all users
+    // Ensure at least one pending registration exists
     const placeholders = userIds.map((_, i) => `$${i + 1}`).join(', ');
-    const { rows: pendingRegs } = await pool.query(
-      `SELECT r.id, r.event_id, r.user_id, e.price
-       FROM registrations r
-       JOIN events e ON e.id = r.event_id
-       WHERE r.user_id IN (${placeholders}) AND r.status = 'PENDING'`,
+    const { rows: pending } = await pool.query(
+      `SELECT id FROM registrations
+       WHERE user_id IN (${placeholders}) AND status = 'PENDING'`,
       userIds
     );
-
-    if (!pendingRegs.length) {
-      return res.status(400).json({
-        success: false,
-        message: 'No pending registrations found',
-      });
+    if (!pending.length) {
+      return res.status(400).json({ success: false, message: 'No pending registrations found' });
     }
 
-    const totalAmount   = pendingRegs.reduce((sum, r) => sum + parseFloat(r.price), 0);
-    const amountInPaise = Math.round(totalAmount * 100);
-
-    const merchantTransactionId = `GEOFEST_${uuidv4().slice(0, 8).toUpperCase()}_${Date.now()}`;
-
-    const phonePePayload = {
-      merchantId:            MERCHANT_ID,
-      merchantTransactionId,
-      merchantUserId:        userIds[0],
-      amount:                amountInPaise,
-      redirectUrl:           `${APP_BASE_URL}/api/phonepe-callback?transactionId=${merchantTransactionId}`,
-      redirectMode:          'REDIRECT',
-      paymentInstrument:     { type: 'PAY_PAGE' },
-    };
-
-    const { base64Payload, checksum } = buildRequest(phonePePayload, PAY_ENDPOINT);
-
-    const phonePeResponse = await axios.post(
-      `${BASE_URL}${PAY_ENDPOINT}`,
-      { request: base64Payload },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-VERIFY':     checksum,
-          accept:         'application/json',
-        },
-      }
+    // Check if a PENDING payment already exists for this user (prevent duplicates)
+    const { rows: existing } = await pool.query(
+      `SELECT reference_id FROM payments
+       WHERE user_id = $1 AND status = 'PENDING'
+       ORDER BY created_at DESC LIMIT 1`,
+      [userIds[0]]
     );
 
-    const { data } = phonePeResponse;
-    if (!data.success || !data.data?.instrumentResponse?.redirectInfo?.url) {
-      return res.status(502).json({ success: false, message: 'PhonePe did not return a redirect URL' });
+    let referenceId;
+    if (existing.length) {
+      referenceId = existing[0].reference_id;
+    } else {
+      referenceId = generateReferenceId();
+      await paymentModel.createPending(userIds[0], AMOUNT, referenceId, userIds);
     }
 
-    const redirectUrl = data.data.instrumentResponse.redirectInfo.url;
+    // Build UPI deep-link
+    const tn = encodeURIComponent(referenceId);
+    const pa = encodeURIComponent(UPI_ID);
+    const pn = encodeURIComponent(UPI_NAME);
+    const upiLink = `upi://pay?pa=${pa}&pn=${pn}&am=${AMOUNT}&cu=INR&tn=${tn}`;
 
-    // Save payment record (team leader as user_id, store all userIds as JSON)
-    await paymentModel.createPending(userIds[0], totalAmount, merchantTransactionId, userIds);
+    // Generate QR code as base64 PNG data URL
+    const qrCodeBase64 = await QRCode.toDataURL(upiLink, {
+      width:  300,
+      margin: 2,
+      color:  { dark: '#000000', light: '#ffffff' },
+    });
 
     res.status(201).json({
       success: true,
-      data: { redirectUrl },
+      data: {
+        referenceId,
+        upiLink,
+        qrCodeBase64,
+        amount:    AMOUNT,
+        upiId:     UPI_ID,
+        payeeName: UPI_NAME,
+      },
     });
   } catch (err) {
-    console.error('[PhonePe] create-order error:', JSON.stringify(err.response?.data || err.message));
-    if (err.response?.data) {
-      return res.status(502).json({
-        success: false,
-        message: err.response.data.message || 'PhonePe API error',
-        code: err.response.data.code,
-      });
-    }
     next(err);
   }
 };
 
-// GET /api/phonepe-callback?transactionId=MERCHANT_TXN_ID
-// PhonePe redirects the user here after payment
-const phonePeCallback = async (req, res, next) => {
-  const { BASE_URL, MERCHANT_ID, SALT_KEY, SALT_INDEX } = getConfig();
-  const frontendBase = process.env.FRONTEND_URL || 'http://localhost:5173';
+// ─────────────────────────────────────────────
+// POST /api/payment/submit  (multipart/form-data)
+// Fields: referenceId, utr
+// File:   screenshot (jpg/jpeg/png, max 5 MB)
+// ─────────────────────────────────────────────
+const submitPayment = async (req, res, next) => {
   try {
-    const { transactionId } = req.query;
-    if (!transactionId) {
-      return res.redirect(`${frontendBase}/failure`);
+    const { referenceId, utr } = req.body;
+    const file = req.file;
+
+    if (!referenceId || !utr) {
+      return res.status(400).json({ success: false, message: 'referenceId and utr are required' });
+    }
+    if (!file) {
+      return res.status(400).json({ success: false, message: 'Payment screenshot is required' });
     }
 
-    const statusEndpoint = `/pg/v1/status/${MERCHANT_ID}/${transactionId}`;
-    const statusHash = crypto
-      .createHash('sha256')
-      .update(statusEndpoint + SALT_KEY)
-      .digest('hex');
-    const statusChecksum = `${statusHash}###${SALT_INDEX}`;
+    // Validate UTR format
+    if (!UTR_REGEX.test(utr)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid UTR format. Must be 6–30 alphanumeric characters (no spaces or symbols).',
+      });
+    }
 
-    const statusRes = await axios.get(`${BASE_URL}${statusEndpoint}`, {
-      headers: {
-        'Content-Type':  'application/json',
-        'X-VERIFY':      statusChecksum,
-        'X-MERCHANT-ID': MERCHANT_ID,
-        accept:          'application/json',
-      },
+    // Prevent duplicate UTR
+    const isDuplicate = await paymentModel.isUtrDuplicate(utr);
+    if (isDuplicate) {
+      return res.status(409).json({
+        success: false,
+        message: 'This UTR has already been submitted. Contact us if you think this is an error.',
+      });
+    }
+
+    // Verify the payment record exists and is still PENDING
+    const payment = await paymentModel.findByReferenceId(referenceId);
+    if (!payment) {
+      return res.status(404).json({ success: false, message: 'Payment reference not found' });
+    }
+    if (payment.status !== 'PENDING') {
+      return res.status(400).json({
+        success: false,
+        message: 'Payment already submitted or processed. Contact support if needed.',
+      });
+    }
+
+    // Upload screenshot to Cloudinary
+    const cloudResult = await uploadToCloudinary(file.buffer, 'geofest-payments');
+
+    // Update payment record
+    const updated = await paymentModel.submitPayment(
+      referenceId,
+      utr,
+      cloudResult.secure_url
+    );
+    if (!updated) {
+      return res.status(500).json({ success: false, message: 'Failed to record payment. Try again.' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Payment details submitted successfully. We will verify and confirm within 24 hours.',
     });
-
-    const { data } = statusRes;
-    const paymentState = data?.data?.paymentState || data?.data?.state;
-    const phonePeTxnId = data?.data?.transactionId || '';
-
-    if (data.success && (paymentState === 'COMPLETED' || data.code === 'PAYMENT_SUCCESS')) {
-      const payment = await paymentModel.markPaid(transactionId, phonePeTxnId);
-      if (payment && payment.user_ids) {
-        const userIds = JSON.parse(payment.user_ids);
-        await registrationModel.markAllPaidForUsers(userIds);
-      }
-      return res.redirect(`${frontendBase}/success`);
-    } else {
-      await paymentModel.markFailed(transactionId);
-      return res.redirect(`${frontendBase}/failure`);
-    }
   } catch (err) {
-    console.error('PhonePe callback error:', err.response?.data || err.message);
-    return res.redirect(`${frontendBase}/failure`);
+    next(err);
   }
 };
 
-module.exports = { createOrder, phonePeCallback };
+module.exports = { initiatePayment, submitPayment };

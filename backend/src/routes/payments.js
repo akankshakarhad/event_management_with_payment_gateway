@@ -1,8 +1,12 @@
 const express = require('express');
 const router  = express.Router();
-const { createOrder, phonePeCallback } = require('../controllers/paymentController');
+const { initiatePayment, submitPayment } = require('../controllers/paymentController');
+const { upload } = require('../middleware/upload');
 
-router.post('/create-order',      createOrder);
-router.get('/phonepe-callback',   phonePeCallback);
+// Step 1: Generate QR + reference ID
+router.post('/payment/initiate', initiatePayment);
+
+// Step 2: User submits UTR + screenshot
+router.post('/payment/submit', upload.single('screenshot'), submitPayment);
 
 module.exports = router;

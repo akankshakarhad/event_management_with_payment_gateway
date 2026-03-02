@@ -5,9 +5,17 @@ import api from '../api';
 const ADMIN_PASSWORD = '6tfcvgY%2026GeoFest';
 
 const STATUS_TABS = [
-  { label: 'All',        value: '' },
-  { label: '✅ Paid',    value: 'PAID' },
-  { label: '⏳ Pending', value: 'PENDING' },
+  { label: 'All',     value: '' },
+  { label: 'Paid',    value: 'PAID' },
+  { label: 'Pending', value: 'PENDING' },
+];
+
+const PAYMENT_STATUS_TABS = [
+  { label: 'All',                value: '' },
+  { label: 'Needs Verification', value: 'VERIFICATION_PENDING' },
+  { label: 'Approved',           value: 'APPROVED' },
+  { label: 'Rejected',           value: 'REJECTED' },
+  { label: 'Unpaid',             value: 'PENDING' },
 ];
 
 export default function AdminPage() {
@@ -24,7 +32,14 @@ export default function AdminPage() {
   const [error, setError]     = useState('');
 
   // ── Main tab ──
-  const [mainTab, setMainTab] = useState('registrations'); // 'registrations' | 'gallery'
+  const [mainTab, setMainTab] = useState('registrations'); // 'registrations' | 'payments' | 'gallery'
+
+  // ── Payments state ──
+  const [payments, setPayments]         = useState([]);
+  const [payStatus, setPayStatus]       = useState('');
+  const [payLoading, setPayLoading]     = useState(false);
+  const [payError, setPayError]         = useState('');
+  const [actionLoading, setActionLoading] = useState(''); // payment id being actioned
 
   // ── Gallery state ──
   const [galleryPhotos, setGalleryPhotos]   = useState([]);
@@ -39,6 +54,49 @@ export default function AdminPage() {
   const [deletingId, setDeletingId]           = useState('');
   const [lightbox, setLightbox]               = useState(null); // photo object
   const fileInputRef = useRef(null);
+
+  // ── Fetch payments ──
+  const fetchPayments = async () => {
+    setPayLoading(true); setPayError('');
+    try {
+      const params = {};
+      if (payStatus) params.status = payStatus;
+      const res = await api.get('/admin/payments', { params });
+      setPayments(res.data.data);
+    } catch { setPayError('Failed to load payments.'); }
+    finally   { setPayLoading(false); }
+  };
+
+  const handleApprove = async (p) => {
+    setActionLoading(p.id);
+    try {
+      await api.post(`/admin/payments/${p.id}/approve`, { name: p.name, email: p.email }, {
+        headers: { 'x-admin-password': ADMIN_PASSWORD },
+      });
+      fetchPayments();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Approval failed.');
+    } finally { setActionLoading(''); }
+  };
+
+  const handleReject = async (id) => {
+    if (!window.confirm('Reject this payment?')) return;
+    setActionLoading(id);
+    try {
+      await api.post(`/admin/payments/${id}/reject`, {}, {
+        headers: { 'x-admin-password': ADMIN_PASSWORD },
+      });
+      fetchPayments();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Rejection failed.');
+    } finally { setActionLoading(''); }
+  };
+
+  const handleExportPayments = () => {
+    const p = new URLSearchParams();
+    if (payStatus) p.append('status', payStatus);
+    window.open(`/api/admin/payments/export?${p.toString()}`, '_blank');
+  };
 
   // ── Fetch registrations ──
   const fetchData = async () => {
@@ -73,6 +131,10 @@ export default function AdminPage() {
   useEffect(() => {
     if (unlocked) fetchData();
   }, [unlocked, status, eventId]);
+
+  useEffect(() => {
+    if (unlocked) fetchPayments();
+  }, [unlocked, payStatus]);
 
   const handleUnlock = (e) => {
     e.preventDefault();
@@ -205,23 +267,33 @@ export default function AdminPage() {
             <h1 className="text-4xl font-extrabold mb-1">
               Admin <span className="shimmer-text">Dashboard</span>
             </h1>
-            <p className="text-gray-500 text-sm">Manage registrations and event gallery</p>
+            <p className="text-gray-500 text-sm">Manage registrations, payments and event gallery</p>
           </div>
-          {mainTab === 'registrations' && (
-            <motion.button onClick={handleExport}
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition">
-              ⬇ Export Excel
-            </motion.button>
-          )}
+          <div className="flex gap-2">
+            {mainTab === 'registrations' && (
+              <motion.button onClick={handleExport}
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition">
+                Export Registrations
+              </motion.button>
+            )}
+            {mainTab === 'payments' && (
+              <motion.button onClick={handleExportPayments}
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition">
+                Export Payments
+              </motion.button>
+            )}
+          </div>
         </motion.div>
 
         {/* Main Tabs */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           className="glass rounded-xl p-1 flex gap-1 mb-8 w-fit">
           {[
-            { label: '📋 Registrations', value: 'registrations' },
-            { label: '🖼 Gallery',        value: 'gallery' },
+            { label: 'Registrations', value: 'registrations' },
+            { label: 'Payments',      value: 'payments' },
+            { label: 'Gallery',       value: 'gallery' },
           ].map((t) => (
             <button key={t.value} onClick={() => setMainTab(t.value)}
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition ${
@@ -324,6 +396,117 @@ export default function AdminPage() {
                           }`}>
                             {r.status}
                           </span>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
+            )}
+          </>
+        )}
+
+        {/* ── PAYMENTS TAB ── */}
+        {mainTab === 'payments' && (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+              {[
+                { label: 'Total',        value: payments.length,                                            color: 'text-amber-400'  },
+                { label: 'Needs Review', value: payments.filter((p) => p.status === 'VERIFICATION_PENDING').length, color: 'text-yellow-400'  },
+                { label: 'Approved',     value: payments.filter((p) => p.status === 'APPROVED').length,      color: 'text-emerald-400' },
+                { label: 'Rejected',     value: payments.filter((p) => p.status === 'REJECTED').length,      color: 'text-red-400'     },
+              ].map((s) => (
+                <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                  className="glass rounded-2xl p-5 text-center">
+                  <div className={`text-3xl font-extrabold ${s.color}`}>{s.value}</div>
+                  <div className="text-gray-500 text-xs mt-1">{s.label}</div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Status filter */}
+            <div className="glass rounded-xl p-1 flex gap-1 mb-6 flex-wrap">
+              {PAYMENT_STATUS_TABS.map((t) => (
+                <button key={t.value} onClick={() => setPayStatus(t.value)}
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition ${
+                    payStatus === t.value
+                      ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
+                      : 'text-gray-400 hover:text-white'
+                  }`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Table */}
+            {payLoading ? (
+              <div className="space-y-3">
+                {[1,2,3,4].map((i) => <div key={i} className="h-14 rounded-xl bg-slate-800 animate-pulse" />)}
+              </div>
+            ) : payError ? (
+              <p className="text-red-400 text-center py-16">{payError}</p>
+            ) : payments.length === 0 ? (
+              <div className="text-center py-20 text-gray-600">
+                <div className="text-5xl mb-4">💳</div>
+                <p>No payments found.</p>
+              </div>
+            ) : (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="glass rounded-2xl overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-700/60">
+                      {['Name','Email','Reference ID','Amount','UTR','Screenshot','Status','Actions'].map((h) => (
+                        <th key={h} className="text-left px-4 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800">
+                    {payments.map((p, i) => (
+                      <motion.tr key={p.id}
+                        initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.03 }}
+                        className="hover:bg-slate-800/40 transition-colors">
+                        <td className="px-4 py-3 font-medium text-white whitespace-nowrap">{p.name}</td>
+                        <td className="px-4 py-3 text-gray-400 text-xs">{p.email}</td>
+                        <td className="px-4 py-3 font-mono text-amber-400 text-xs font-bold whitespace-nowrap">{p.reference_id}</td>
+                        <td className="px-4 py-3 text-emerald-400 font-semibold">Rs.{p.amount}</td>
+                        <td className="px-4 py-3 font-mono text-gray-300 text-xs">{p.utr || '—'}</td>
+                        <td className="px-4 py-3">
+                          {p.screenshot_url
+                            ? <a href={p.screenshot_url} target="_blank" rel="noopener noreferrer"
+                                className="text-blue-400 hover:text-blue-300 text-xs underline">View</a>
+                            : <span className="text-gray-600 text-xs">—</span>
+                          }
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${
+                            p.status === 'APPROVED'             ? 'bg-emerald-500/15 text-emerald-400' :
+                            p.status === 'VERIFICATION_PENDING' ? 'bg-yellow-500/15 text-yellow-400'  :
+                            p.status === 'REJECTED'             ? 'bg-red-500/15 text-red-400'        :
+                                                                  'bg-slate-500/15 text-slate-400'
+                          }`}>
+                            {p.status === 'VERIFICATION_PENDING' ? 'Needs Review' : p.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          {p.status === 'VERIFICATION_PENDING' && (
+                            <div className="flex gap-2">
+                              <button onClick={() => handleApprove(p)}
+                                disabled={actionLoading === p.id}
+                                className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                                {actionLoading === p.id ? '...' : 'Approve'}
+                              </button>
+                              <button onClick={() => handleReject(p.id)}
+                                disabled={actionLoading === p.id}
+                                className="bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition whitespace-nowrap">
+                                {actionLoading === p.id ? '...' : 'Reject'}
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </motion.tr>
                     ))}
