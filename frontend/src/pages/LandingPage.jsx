@@ -113,8 +113,8 @@ const SCHEDULE = [
 
 const FACULTY_ADVISORS = [
   { name: 'Dr. Smita Krishnarao Patil', role: 'Dean, School of Engineering',                                   initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
-  { name: 'Dr. Shashank B S',           role: 'Head, School of Engineering',                                   initials: 'SB', photo: '/geofest_faculty_photos/Dr_Shashank_B_S.jpg' },
-  { name: 'Dr. Vidya Khanapure',        role: 'Faculty Advisor, IGS Student Chapter NICMAR University Pune',   initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
+  { name: 'Dr. Shashank B S',           role: 'Head, B.Tech Civil',                                            initials: 'SB', photo: '/geofest_faculty_photos/Dr_Shashank_B_S.jpg' },
+  { name: 'Dr. Vidya Khanapure',        role: 'Head, M.Tech',                                                  initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
   { name: 'Dr. Adinath Damale',         role: 'Controller of Examination, NICMAR University, Pune',            initials: 'AD', photo: '/geofest_faculty_photos/Dr_Adinath_Damale_new001.png' },
 ];
 
@@ -129,10 +129,11 @@ const FACULTY_COORDINATORS = [
 ];
 
 const COMMITTEE_ROLES = [
-  { role: 'CHIEF PATRON',  name: 'Dr. Vijay Gupchup',            designation: 'President, NICMAR University, Pune',                              initials: 'VG', photo: '/geofest_faculty_photos/vijay-gupchup.jpg.jpeg' },
-  { role: 'PATRON',        name: 'Dr. Mrs. Sushma S. Kulkarni',  designation: 'Vice Chancellor, NICMAR University, Pune',                        initials: 'SK', photo: '/geofest_faculty_photos/dr-sushma-kulkarni.jpg.jpeg' },
-  { role: 'CONVENER',      name: 'Dr. Anilkumar L Agarwal',      designation: 'Dean Academics, NICMAR University, Pune',                         initials: 'AA', photo: '/geofest_faculty_photos/Agarwal_Anil.jpeg' },
-  { role: 'CO-CONVENER',   name: 'Dr. Smita Krishnarao Patil',   designation: 'Associate Professor and Dean, SOE NICMAR University, Pune',        initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
+  { role: 'CHIEF PATRON',    name: 'Dr. Vijay Gupchup',            designation: 'President, NICMAR University, Pune',                              initials: 'VG', photo: '/geofest_faculty_photos/vijay-gupchup.jpg.jpeg' },
+  { role: 'PATRON',          name: 'Dr. Mrs. Sushma S. Kulkarni',  designation: 'Vice Chancellor, NICMAR University, Pune',                        initials: 'SK', photo: '/geofest_faculty_photos/dr-sushma-kulkarni.jpg.jpeg' },
+  { role: 'CONVENER',        name: 'Dr. Anilkumar L Agarwal',      designation: 'Dean Academics, NICMAR University, Pune',                         initials: 'AA', photo: '/geofest_faculty_photos/Agarwal_Anil.jpeg' },
+  { role: 'CO-CONVENER',     name: 'Dr. Smita Krishnarao Patil',   designation: 'Associate Professor and Dean, SOE NICMAR University, Pune',        initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
+  { role: 'FACULTY ADVISOR', name: 'Dr. Vidya Khanapure',          designation: 'Faculty Advisor, IGS Student Chapter NICMAR University, Pune',    initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
 ];
 
 const IGS_COMMITTEE = [
@@ -447,7 +448,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto">
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
             className="text-center mb-10 sm:mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3"><span className="shimmer-text">Faculty</span></h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3"><span className="shimmer-text">Organising Committee GeoFest 2026</span></h2>
             <p className="text-gray-400 text-sm sm:text-base">Guiding minds, shaping engineers.</p>
           </motion.div>
 
@@ -458,7 +459,7 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
                 className="glass rounded-2xl p-3 sm:p-8 text-center card-hover">
-                <div className="w-16 sm:w-28 h-16 sm:h-28 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
                   {f.photo
                     ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
                     : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xl sm:text-3xl font-bold text-white">
@@ -472,24 +473,23 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* Set 2 — 3×3 grid */}
+          {/* Set 2 — 2-col grid, matching Set 1 style */}
           <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <h3 className="text-base sm:text-lg font-bold text-gray-300 mb-4 text-center">Faculty Members</h3>
-            <div className="grid grid-cols-3 gap-3 sm:gap-5">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6">
               {FACULTY_COORDINATORS.map((f, i) => (
                 <motion.div key={f.name}
-                  initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ delay: i * 0.04 }}
-                  className="glass rounded-2xl p-2 sm:p-4 flex flex-col items-center text-center card-hover">
-                  <div className="w-12 h-12 sm:w-20 sm:h-20 rounded-full mb-2 sm:mb-3 overflow-hidden border-2 border-amber-500/30 shadow-md shadow-amber-500/10 flex-shrink-0">
+                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                  className="glass rounded-2xl p-3 sm:p-8 text-center card-hover">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
                     {f.photo
                       ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-sm sm:text-lg font-bold text-white">
+                      : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xl sm:text-3xl font-bold text-white">
                           {f.initials}
                         </div>
                     }
                   </div>
-                  <span className="text-[10px] sm:text-sm text-gray-300 font-medium leading-snug">{f.name}</span>
+                  <h3 className="font-bold text-white mb-1 text-xs sm:text-lg">{f.name}</h3>
                 </motion.div>
               ))}
             </div>
