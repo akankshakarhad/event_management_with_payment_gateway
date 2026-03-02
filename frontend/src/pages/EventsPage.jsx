@@ -112,6 +112,50 @@ export default function EventsPage() {
               </button>
             ))}
           </div>
+
+          {/* Mobile gallery filter bar — only when gallery tab is active */}
+          {activeTab === 'gallery' && !galleryLoading && galleryPhotos.length > 0 && (
+            <div className="mt-4 lg:hidden flex gap-2 overflow-x-auto pb-1 px-1 max-w-sm mx-auto">
+              {/* All Photos pill */}
+              <button
+                onClick={() => setGalleryFilter('')}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${
+                  galleryFilter === ''
+                    ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
+                    : 'glass text-gray-400 border border-slate-700/50 hover:text-white'
+                }`}>
+                <span>🖼</span>
+                All
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                  galleryFilter === '' ? 'bg-white/20 text-white' : 'bg-slate-700 text-gray-400'
+                }`}>{galleryPhotos.length}</span>
+              </button>
+
+              {events.map((ev) => {
+                const count = galleryPhotos.filter((p) => p.event_id === ev.id).length;
+                const isActive = galleryFilter === ev.id;
+                const logo = getLogo(ev.title);
+                return (
+                  <button key={ev.id}
+                    onClick={() => setGalleryFilter(ev.id)}
+                    className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition ${
+                      isActive
+                        ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
+                        : 'glass text-gray-400 border border-slate-700/50 hover:text-white'
+                    }`}>
+                    {logo
+                      ? <img src={logo} alt="" className="w-3.5 h-3.5 object-contain shrink-0 opacity-90" />
+                      : <span>🌍</span>
+                    }
+                    <span className="truncate max-w-[72px]">{normalizeTitle(ev.title)}</span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
+                      isActive ? 'bg-white/20 text-white' : 'bg-slate-700 text-gray-400'
+                    }`}>{count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </motion.div>
       </div>
 
@@ -204,25 +248,8 @@ export default function EventsPage() {
               return (
                 <div className="relative flex gap-6 items-start overflow-hidden lg:overflow-visible">
 
-                  {/* ── Mobile backdrop ── */}
-                  {sidebarOpen && (
-                    <div
-                      className="fixed inset-0 z-30 bg-black/60 lg:hidden"
-                      onClick={() => setSidebarOpen(false)}
-                    />
-                  )}
-
-                  {/* ── Side panel — drawer on mobile, sticky sidebar on desktop ── */}
-                  <aside className={`
-                    fixed lg:sticky top-0 lg:top-24 left-0
-                    h-full lg:h-[380px]
-                    w-64 lg:w-56
-                    z-40 lg:z-auto
-                    shrink-0
-                    overflow-y-auto
-                    transition-transform duration-300 ease-in-out lg:!translate-x-0
-                    ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-                  `}>
+                  {/* ── Side panel — sticky sidebar on desktop only ── */}
+                  <aside className="hidden lg:block lg:sticky top-24 h-[380px] w-56 shrink-0 overflow-y-auto">
                     <div className="glass rounded-r-2xl lg:rounded-2xl border border-slate-700/50 overflow-hidden h-full">
                       {/* Panel header */}
                       <div className="px-4 py-3.5 border-b border-slate-700/50 flex items-center justify-between gap-2">
@@ -232,11 +259,6 @@ export default function EventsPage() {
                             Filter by Event
                           </span>
                         </div>
-                        <button
-                          onClick={() => setSidebarOpen(false)}
-                          className="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-slate-700/60 transition text-sm">
-                          ✕
-                        </button>
                       </div>
 
                       {/* All Photos */}
@@ -301,23 +323,8 @@ export default function EventsPage() {
                   {/* ── Photo grid ── */}
                   <div className="flex-1 min-w-0 w-full">
 
-                    {/* Mobile: count + filter toggle button */}
-                    <div className="flex items-center justify-between mb-4 lg:hidden">
-                      <p className="text-gray-500 text-xs">
-                        {filtered.length} photo{filtered.length !== 1 ? 's' : ''}
-                        {galleryFilter ? ` · ${normalizeTitle(events.find(e => e.id === galleryFilter)?.title || '')}` : ''}
-                      </p>
-                      <button
-                        onClick={() => setSidebarOpen(true)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 glass rounded-xl text-xs font-semibold text-gray-300 border border-slate-700/50 hover:text-white hover:border-amber-500/40 transition">
-                        <span>🗂</span>
-                        Filter
-                        {galleryFilter && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 ml-0.5" />}
-                      </button>
-                    </div>
-
-                    {/* Desktop: just the count */}
-                    <p className="hidden lg:block text-gray-500 text-xs mb-4">
+                    {/* Photo count */}
+                    <p className="text-gray-500 text-xs mb-4">
                       {filtered.length} photo{filtered.length !== 1 ? 's' : ''}
                       {galleryFilter ? ` · ${normalizeTitle(events.find(e => e.id === galleryFilter)?.title || '')}` : ''}
                     </p>
