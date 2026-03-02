@@ -215,15 +215,15 @@ export default function EventsPage() {
                   {/* ── Side panel — drawer on mobile, sticky sidebar on desktop ── */}
                   <aside className={`
                     absolute lg:sticky top-0 lg:top-24 left-0
-                    min-h-[380px] lg:min-h-0 h-auto
+                    h-[380px]
                     w-64 lg:w-56
                     z-40 lg:z-auto
                     shrink-0
-                    overflow-y-auto lg:overflow-visible
+                    overflow-y-auto
                     transition-transform duration-300 ease-in-out lg:!translate-x-0
                     ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
                   `}>
-                    <div className="glass rounded-r-2xl lg:rounded-2xl border border-slate-700/50 overflow-hidden min-h-[380px] lg:min-h-0">
+                    <div className="glass rounded-r-2xl lg:rounded-2xl border border-slate-700/50 overflow-hidden h-full">
                       {/* Panel header */}
                       <div className="px-4 py-3.5 border-b border-slate-700/50 flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
