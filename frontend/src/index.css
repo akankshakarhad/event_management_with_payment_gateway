@@ -65,3 +65,43 @@ body {
 .logo-glow {
   animation: white-glow-blink 2.5s ease-in-out infinite;
 }
+
+@keyframes venue-border-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.venue-glow-wrapper {
+  position: relative;
+  border-radius: 1rem;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.venue-glow-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -100%;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 55deg,
+    rgba(200, 165, 60, 0.4) 68deg,
+    rgba(245, 210, 80, 0.85) 80deg,
+    rgba(255, 245, 160, 1) 90deg,
+    rgba(240, 220, 180, 1) 95deg,
+    rgba(245, 210, 80, 0.85) 100deg,
+    rgba(200, 165, 60, 0.4) 112deg,
+    transparent 125deg,
+    transparent 360deg
+  );
+  animation: venue-border-spin 8s linear infinite;
+  z-index: 0;
+}
+
+.venue-glow-wrapper > div {
+  position: relative;
+  z-index: 1;
+  border-radius: calc(1rem - 2px);
+  overflow: hidden;
+}

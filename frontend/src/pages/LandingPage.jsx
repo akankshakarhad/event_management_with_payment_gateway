@@ -546,8 +546,10 @@ export default function LandingPage() {
 
           {/* Venue photo */}
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-            className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl mb-10 sm:mb-12">
-            <img src="/event_place.jpg" alt="Event Venue" className="w-full h-56 sm:h-80 md:h-96 object-cover" />
+            className="venue-glow-wrapper mb-10 sm:mb-12">
+            <div>
+              <img src="/event_place.jpg" alt="Event Venue" className="w-full h-56 sm:h-80 md:h-96 object-cover" />
+            </div>
           </motion.div>
 
           {/* Timer + CTA */}
