@@ -456,13 +456,17 @@ export default function LandingPage() {
             <p className="text-gray-400 text-sm sm:text-base">Guiding minds, shaping engineers.</p>
           </motion.div>
 
-          {/* Set 1 — 2×2 grid */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-8">
-            {FACULTY_ADVISORS.map((f, i) => (
+          {/* Unified grid — all members */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-6">
+            {[...FACULTY_ADVISORS, ...FACULTY_COORDINATORS].map((f, i, arr) => (
               <motion.div key={f.name}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-3 sm:p-8 text-center card-hover">
+                className={`glass rounded-2xl p-3 sm:p-8 text-center card-hover flex flex-col items-center ${
+                  i === arr.length - 1 && arr.length % 2 !== 0
+                    ? 'col-span-2 max-w-[calc(50%-6px)] sm:max-w-[calc(50%-12px)] mx-auto w-full'
+                    : ''
+                }`}>
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
                   {f.photo
                     ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
@@ -472,36 +476,10 @@ export default function LandingPage() {
                   }
                 </div>
                 <h3 className="font-bold text-white mb-1 text-xs sm:text-lg">{f.name}</h3>
-                <p className="text-amber-400 text-[10px] sm:text-sm">{f.role}</p>
+                {f.role && <p className="text-amber-400 text-[10px] sm:text-sm">{f.role}</p>}
               </motion.div>
             ))}
           </div>
-
-          {/* Set 2 — 2-col grid, matching Set 1 style */}
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-            <div className="grid grid-cols-2 gap-3 sm:gap-6">
-              {FACULTY_COORDINATORS.map((f, i) => (
-                <motion.div key={f.name}
-                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                  className={`glass rounded-2xl p-3 sm:p-8 text-center card-hover ${
-                    i === FACULTY_COORDINATORS.length - 1 && FACULTY_COORDINATORS.length % 2 !== 0
-                      ? 'col-span-2 max-w-[calc(50%-6px)] sm:max-w-[calc(50%-12px)] mx-auto w-full'
-                      : ''
-                  }`}>
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto mb-3 sm:mb-4 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
-                    {f.photo
-                      ? <img src={f.photo} alt={f.name} className="w-full h-full object-cover" />
-                      : <div className="w-full h-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-xl sm:text-3xl font-bold text-white">
-                          {f.initials}
-                        </div>
-                    }
-                  </div>
-                  <h3 className="font-bold text-white mb-1 text-xs sm:text-lg">{f.name}</h3>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
         </div>
       </section>
 
