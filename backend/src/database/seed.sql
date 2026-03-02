@@ -18,7 +18,7 @@ INSERT INTO events (title, description, price, max_members) VALUES
 
   ('Project Display',
    'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.',
-   199.00, 4),
+   199.00, 5),
 
   ('Midas Software Workshop',
    'Expert workshop on MIDAS applications in Geotechnical engineering and design.',

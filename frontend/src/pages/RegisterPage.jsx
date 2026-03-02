@@ -473,7 +473,7 @@ export default function RegisterPage() {
     return n === 'Connecting The Dots' || n === 'Geotalk';
   });
 
-  const maxAllowed    = selectedEvent?.max_members ?? 4;
+  const maxAllowed    = selectedEvent?.max_members ?? 5;
   const minAllowed    = norm(selectedEvent?.title) === 'Connecting The Dots' ? 3 : 1;
   const conflictTitle = selectedEvent ? getConflict(selectedEvent.title) : null;
   const totalPrice    = selectedEvent ? parseFloat(selectedEvent.price) : 0;
