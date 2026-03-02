@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 /* ── Countdown ── */
-const EVENT_DATE = new Date('2026-03-17T09:00:00');
+const EVENT_DATE        = new Date('2026-03-17T09:00:00');
+const INAUGURATION_DATE = new Date('2026-03-17T09:30:00');
 
-function useCountdown() {
+function useCountdown(targetDate) {
   const calc = () => {
-    const diff = EVENT_DATE - Date.now();
+    const diff = targetDate - Date.now();
     if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0 };
     return {
       days:    Math.floor(diff / 86400000),
@@ -137,7 +138,7 @@ const COMMITTEE_ROLES = [
 ];
 
 const IGS_COMMITTEE = [
-  { name: 'Prof. Mrs. Suman Jain',  role: 'Chairperson, IGS Pune Chapter' },
+  { name: 'Er. Suman Jain',         role: 'Chairperson, IGS Pune Chapter' },
   { name: 'Dr. Vikas Patil',        role: 'Imm. Past Chairman' },
   { name: 'Er. Deepali Kulkarni',   role: 'Honorary Secretary' },
   { name: 'Dr. R. D. Nalwade',      role: 'Honorary Treasurers' },
@@ -152,16 +153,52 @@ const EXEC_COMMITTEE = [
   'Dr. Raviraj Sorate',
   'Dr. Sachin Jain',
   'Dr. Sudarshan Bobade',
-  'Er. Rohit Pote',
+  'Dr. Rohit Pote',
   'Dr. Shrikant Shinde',
   'Er. Babasaheb Jagtap',
   'Er. Sudarshan Shinde',
+  'Dr. Saurav Kar',
+  'Er. Aparna Joshi',
+];
+
+const KEYNOTE_SPEAKERS = [
+  {
+    role: 'Chief Guest',
+    name: 'Er. D. S. Chaskar',
+    designation: 'Chief Engineer',
+    org: 'National Water Academy',
+    location: 'Pune',
+    initials: 'DC',
+  },
+  {
+    role: 'Guest of Honour & Keynote Speaker',
+    name: 'Dr. Vikas Patil',
+    designation: 'Managing Director',
+    org: 'Savi Infrastructures & Properties Pvt. Ltd.',
+    location: 'Pune',
+    initials: 'VP',
+  },
+];
+
+const VALIDATORY_SPEAKERS = [
+  {
+    role: 'Chief Guest',
+    name: 'Er. Mukoonda Madhab Dutta',
+    designation: 'Chief Quality Assurance Expert',
+    org: 'GC-Pune Metro Rail Project',
+    location: 'Pune',
+    initials: 'MD',
+  },
 ];
 
 const OFFICE_BEARERS = [
-  { name: 'Aman Bagwan',               role: 'President',     icon: '👑', photo: '/GeoFest_Office_Bearers_Photos/Aman_Bagwan.jpg' },
-  { name: 'Rajnandini Sanjay Mundhe',  role: 'Vice President', icon: '🌟', photo: '/GeoFest_Office_Bearers_Photos/Rajnandini_Sanjay_Mundhe.jpg' },
-  { name: 'Jiskar Yogendra Prabhakar', role: 'Treasurer',      icon: '💰', photo: '/GeoFest_Office_Bearers_Photos/Yogendra_Prabhakar_Jiskar.jpg' },
+  { name: 'Aman Bagwan',               role: 'President',          icon: '👑', photo: '/GeoFest_Office_Bearers_Photos/Aman_Bagwan.jpg' },
+  { name: 'Rajnandini Sanjay Mundhe',  role: 'Vice President',      icon: '🌟', photo: '/GeoFest_Office_Bearers_Photos/Rajnandini_Sanjay_Mundhe.jpg' },
+  { name: 'Sudhanshu Dhakrey',         role: 'General Secretary',   icon: '📋', photo: '/GeoFest_Office_Bearers_Photos/Sudhanshu_General_Secretary.png' },
+  { name: 'Palvi Phand',               role: 'General Secretary',   icon: '📋', photo: '/GeoFest_Office_Bearers_Photos/Palvi_Phand_General_Secretary.jpeg' },
+  { name: 'Jeevan Abraham',            role: 'Joint Secretary',     icon: '📝', photo: '/GeoFest_Office_Bearers_Photos/Jeevan_Abraham_Joint_Secretary.jpeg' },
+  { name: 'Jayesh Kolhe',              role: 'Joint Secretary',     icon: '📝', photo: '/GeoFest_Office_Bearers_Photos/Jayesh_Kolhe_Joint_Secretary.png' },
+  { name: 'Jiskar Yogendra Prabhakar', role: 'Treasurer',           icon: '💰', photo: '/GeoFest_Office_Bearers_Photos/Yogendra_Prabhakar_Jiskar.jpg' },
 ];
 
 const SUPPORTING_ROLES = [
@@ -174,8 +211,10 @@ const SUPPORTING_ROLES = [
 const fade = { hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0 } };
 
 export default function LandingPage() {
-  const navigate  = useNavigate();
-  const countdown = useCountdown();
+  const navigate       = useNavigate();
+  const countdown      = useCountdown(EVENT_DATE);
+  const inaugCountdown = useCountdown(INAUGURATION_DATE);
+
 
   return (
     <div className="pt-14 sm:pt-16 text-white overflow-x-hidden">
@@ -377,6 +416,124 @@ export default function LandingPage() {
       </section>
 
 
+      {/* ── INAUGURATION VENUE ── */}
+      <section className="bg-black/55 py-14 sm:py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+
+          {/* Venue photo */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl mb-10 sm:mb-12">
+            <img src="/event_place.jpg" alt="Event Venue" className="w-full h-56 sm:h-80 md:h-96 object-cover" />
+          </motion.div>
+
+          {/* Timer + CTA */}
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="text-center">
+            <p className="text-amber-300 font-extrabold text-xl sm:text-2xl mb-1">Inauguration Programme</p>
+            <p className="text-gray-400 text-sm sm:text-base mb-6">
+              17 March 2026 &nbsp;•&nbsp; 9:30 AM – 12:30 PM
+            </p>
+
+            {/* Countdown */}
+            <div className="glass rounded-2xl px-4 sm:px-8 py-4 sm:py-5 inline-flex gap-4 sm:gap-8 mx-auto mb-8">
+              {[['Days', inaugCountdown.days], ['Hrs', inaugCountdown.hours], ['Min', inaugCountdown.minutes], ['Sec', inaugCountdown.seconds]].map(([label, val]) => (
+                <div key={label} className="text-center min-w-[40px] sm:min-w-[52px]">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-amber-300 tabular-nums">
+                    {String(val).padStart(2, '0')}
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-gray-500 mt-1 uppercase tracking-wider">{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Fun CTA text */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }} transition={{ delay: 0.2 }}
+              className="mt-2 space-y-2">
+              <p className="text-2xl sm:text-3xl font-extrabold text-white">
+                Your seat is waiting. <span className="shimmer-text">Will you show up?</span>
+              </p>
+              <p className="text-gray-400 text-sm sm:text-base max-w-lg mx-auto leading-relaxed">
+                The ground shifts, the layers speak — and on <span className="text-amber-300 font-semibold">17 March</span>, so will you.
+                Don't let this moment slip through the strata.
+              </p>
+            </motion.div>
+          </motion.div>
+
+        </div>
+      </section>
+
+      {/* ── INAUGURATION KEYNOTE SPEAKERS ── */}
+      <section className="py-14 sm:py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-extrabold mb-1">
+              Inauguration <span className="shimmer-text">Keynote Speakers</span>
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {KEYNOTE_SPEAKERS.map((s, i) => (
+              <motion.div key={s.name}
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="glass rounded-2xl p-5 sm:p-7 card-hover border border-amber-500/10 flex items-start gap-4">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shrink-0 bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-base sm:text-lg font-bold text-white shadow-lg shadow-amber-500/20">
+                  {s.initials}
+                </div>
+                <div className="min-w-0">
+                  <span className="inline-block text-[10px] font-extrabold tracking-widest uppercase text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-0.5 mb-1.5">
+                    {s.role}
+                  </span>
+                  <p className="font-bold text-white text-sm sm:text-base leading-snug">{s.name}</p>
+                  <p className="text-amber-400 text-xs sm:text-sm mt-0.5">{s.designation}</p>
+                  <p className="text-gray-400 text-xs sm:text-sm leading-relaxed mt-0.5">{s.org},</p>
+                  <p className="text-gray-400 text-xs sm:text-sm">{s.location}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── VALIDATORY SPEAKER ── */}
+      <section className="bg-black/55 py-14 sm:py-20 px-4">
+        <div className="max-w-5xl mx-auto">
+          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            className="text-center mb-8 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-extrabold mb-1">
+              Validatory <span className="shimmer-text">Speaker</span>
+            </h2>
+          </motion.div>
+
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 w-full sm:max-w-md">
+              {VALIDATORY_SPEAKERS.map((s, i) => (
+                <motion.div key={s.name}
+                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                  className="glass rounded-2xl p-5 sm:p-7 card-hover border border-amber-500/10 flex items-start gap-4">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full shrink-0 bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center text-base sm:text-lg font-bold text-white shadow-lg shadow-amber-500/20">
+                    {s.initials}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="inline-block text-[10px] font-extrabold tracking-widest uppercase text-amber-500 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-0.5 mb-1.5">
+                      {s.role}
+                    </span>
+                    <p className="font-bold text-white text-sm sm:text-base leading-snug">{s.name}</p>
+                    <p className="text-amber-400 text-xs sm:text-sm mt-0.5">{s.designation}</p>
+                    <p className="text-gray-400 text-xs sm:text-sm leading-relaxed mt-0.5">{s.org},</p>
+                    <p className="text-gray-400 text-xs sm:text-sm">{s.location}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── ORGANIZING COMMITTEE ── */}
       <section className="py-14 sm:py-20 px-4">
         <div className="max-w-5xl mx-auto">
@@ -492,36 +649,20 @@ export default function LandingPage() {
             <p className="text-gray-400 text-sm sm:text-base">IGS Student Chapter — NICMAR University, Pune</p>
           </motion.div>
 
-          {/* Core team */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6">
-            {OFFICE_BEARERS.map((b, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+            {[...OFFICE_BEARERS, ...SUPPORTING_ROLES].map((b, i, arr) => (
               <motion.div key={b.name}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-5 sm:p-6 text-center card-hover">
+                className={`glass rounded-2xl p-5 sm:p-6 text-center card-hover${
+                  i === arr.length - 1 && arr.length % 3 === 1 ? ' sm:col-start-2' : ''
+                }`}>
                 {b.photo
-                  ? <img src={b.photo} alt={b.name} className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover mx-auto mb-3 border-2 border-emerald-500/40" />
+                  ? <img src={b.photo} alt={b.name} className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover object-top mx-auto mb-3 border-2 border-emerald-500/40" />
                   : <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl mx-auto mb-3">{b.icon}</div>
                 }
                 <h3 className="font-bold text-white mb-1 text-sm sm:text-base">{b.name}</h3>
                 <p className="text-emerald-400 text-xs">{b.role}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Supporting roles */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-            {SUPPORTING_ROLES.map((r, i) => (
-              <motion.div key={r.name}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-5 sm:p-6 text-center card-hover">
-                {r.photo
-                  ? <img src={r.photo} alt={r.name} className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover mx-auto mb-3 border-2 border-emerald-500/40" />
-                  : <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl mx-auto mb-3" />
-                }
-                <h3 className="font-bold text-white mb-1 text-sm sm:text-base">{r.name}</h3>
-                <p className="text-emerald-400 text-xs">{r.role}</p>
               </motion.div>
             ))}
           </div>
@@ -589,6 +730,7 @@ export default function LandingPage() {
           </motion.button>
         </motion.div>
       </section>
+
     </div>
   );
 }
