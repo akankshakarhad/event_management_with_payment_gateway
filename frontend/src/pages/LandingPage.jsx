@@ -133,7 +133,7 @@ const COMMITTEE_ROLES = [
   { role: 'PATRON',          name: 'Dr. Mrs. Sushma S. Kulkarni',  designation: 'Vice Chancellor, NICMAR University, Pune',                        initials: 'SK', photo: '/geofest_faculty_photos/dr-sushma-kulkarni.jpg.jpeg' },
   { role: 'CONVENER',        name: 'Dr. Anilkumar L Agarwal',      designation: 'Dean Academics, NICMAR University, Pune',                         initials: 'AA', photo: '/geofest_faculty_photos/Agarwal_Anil.jpeg' },
   { role: 'CO-CONVENER',     name: 'Dr. Smita Krishnarao Patil',   designation: 'Associate Professor and Dean, SOE NICMAR University, Pune',        initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
-  { role: 'FACULTY ADVISOR', name: 'Dr. Vidya Khanapure',          designation: 'Faculty Advisor, IGS Student Chapter NICMAR University, Pune',    initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
+  { role: 'FACULTY CO-ORDINATOR', name: 'Dr. Vidya Khanapure',     designation: 'Faculty Advisor, IGS Student Chapter NICMAR University, Pune',    initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
 ];
 
 const IGS_COMMITTEE = [
