@@ -385,13 +385,17 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">GeoFest 2026 — <span className="shimmer-text">NICMAR University, Pune</span></h2>
           </motion.div>
 
-          {/* Chief Patron, Patron, Convener, Co-Convener */}
+          {/* Chief Patron, Patron, Convener, Co-Convener, Faculty Advisor */}
           <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-10">
             {COMMITTEE_ROLES.map((c, i) => (
               <motion.div key={c.role}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                className="glass rounded-2xl p-3 sm:p-6 text-center card-hover border border-amber-500/10">
+                className={`glass rounded-2xl p-3 sm:p-6 text-center card-hover border border-amber-500/10 ${
+                  i === COMMITTEE_ROLES.length - 1 && COMMITTEE_ROLES.length % 2 !== 0
+                    ? 'col-span-2 max-w-[calc(50%-6px)] sm:max-w-[calc(50%-12px)] mx-auto w-full'
+                    : ''
+                }`}>
                 <div className="w-14 sm:w-24 h-14 sm:h-24 rounded-full mx-auto mb-2 sm:mb-3 overflow-hidden border-2 border-amber-500/40 shadow-lg shadow-amber-500/20">
                   {c.photo
                     ? <img src={c.photo} alt={c.name} className="w-full h-full object-cover" />
