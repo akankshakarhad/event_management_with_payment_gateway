@@ -207,15 +207,15 @@ export default function EventsPage() {
                   {/* ── Mobile backdrop ── */}
                   {sidebarOpen && (
                     <div
-                      className="absolute inset-0 z-30 bg-black/60 lg:hidden"
+                      className="fixed inset-0 z-30 bg-black/60 lg:hidden"
                       onClick={() => setSidebarOpen(false)}
                     />
                   )}
 
                   {/* ── Side panel — drawer on mobile, sticky sidebar on desktop ── */}
                   <aside className={`
-                    absolute lg:sticky top-0 lg:top-24 left-0
-                    h-[380px]
+                    fixed lg:sticky top-0 lg:top-24 left-0
+                    h-full lg:h-[380px]
                     w-64 lg:w-56
                     z-40 lg:z-auto
                     shrink-0
