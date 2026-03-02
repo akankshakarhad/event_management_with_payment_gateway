@@ -1,4 +1,5 @@
 const QRCode       = require('qrcode');
+const nodemailer   = require('nodemailer');
 const paymentModel = require('../models/paymentModel');
 const { uploadToCloudinary } = require('../middleware/upload');
 const { pool }     = require('../config/db');
@@ -19,6 +20,53 @@ const resolveUserIds = (body) => {
 const generateReferenceId = () => {
   const digits = Math.floor(100000 + Math.random() * 900000);
   return `GF2026-${digits}`;
+};
+
+// ─────────────────────────────────────────────
+// Admin alert email when a user submits payment
+// ─────────────────────────────────────────────
+const sendAdminAlert = async ({ name, email, phone, college, referenceId, utr, screenshotUrl }) => {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER) return;
+  try {
+    const transporter = nodemailer.createTransport({
+      host:   process.env.SMTP_HOST,
+      port:   parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    });
+    await transporter.sendMail({
+      from:    process.env.EMAIL_FROM || `"GeoFest 2026" <${process.env.SMTP_USER}>`,
+      to:      process.env.ADMIN_EMAIL || process.env.SMTP_USER,
+      subject: `[GeoFest 2026] Payment Verification Required — ${referenceId}`,
+      html: `
+        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:24px;background:#0f172a;color:#e2e8f0;border-radius:12px;">
+          <h2 style="color:#f59e0b;margin-bottom:4px;">GeoFest 2026</h2>
+          <h3 style="margin-bottom:20px;">New Payment Awaiting Verification</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:14px;">
+            <tr><td style="padding:8px 0;color:#94a3b8;width:140px;">Name</td><td style="padding:8px 0;font-weight:bold;">${name}</td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">Email</td><td style="padding:8px 0;">${email}</td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">Phone</td><td style="padding:8px 0;">${phone}</td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">College</td><td style="padding:8px 0;">${college}</td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">Reference ID</td><td style="padding:8px 0;font-weight:bold;color:#f59e0b;letter-spacing:1px;">${referenceId}</td></tr>
+            <tr><td style="padding:8px 0;color:#94a3b8;">UTR</td><td style="padding:8px 0;font-family:monospace;color:#34d399;">${utr}</td></tr>
+          </table>
+          <div style="margin-top:20px;">
+            <a href="${screenshotUrl}" target="_blank"
+               style="display:inline-block;background:#2563eb;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">
+              View Payment Screenshot
+            </a>
+          </div>
+          <p style="margin-top:24px;font-size:13px;color:#94a3b8;">
+            Cross-check: look for an incoming UPI payment of <strong>₹199</strong> with remark <strong style="color:#f59e0b;">${referenceId}</strong> in your bank/UPI app.<br/>
+            If it matches, approve the payment in the admin dashboard.
+          </p>
+          <p style="font-size:12px;color:#64748b;margin-top:8px;">— GeoFest 2026 System</p>
+        </div>
+      `,
+    });
+  } catch (err) {
+    console.error('[Email] Failed to send admin alert:', err.message);
+  }
 };
 
 // ─────────────────────────────────────────────
@@ -147,6 +195,19 @@ const submitPayment = async (req, res, next) => {
     if (!updated) {
       return res.status(500).json({ success: false, message: 'Failed to record payment. Try again.' });
     }
+
+    // Send admin alert email (non-blocking)
+    paymentModel.findByReferenceIdWithUser(referenceId).then((p) => {
+      if (p) sendAdminAlert({
+        name:          p.name,
+        email:         p.email,
+        phone:         p.phone,
+        college:       p.college,
+        referenceId:   p.reference_id,
+        utr:           p.utr,
+        screenshotUrl: p.screenshot_url,
+      });
+    }).catch(() => {});
 
     res.json({
       success: true,

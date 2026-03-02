@@ -20,6 +20,18 @@ const findByReferenceId = async (referenceId) => {
   return rows[0] || null;
 };
 
+// Find payment by reference ID with user info joined
+const findByReferenceIdWithUser = async (referenceId) => {
+  const { rows } = await pool.query(
+    `SELECT p.*, u.name, u.email, u.phone, u.college
+     FROM payments p
+     JOIN users u ON u.id = p.user_id
+     WHERE p.reference_id = $1`,
+    [referenceId]
+  );
+  return rows[0] || null;
+};
+
 // Check if a UTR has already been submitted (duplicate prevention)
 const isUtrDuplicate = async (utr) => {
   const { rows } = await pool.query(
@@ -101,6 +113,7 @@ const getAllPayments = async ({ status } = {}) => {
 module.exports = {
   createPending,
   findByReferenceId,
+  findByReferenceIdWithUser,
   isUtrDuplicate,
   submitPayment,
   approvePayment,
