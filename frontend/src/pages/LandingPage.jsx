@@ -510,20 +510,18 @@ export default function LandingPage() {
           </div>
 
           {/* Supporting roles */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             {SUPPORTING_ROLES.map((r, i) => (
               <motion.div key={r.name}
-                initial={{ opacity: 0 }} whileInView={{ opacity: 1 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="glass rounded-xl px-4 sm:px-5 py-3 sm:py-4 flex items-center gap-3">
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.1 }}
+                className="glass rounded-2xl p-5 sm:p-6 text-center card-hover">
                 {r.photo
-                  ? <img src={r.photo} alt={r.name} className="w-10 h-10 rounded-full object-cover shrink-0 border border-emerald-500/40" />
-                  : <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 shrink-0" />
+                  ? <img src={r.photo} alt={r.name} className="w-16 sm:w-20 h-16 sm:h-20 rounded-full object-cover mx-auto mb-3 border-2 border-emerald-500/40" />
+                  : <div className="w-16 sm:w-20 h-16 sm:h-20 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-xl mx-auto mb-3" />
                 }
-                <div>
-                  <p className="font-semibold text-sm text-white">{r.name}</p>
-                  <p className="text-gray-400 text-xs mt-0.5">{r.role}</p>
-                </div>
+                <h3 className="font-bold text-white mb-1 text-sm sm:text-base">{r.name}</h3>
+                <p className="text-emerald-400 text-xs">{r.role}</p>
               </motion.div>
             ))}
           </div>
