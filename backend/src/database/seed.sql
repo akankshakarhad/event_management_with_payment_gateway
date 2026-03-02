@@ -13,7 +13,7 @@ INSERT INTO events (title, description, price, max_members) VALUES
    199.00, 3),
 
   ('Geotalk',
-   'Present your research paper or innovative idea in Geotechnical / civil engineering.',
+   'Present your research paper or innovative idea in Geotechnical engineering.',
    199.00, 2),
 
   ('Project Display',

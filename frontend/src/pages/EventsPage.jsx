@@ -26,11 +26,135 @@ const getLogo = (title) => EVENT_LOGOS[normalizeTitle(title)] || null;
 const DESC_MAP = {
   'Quiz Competition':        'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.',
   'Connecting The Dots':     'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.',
-  'Geotalk':                 'Present your research paper or innovative idea in Geotechnical / civil engineering.',
+  'Geotalk':                 'Present your research paper or innovative idea in Geotechnical engineering.',
   'Project Display':         'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.',
   'Midas Software Workshop': 'Expert workshop on MIDAS applications in Geotechnical engineering and design.',
 };
 const getDesc = (title) => DESC_MAP[normalizeTitle(title)] || null;
+
+const PRIZE_POOL = {
+  'Quiz Competition':    '15,000',
+  'Connecting The Dots': '15,000',
+  'Geotalk':             '15,000',
+  'Project Display':     '22,000',
+};
+const getPrize = (title) => PRIZE_POOL[normalizeTitle(title)] || null;
+
+/* ─── Treasure Box ─── */
+function TreasureBox({ prize, size = 'sm' }) {
+  const [phase, setPhase] = useState('closed');
+  const isLg = size === 'lg';
+
+  const handleClick = (e) => {
+    e.stopPropagation();
+    if (phase !== 'closed') return;
+    setPhase('opening');
+    setTimeout(() => setPhase('open'), 480);
+  };
+
+  return (
+    <div className="shrink-0 flex flex-col items-center">
+      <AnimatePresence mode="wait">
+        {phase !== 'open' ? (
+          <motion.button
+            key="chest"
+            type="button"
+            onClick={handleClick}
+            className="flex flex-col items-center gap-1 group outline-none"
+            whileHover={phase === 'closed' ? { scale: 1.1 } : {}}
+            whileTap={phase === 'closed' ? { scale: 0.92 } : {}}
+            exit={{ scale: 0, opacity: 0, transition: { duration: 0.15 } }}
+          >
+            <motion.div
+              animate={
+                phase === 'opening'
+                  ? { scale: [1, 1.25, 0.9, 1.15, 1], rotate: [0, -10, 10, -5, 0] }
+                  : { y: [0, -4, 0] }
+              }
+              transition={
+                phase === 'opening'
+                  ? { duration: 0.45, ease: 'easeInOut' }
+                  : { repeat: Infinity, duration: 2.4, ease: 'easeInOut' }
+              }
+              className="relative"
+            >
+              <motion.div
+                animate={phase === 'opening' ? { y: -14, rotate: -25, opacity: 0 } : { y: 0, rotate: 0, opacity: 1 }}
+                transition={{ duration: 0.35, delay: 0.08 }}
+                style={{ transformOrigin: 'bottom center' }}
+                className={`${isLg ? 'w-14 h-5' : 'w-10 h-4'} rounded-t-full
+                  bg-gradient-to-b from-yellow-200 via-amber-400 to-amber-600
+                  border-2 border-yellow-200/80 relative overflow-hidden`}
+              >
+                <div className="absolute inset-x-2 top-1 h-0.5 bg-yellow-100/60 rounded-full" />
+                <div className="absolute inset-x-3 bottom-0.5 h-0.5 bg-amber-900/30 rounded-full" />
+              </motion.div>
+              <div className={`${isLg ? 'w-14' : 'w-10'} h-1
+                bg-gradient-to-r from-amber-900/50 via-yellow-600/70 to-amber-900/50`} />
+              <div className={`${isLg ? 'w-14 h-9' : 'w-10 h-7'}
+                bg-gradient-to-b from-amber-500 via-amber-600 to-amber-900
+                border-2 border-t-0 border-yellow-300/30 rounded-b-md relative overflow-hidden`}
+              >
+                <div className="absolute inset-x-0 top-2.5 h-px bg-gradient-to-r from-transparent via-amber-900/60 to-transparent" />
+                <div className={`absolute left-1/2 top-[40%] -translate-x-1/2 -translate-y-1/2
+                  ${isLg ? 'w-3 h-3' : 'w-2 h-2'} rounded-full bg-amber-950 border border-yellow-300/50`} />
+                <div className={`absolute left-1/2 top-[60%] -translate-x-1/2
+                  ${isLg ? 'w-1.5 h-2' : 'w-1 h-1.5'} bg-amber-950 border-x border-yellow-300/40 rounded-b-sm`} />
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-200/10 to-transparent" />
+              </div>
+              <div className={`absolute -inset-1 rounded-md -z-10 transition-shadow duration-300
+                ${phase === 'opening'
+                  ? 'shadow-[0_0_28px_rgba(251,191,36,0.85)]'
+                  : 'shadow-[0_0_10px_rgba(251,191,36,0.3)] group-hover:shadow-[0_0_22px_rgba(251,191,36,0.65)]'
+                }`}
+              />
+            </motion.div>
+            {phase === 'closed' && (
+              <motion.span
+                animate={{ opacity: [0.55, 1, 0.55] }}
+                transition={{ repeat: Infinity, duration: 1.8 }}
+                className="text-[9px] text-amber-400 uppercase tracking-wide font-bold"
+              >
+                Tap to reveal
+              </motion.span>
+            )}
+          </motion.button>
+        ) : (
+          <motion.div
+            key="prize"
+            initial={{ scale: 0, y: 10, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 16 }}
+            className="flex flex-col items-center gap-1.5"
+          >
+            <motion.span
+              initial={{ scale: 2.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.35 }}
+              className={`${isLg ? 'text-2xl' : 'text-lg'} leading-none`}
+            >
+              ✨
+            </motion.span>
+            <div className={`flex items-center gap-1.5
+              bg-gradient-to-br from-amber-500/25 to-yellow-600/15
+              border border-amber-400/60 rounded-xl
+              ${isLg ? 'px-3 py-2' : 'px-2.5 py-1.5'}
+              shadow-[0_0_18px_rgba(251,191,36,0.5)]`}
+            >
+              <span className={`${isLg ? 'text-xl' : 'text-base'} leading-none`}>🏆</span>
+              <div>
+                <p className="text-[8px] text-amber-300/70 uppercase tracking-wide leading-none mb-0.5">Prize Pool</p>
+                <p className={`${isLg ? 'text-base' : 'text-xs'} font-extrabold shimmer-text leading-none`}>
+                  ₹{prize}
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function EventsPage() {
   const [events, setEvents]   = useState([]);
@@ -100,7 +224,7 @@ export default function EventsPage() {
           <div className="mt-8 inline-flex glass rounded-xl p-1 gap-1">
             {[
               { label: '🗂 Events',  value: 'events' },
-              { label: '🖼 Gallery', value: 'gallery' },
+              { label: '📋 Event Details', value: 'gallery' },
             ].map((t) => (
               <button key={t.value} onClick={() => handleTabChange(t.value)}
                 className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition ${
@@ -184,11 +308,14 @@ export default function EventsPage() {
                     transition={{ delay: i * 0.08 }}
                     className="glass rounded-2xl p-5 sm:p-7 flex flex-col card-hover group">
 
-                    <div className="h-20 sm:h-24 mb-3 sm:mb-4 flex items-center group-hover:scale-110 transition-transform duration-300">
-                      {getLogo(ev.title)
-                        ? <img src={getLogo(ev.title)} alt={ev.title} className="h-full w-auto object-contain" />
-                        : <span className="text-6xl sm:text-7xl">🌍</span>
-                      }
+                    <div className="h-20 sm:h-24 mb-3 sm:mb-4 flex items-center justify-between gap-2">
+                      <div className="h-full flex items-center group-hover:scale-110 transition-transform duration-300">
+                        {getLogo(ev.title)
+                          ? <img src={getLogo(ev.title)} alt={ev.title} className="h-full w-auto object-contain" />
+                          : <span className="text-6xl sm:text-7xl">🌍</span>
+                        }
+                      </div>
+                      {getPrize(ev.title) && <TreasureBox prize={getPrize(ev.title)} />}
                     </div>
 
                     <h3 className="text-lg sm:text-xl font-bold mb-2">{normalizeTitle(ev.title)}</h3>
