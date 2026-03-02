@@ -33,6 +33,15 @@ const PRIZE_POOL = {
 };
 const getPrize = (t) => PRIZE_POOL[norm(t)] || null;
 
+const DESC_MAP = {
+  'Quiz Competition':        'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.',
+  'Connecting The Dots':     'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.',
+  'Geotalk':                 'Present your research paper or innovative idea in Geotechnical engineering.',
+  'Project Display':         'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.',
+  'Midas Software Workshop': 'Expert workshop on MIDAS applications in Geotechnical engineering and design.',
+};
+const getDesc = (t) => DESC_MAP[norm(t)] || null;
+
 /* Parallel-event conflict pairs */
 const CONFLICT_PAIRS = [
   ['Quiz Competition', 'Midas Software Workshop'],
@@ -348,7 +357,7 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
       </h3>
 
       <p className="text-gray-400 text-xs flex-1 leading-relaxed line-clamp-2">
-        {ev.description || 'Showcase your knowledge and skills in this exciting event.'}
+        {getDesc(ev.title) || ev.description || 'Showcase your knowledge and skills in this exciting event.'}
       </p>
 
       <div className="mt-3 flex items-center gap-2">
@@ -451,7 +460,7 @@ function FeaturedCard({ ev, onRegister }) {
               🏆 Project Display
             </h2>
             <p className="text-gray-300 text-sm leading-relaxed mb-5">
-              {ev.description || 'Showcase your innovative projects to expert judges and peers across both days of GeoFest 2026. An unmissable platform for builders and innovators.'}
+              {getDesc(ev.title) || ev.description || 'Showcase your innovative projects to expert judges and peers across both days of GeoFest 2026. An unmissable platform for builders and innovators.'}
             </p>
 
             {/* Info chips */}
