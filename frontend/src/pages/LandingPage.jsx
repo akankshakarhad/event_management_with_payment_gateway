@@ -109,9 +109,9 @@ const SCHEDULE = [
     day: 'Day 2', date: '18 March 2026',
     color: 'from-emerald-600 to-teal-600',
     items: [
-      { time: '09:30 AM – 12:30 PM', label: 'First Round: Connecting The Dots & Geotalk' },
+      { time: '09:30 AM – 12:30 PM', label: 'Connecting The Dots & Geotalk' },
       { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
-      { time: '01:30 PM – 04:00 PM', label: 'Final Round: Connecting The Dots & Geotalk' },
+      { time: '01:30 PM – 04:00 PM', label: 'Connecting The Dots & Geotalk' },
       { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
       { time: '04:20 PM – 05:00 PM', label: 'Valedictory Function' },
       { time: '09:30 AM – 05:00 PM', label: 'Project Display (Whole Day)' },
@@ -141,7 +141,7 @@ const COMMITTEE_ROLES = [
   { role: 'PATRON',          name: 'Dr. Mrs. Sushma S. Kulkarni',  designation: 'Vice Chancellor, NICMAR University, Pune',                        initials: 'SK', photo: '/geofest_faculty_photos/dr-sushma-kulkarni.jpg.jpeg' },
   { role: 'CONVENER',        name: 'Dr. Anilkumar L Agarwal',      designation: 'Dean Academics, NICMAR University, Pune',                         initials: 'AA', photo: '/geofest_faculty_photos/Agarwal_Anil.jpeg' },
   { role: 'CO-CONVENER',     name: 'Dr. Smita Krishnarao Patil',   designation: 'Associate Professor and Dean, SOE NICMAR University, Pune',        initials: 'SP', photo: '/geofest_faculty_photos/Dr_Smita_K_Patil.jpg' },
-  { role: 'FACULTY CO-ORDINATOR', name: 'Dr. Vidya Khanapure',     designation: 'Faculty Advisor, IGS Student Chapter NICMAR University, Pune',    initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
+  { role: 'CO-ORDINATOR', name: 'Dr. Vidya Khanapure',     designation: 'Faculty Advisor, IGS Student Chapter NICMAR University, Pune',    initials: 'VK', photo: '/geofest_faculty_photos/Dr_Vidya_Khanapure.jpg' },
 ];
 
 const IGS_COMMITTEE = [

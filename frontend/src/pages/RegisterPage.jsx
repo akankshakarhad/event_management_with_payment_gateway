@@ -78,9 +78,9 @@ const SCHEDULE = [
     day: 'Day 2', date: '18 March 2026',
     color: 'from-emerald-600 to-teal-600',
     items: [
-      { time: '09:30 AM – 12:30 PM', label: 'First Round: Connecting The Dots & Geotalk' },
+      { time: '09:30 AM – 12:30 PM', label: 'Connecting The Dots & Geotalk' },
       { time: '12:30 PM – 01:30 PM', label: 'Lunch Break' },
-      { time: '01:30 PM – 04:00 PM', label: 'Final Round: Connecting The Dots & Geotalk' },
+      { time: '01:30 PM – 04:00 PM', label: 'Connecting The Dots & Geotalk' },
       { time: '04:00 PM – 04:20 PM', label: 'Refreshment Break' },
       { time: '04:20 PM – 05:00 PM', label: 'Valedictory Function' },
       { time: '09:30 AM – 05:00 PM', label: 'Project Display (Whole Day)' },
