@@ -520,12 +520,13 @@ export default function LandingPage() {
             {SCHEDULE.map((day, i) => (
               <motion.div key={day.day}
                 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.15 }}>
+                viewport={{ once: true }} transition={{ delay: i * 0.15 }}
+                className="flex flex-col">
                 <div className={`rounded-t-2xl bg-gradient-to-r ${day.color} px-5 sm:px-6 py-3 sm:py-4`}>
                   <h3 className="text-lg sm:text-xl font-extrabold">{day.day}</h3>
                   <p className="text-white/80 text-sm">{day.date}</p>
                 </div>
-                <div className="glass rounded-b-2xl p-4 space-y-3">
+                <div className="glass rounded-b-2xl p-4 space-y-3 flex-1">
                   {day.items.map((item, j) => (
                     <div key={j} className="flex items-start gap-3">
                       <span className="text-xs sm:text-sm text-white w-28 sm:w-44 shrink-0 mt-0.5 font-mono font-bold">{item.time}</span>
