@@ -89,7 +89,7 @@ const SCHEDULE = [
 ];
 
 /* ─── Single participant block ─── */
-function MemberForm({ member, idx, onChange, onRemove, removable = true, errors = {} }) {
+function MemberForm({ member, idx, onChange, onRemove, removable = true, errors = {}, showParticipantType = false }) {
   const topFields = [
     { key: 'name',    label: 'Full Name',           placeholder: 'Arjun Kumar',              type: 'text'  },
     { key: 'email',   label: 'Email',                placeholder: 'arjun@email.com',          type: 'email' },
@@ -125,8 +125,8 @@ function MemberForm({ member, idx, onChange, onRemove, removable = true, errors 
         </div>
       ))}
 
-      {/* Student / Professional toggle */}
-      <div>
+      {/* Student / Professional toggle — Midas only */}
+      {showParticipantType && <div>
         <label className="text-xs text-gray-400 mb-2 block">Participant Type</label>
         <div className="grid grid-cols-2 gap-2">
           {['Student', 'Professional'].map((opt) => {
@@ -153,7 +153,7 @@ function MemberForm({ member, idx, onChange, onRemove, removable = true, errors 
         {errors.participant_type && (
           <p className="text-red-400 text-xs mt-1">{errors.participant_type}</p>
         )}
-      </div>
+      </div>}
 
       {/* Course */}
       <div>
@@ -662,7 +662,7 @@ export default function RegisterPage() {
       if (!m.phone.trim())                                   e[`${i}_phone`]   = 'Required';
       else if (!/^\d{10}$/.test(m.phone))                   e[`${i}_phone`]   = '10 digits only';
       if (!m.college.trim())                                 e[`${i}_college`]           = 'Required';
-      if (!m.participant_type)                               e[`${i}_participant_type`]  = 'Please select one';
+      if (norm(selectedEvent?.title) === 'Midas Software Workshop' && !m.participant_type) e[`${i}_participant_type`] = 'Please select one';
       if (!m.course.trim())                                  e[`${i}_course`]            = 'Required';
     });
     if (norm(selectedEvent?.title) === 'Project Display') {
@@ -968,6 +968,7 @@ export default function RegisterPage() {
                           <MemberForm key={i} member={m} idx={i + 1}
                             onChange={(key, val) => updateMember(i, key, val)}
                             onRemove={() => removeMember(i)}
+                            showParticipantType={norm(selectedEvent?.title) === 'Midas Software Workshop'}
                             removable={members.length > minAllowed}
                             errors={Object.fromEntries(
                               Object.entries(errors)
