@@ -13,7 +13,6 @@ const register = async (req, res, next) => {
     if (!email)                             missing.push('email');
     if (!phone)                             missing.push('phone');
     if (!college)                           missing.push('college');
-    if (!participant_type)                  missing.push('participant_type');
     if (!course)                            missing.push('course');
     if (!eventIds || !eventIds.length)      missing.push('eventIds');
 
@@ -44,6 +43,12 @@ const register = async (req, res, next) => {
         success: false,
         message: `Invalid event ID: ${eventIds[invalidEvent]}`,
       });
+    }
+
+    // --- Require participant_type only for Midas Software Workshop ---
+    const isMidas = eventChecks.some((e) => e.title === 'Midas Software Workshop');
+    if (isMidas && !participant_type) {
+      return res.status(400).json({ success: false, message: 'Missing required fields: participant_type' });
     }
 
     // --- Upsert user (same email = same user) ---
