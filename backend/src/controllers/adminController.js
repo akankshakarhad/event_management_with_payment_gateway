@@ -93,41 +93,103 @@ const getUsers = async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────
 // GET /api/admin/export?status=PAID&eventId=<uuid>
-// Exports registrations to Excel
+// Exports registrations (grouped by payment group) to Excel
 // ─────────────────────────────────────────────────────
 const exportCSV = async (req, res, next) => {
   try {
     const { status, eventId } = req.query;
-    const rows = await adminModel.getUsers({ status, eventId });
-    if (!rows.length) {
+    const groups = await adminModel.getGroups({ status, eventId });
+    if (!groups.length) {
       return res.status(404).json({ success: false, message: 'No data to export' });
     }
 
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Registrations');
 
+    // Column definitions
     sheet.columns = [
-      { header: 'Name',          key: 'name',        width: 25 },
-      { header: 'Email',         key: 'email',       width: 30 },
-      { header: 'Phone',         key: 'phone',       width: 15 },
-      { header: 'College',       key: 'college',     width: 30 },
-      { header: 'Event',         key: 'event_title', width: 25 },
-      { header: 'Price',         key: 'price',       width: 10 },
-      { header: 'Status',        key: 'status',      width: 12 },
-      { header: 'Registered At', key: 'created_at',  width: 22 },
+      { key: 'ref_id',      width: 18 },
+      { key: 'pay_status',  width: 20 },
+      { key: 'amount',      width: 12 },
+      { key: 'name',        width: 25 },
+      { key: 'email',       width: 30 },
+      { key: 'phone',       width: 15 },
+      { key: 'college',     width: 30 },
+      { key: 'events',      width: 40 },
+      { key: 'reg_status',  width: 14 },
+      { key: 'date',        width: 22 },
     ];
-    sheet.getRow(1).font = { bold: true };
-    rows.forEach((r) => {
-      sheet.addRow({
-        name:        r.name,
-        email:       r.email,
-        phone:       r.phone,
-        college:     r.college,
-        event_title: r.event_title,
-        price:       r.price,
-        status:      r.status,
-        created_at:  new Date(r.created_at).toLocaleString('en-IN'),
+
+    // Header row
+    const headerRow = sheet.addRow([
+      'Reference ID', 'Payment Status', 'Amount (₹)',
+      'Member Name', 'Email', 'Phone', 'College',
+      'Events Registered', 'Reg. Status', 'Date',
+    ]);
+    headerRow.eachCell((cell) => {
+      cell.font      = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.border    = { bottom: { style: 'thin', color: { argb: 'FF334155' } } };
+    });
+
+    const PAY_STATUS_LABEL = {
+      APPROVED:             'Approved',
+      VERIFICATION_PENDING: 'Needs Review',
+      REJECTED:             'Rejected',
+      PENDING:              'Unpaid',
+    };
+
+    groups.forEach((g) => {
+      const payLabel = PAY_STATUS_LABEL[g.payment_status] || g.payment_status;
+      const date     = new Date(g.created_at).toLocaleString('en-IN');
+
+      g.members.forEach((m, mIdx) => {
+        const events    = m.registrations.map((r) => r.event_title).join(', ') || '—';
+        const regStatus = m.registrations.length === 0
+          ? '—'
+          : m.registrations.every((r) => r.status === 'PAID') ? 'PAID' : 'PENDING';
+
+        const row = sheet.addRow([
+          mIdx === 0 ? g.reference_id : '',   // show ref ID only on first member row
+          mIdx === 0 ? payLabel        : '',
+          mIdx === 0 ? g.amount        : '',
+          m.name,
+          m.email,
+          m.phone,
+          m.college,
+          events,
+          regStatus,
+          mIdx === 0 ? date            : '',
+        ]);
+
+        // Light amber tint on group's first row to visually separate groups
+        if (mIdx === 0) {
+          row.eachCell((cell) => {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF292524' } };
+          });
+          row.getCell(1).font = { bold: true, color: { argb: 'FFFBBF24' } }; // amber ref ID
+          row.getCell(2).font = {
+            bold: true,
+            color: {
+              argb: g.payment_status === 'APPROVED'             ? 'FF34D399' :
+                    g.payment_status === 'VERIFICATION_PENDING' ? 'FFFBBF24' :
+                    g.payment_status === 'REJECTED'             ? 'FFF87171' : 'FF94A3B8',
+            },
+          };
+          row.getCell(3).font = { bold: true, color: { argb: 'FF34D399' } };
+        }
+
+        // Registration status color
+        if (regStatus === 'PAID') {
+          row.getCell(9).font = { bold: true, color: { argb: 'FF34D399' } };
+        } else if (regStatus === 'PENDING') {
+          row.getCell(9).font = { color: { argb: 'FFFBBF24' } };
+        }
       });
+
+      // Blank separator row between groups
+      sheet.addRow([]);
     });
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -260,4 +322,21 @@ const exportPayments = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, exportCSV, getPayments, approvePayment, rejectPayment, exportPayments };
+// ─────────────────────────────────────────────────────
+// GET /api/admin/groups?status=PAID&eventId=<uuid>
+// Returns registrations grouped by payment group
+// ─────────────────────────────────────────────────────
+const getGroupRegistrations = async (req, res, next) => {
+  try {
+    const { status, eventId } = req.query;
+    if (status && !['PAID', 'PENDING'].includes(status.toUpperCase())) {
+      return res.status(400).json({ success: false, message: 'status must be PAID or PENDING' });
+    }
+    const groups = await adminModel.getGroups({ status, eventId });
+    res.json({ success: true, count: groups.length, data: groups });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getUsers, exportCSV, getPayments, approvePayment, rejectPayment, exportPayments, getGroupRegistrations };

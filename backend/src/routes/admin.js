@@ -9,6 +9,7 @@ const {
   approvePayment,
   rejectPayment,
   exportPayments,
+  getGroupRegistrations,
 } = require('../controllers/adminController');
 
 const { uploadPhoto, deletePhoto } = require('../controllers/galleryController');
@@ -24,6 +25,7 @@ const imageUpload = multer({
 
 // Registrations
 router.get('/users',  getUsers);
+router.get('/groups', getGroupRegistrations);
 router.get('/export', exportCSV);
 
 // Payments

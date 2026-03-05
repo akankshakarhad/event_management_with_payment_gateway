@@ -24,12 +24,13 @@ export default function AdminPage() {
   const [pwError, setPwError]   = useState('');
 
   // ── Registrations state ──
-  const [rows, setRows]       = useState([]);
-  const [events, setEvents]   = useState([]);
-  const [status, setStatus]   = useState('');
-  const [eventId, setEventId] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState('');
+  const [groups, setGroups]         = useState([]);
+  const [expandedGroups, setExpandedGroups] = useState({});
+  const [events, setEvents]         = useState([]);
+  const [status, setStatus]         = useState('');
+  const [eventId, setEventId]       = useState('');
+  const [loading, setLoading]       = useState(false);
+  const [error, setError]           = useState('');
 
   // ── Main tab ──
   const [mainTab, setMainTab] = useState('registrations'); // 'registrations' | 'payments' | 'gallery'
@@ -98,18 +99,20 @@ export default function AdminPage() {
     window.open(`/api/admin/payments/export?${p.toString()}`, '_blank');
   };
 
-  // ── Fetch registrations ──
+  // ── Fetch registrations (grouped) ──
   const fetchData = async () => {
     setLoading(true); setError('');
     try {
       const params = {};
       if (status)  params.status  = status;
       if (eventId) params.eventId = eventId;
-      const res = await api.get('/admin/users', { params });
-      setRows(res.data.data);
+      const res = await api.get('/admin/groups', { params });
+      setGroups(res.data.data);
     } catch { setError('Failed to load data.'); }
     finally   { setLoading(false); }
   };
+
+  const toggleGroup = (id) => setExpandedGroups((prev) => ({ ...prev, [id]: !prev[id] }));
 
   // ── Fetch gallery ──
   const fetchGallery = async () => {
@@ -253,8 +256,8 @@ export default function AdminPage() {
     );
   }
 
-  const paidCount    = rows.filter((r) => r.status === 'PAID').length;
-  const pendingCount = rows.filter((r) => r.status === 'PENDING').length;
+  const paidCount    = groups.filter((g) => g.payment_status === 'APPROVED').length;
+  const pendingCount = groups.filter((g) => g.payment_status !== 'APPROVED').length;
 
   return (
     <div className="pt-16 min-h-screen text-white">
@@ -312,9 +315,9 @@ export default function AdminPage() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 mb-8">
               {[
-                { label: 'Total',   value: rows.length,  color: 'text-amber-400'  },
-                { label: 'Paid',    value: paidCount,    color: 'text-emerald-400' },
-                { label: 'Pending', value: pendingCount, color: 'text-yellow-400'  },
+                { label: 'Total Groups', value: groups.length,  color: 'text-amber-400'   },
+                { label: 'Approved',     value: paidCount,      color: 'text-emerald-400' },
+                { label: 'Pending',      value: pendingCount,   color: 'text-yellow-400'  },
               ].map((s) => (
                 <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                   className="glass rounded-2xl p-5 text-center">
@@ -348,60 +351,143 @@ export default function AdminPage() {
               </select>
             </div>
 
-            {/* Table */}
+            {/* Group Cards */}
             {loading ? (
               <div className="space-y-3">
                 {[1,2,3,4,5].map((i) => (
-                  <div key={i} className="h-12 rounded-xl bg-slate-800 animate-pulse" />
+                  <div key={i} className="h-20 rounded-2xl bg-slate-800 animate-pulse" />
                 ))}
               </div>
             ) : error ? (
               <p className="text-red-400 text-center py-16">{error}</p>
-            ) : rows.length === 0 ? (
+            ) : groups.length === 0 ? (
               <div className="text-center py-20 text-gray-600">
                 <div className="text-5xl mb-4">🔍</div>
-                <p>No registrations found.</p>
+                <p>No registration groups found.</p>
               </div>
             ) : (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                className="glass rounded-2xl overflow-hidden">
-                <table className="min-w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-700/60">
-                      {['Name','Email','Phone','College','Event','Price','Status'].map((h) => (
-                        <th key={h} className="text-left px-5 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800">
-                    {rows.map((r, i) => (
-                      <motion.tr key={r.registration_id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.03 }}
-                        className="hover:bg-slate-800/40 transition-colors">
-                        <td className="px-5 py-3.5 font-medium text-white">{r.name}</td>
-                        <td className="px-5 py-3.5 text-gray-400">{r.email}</td>
-                        <td className="px-5 py-3.5 text-gray-400">{r.phone}</td>
-                        <td className="px-5 py-3.5 text-gray-400 max-w-[160px] truncate">{r.college}</td>
-                        <td className="px-5 py-3.5 text-gray-300">{r.event_title}</td>
-                        <td className="px-5 py-3.5 text-amber-400 font-semibold">₹{r.price}</td>
-                        <td className="px-5 py-3.5">
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                            r.status === 'PAID'
-                              ? 'bg-emerald-500/15 text-emerald-400'
-                              : 'bg-yellow-500/15 text-yellow-400'
-                          }`}>
-                            {r.status}
-                          </span>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </motion.div>
+              <div className="space-y-4">
+                {groups.map((g, i) => {
+                  const isExpanded = !!expandedGroups[g.payment_id];
+                  const payBadge =
+                    g.payment_status === 'APPROVED'             ? { label: 'Approved',      cls: 'bg-emerald-500/15 text-emerald-400' } :
+                    g.payment_status === 'VERIFICATION_PENDING' ? { label: 'Needs Review',   cls: 'bg-yellow-500/15 text-yellow-400'  } :
+                    g.payment_status === 'REJECTED'             ? { label: 'Rejected',       cls: 'bg-red-500/15 text-red-400'        } :
+                                                                  { label: 'Unpaid',         cls: 'bg-slate-500/15 text-slate-400'   };
+                  const totalEvents = g.members.reduce((acc, m) => acc + m.registrations.length, 0);
+
+                  return (
+                    <motion.div key={g.payment_id}
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="glass rounded-2xl border border-slate-700/50 overflow-hidden">
+
+                      {/* Group header – click to expand */}
+                      <button
+                        onClick={() => toggleGroup(g.payment_id)}
+                        className="w-full text-left px-5 py-4 flex flex-wrap items-center gap-3 hover:bg-slate-800/40 transition-colors">
+
+                        {/* Expand chevron */}
+                        <span className={`text-gray-500 text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
+
+                        {/* Reference ID */}
+                        <span className="font-mono text-amber-400 text-xs font-bold whitespace-nowrap">
+                          {g.reference_id}
+                        </span>
+
+                        {/* Leader */}
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold text-white text-sm">{g.leader.name}</span>
+                          <span className="text-gray-500 text-xs ml-2">{g.leader.email}</span>
+                        </div>
+
+                        {/* Members count */}
+                        <span className="text-gray-400 text-xs whitespace-nowrap">
+                          {g.members.length} member{g.members.length !== 1 ? 's' : ''}
+                        </span>
+
+                        {/* Events count */}
+                        <span className="text-gray-400 text-xs whitespace-nowrap">
+                          {totalEvents} event{totalEvents !== 1 ? 's' : ''}
+                        </span>
+
+                        {/* Amount */}
+                        <span className="text-emerald-400 font-bold text-sm whitespace-nowrap">
+                          ₹{g.amount}
+                        </span>
+
+                        {/* Payment status */}
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${payBadge.cls}`}>
+                          {payBadge.label}
+                        </span>
+                      </button>
+
+                      {/* Expanded: member details */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden border-t border-slate-700/50">
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full text-sm">
+                                <thead>
+                                  <tr className="bg-slate-800/60">
+                                    {['Member','Email','Phone','College','Events','Reg. Status'].map((h) => (
+                                      <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                        {h}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800/60">
+                                  {g.members.map((m) => {
+                                    const regStatus = m.registrations.length > 0
+                                      ? (m.registrations.every((r) => r.status === 'PAID') ? 'PAID' : 'PENDING')
+                                      : '—';
+                                    return (
+                                      <tr key={m.user_id} className="hover:bg-slate-800/30 transition-colors">
+                                        <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
+                                        <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
+                                        <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
+                                        <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
+                                        <td className="px-5 py-3 text-gray-300 text-xs">
+                                          {m.registrations.length === 0
+                                            ? <span className="text-gray-600">—</span>
+                                            : m.registrations.map((r) => (
+                                                <span key={r.registration_id}
+                                                  className="inline-block bg-slate-700/60 text-gray-300 rounded-full px-2 py-0.5 text-xs mr-1 mb-0.5 whitespace-nowrap">
+                                                  {r.event_title}
+                                                </span>
+                                              ))
+                                          }
+                                        </td>
+                                        <td className="px-5 py-3">
+                                          {regStatus !== '—' ? (
+                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                              regStatus === 'PAID'
+                                                ? 'bg-emerald-500/15 text-emerald-400'
+                                                : 'bg-yellow-500/15 text-yellow-400'
+                                            }`}>
+                                              {regStatus}
+                                            </span>
+                                          ) : <span className="text-gray-600 text-xs">—</span>}
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })}
+              </div>
             )}
           </>
         )}
