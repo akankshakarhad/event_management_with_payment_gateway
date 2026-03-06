@@ -45,7 +45,7 @@ router.post('/gallery',       imageUpload.single('image'), uploadPhoto);
 router.delete('/gallery/:id', deletePhoto);
 
 // Rule Book
-router.post('/rulebook',   rulebookUpload.single('file'), uploadRulebook);
-router.delete('/rulebook', deleteRulebook);
+router.post('/rulebook',       rulebookUpload.single('file'), uploadRulebook);
+router.delete('/rulebook/:id', deleteRulebook);
 
 module.exports = router;

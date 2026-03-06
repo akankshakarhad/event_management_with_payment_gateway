@@ -163,9 +163,15 @@ export default function EventsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  // ── Rule Book ──
-  const [rulebook, setRulebook]               = useState(null);
-  const [rulebookModal, setRulebookModal]     = useState(false);
+  // ── Rule Books (per event) ──
+  const [rulebooks, setRulebooks]         = useState([]);
+  const [rulebookModal, setRulebookModal] = useState(null); // holds rulebook object
+
+  // iOS detection — PDFs don't render in iframes on iOS; open in new tab instead
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  const getEventRulebook = (eventId) => rulebooks.find((r) => r.event_id === eventId) || null;
 
   // ── Gallery ──
   const [activeTab, setActiveTab]           = useState('events'); // 'events' | 'gallery'
@@ -184,8 +190,8 @@ export default function EventsPage() {
       .finally(() => setLoading(false));
 
     api.get('/rulebook')
-      .then((res) => setRulebook(res.data.data))
-      .catch(() => {}); // fail silently — no rulebook uploaded yet
+      .then((res) => setRulebooks(res.data.data || []))
+      .catch(() => {}); // fail silently
   }, []);
 
   /* ── Deep-link from RegisterPage: ?tab=gallery&eventId=<id> ── */
@@ -227,31 +233,6 @@ export default function EventsPage() {
           <p className="text-gray-400 max-w-md mx-auto text-sm sm:text-base px-2">
             Pick one or combine multiple — every event counts toward your legacy.
           </p>
-
-          {/* Rule Book buttons */}
-          {rulebook && (
-            <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
-              <motion.button
-                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                onClick={() => setRulebookModal(true)}
-                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600
-                           text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow-lg">
-                <span>📖</span> View Rule Book
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                onClick={() => {
-                  const a = document.createElement('a');
-                  a.href = rulebook.file_data;
-                  a.download = rulebook.file_name;
-                  a.click();
-                }}
-                className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white text-sm
-                           font-semibold px-5 py-2.5 rounded-xl transition shadow-lg shadow-amber-500/20">
-                <span>⬇</span> Download Rule Book
-              </motion.button>
-            </div>
-          )}
 
           {/* Tab switcher */}
           <div className="mt-8 inline-flex glass rounded-xl p-1 gap-1">
@@ -361,6 +342,36 @@ export default function EventsPage() {
                         {ev.max_members === 1 ? 'Individual only' : normalizeTitle(ev.title) === 'Connecting The Dots' ? 'Exactly 3 members' : `Upto ${ev.max_members} members`}
                       </span>
                     </div>
+                    {/* Rule Book buttons — shown only if this event has one */}
+                    {(() => {
+                      const rb = getEventRulebook(ev.id);
+                      if (!rb) return null;
+                      return (
+                        <div className="flex gap-2 mb-3 flex-wrap">
+                          <button
+                            onClick={() => {
+                              if (isIOS && rb.file_type === 'application/pdf') {
+                                window.open(`/api/rulebook/${rb.id}/view`, '_blank');
+                              } else {
+                                setRulebookModal(rb);
+                              }
+                            }}
+                            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg
+                                       bg-slate-700 hover:bg-slate-600 text-white transition">
+                            📖 View Rules
+                          </button>
+                          <a
+                            href={`/api/rulebook/${rb.id}/download`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg
+                                       bg-amber-600/20 hover:bg-amber-600/40 border border-amber-500/30 text-amber-300 transition">
+                            ⬇ Download Rules
+                          </a>
+                        </div>
+                      );
+                    })()}
+
                     <div className="flex items-center justify-between gap-3">
                       <span className="bg-amber-600/20 border border-amber-500/30 text-amber-300 px-3 py-1 rounded-full text-sm font-bold shrink-0">
                         ₹{ev.price}
@@ -549,15 +560,15 @@ export default function EventsPage() {
         )}
       </AnimatePresence>
 
-      {/* Rule Book Modal */}
+      {/* Rule Book Modal — uses backend URLs (works on all devices incl. iOS) */}
       <AnimatePresence>
-        {rulebookModal && rulebook && (
+        {rulebookModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setRulebookModal(false)}
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+            onClick={() => setRulebookModal(null)}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-6">
             <motion.div
               initial={{ scale: 0.88, opacity: 0, y: 24 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -567,64 +578,58 @@ export default function EventsPage() {
               className="relative w-full max-w-4xl">
 
               {/* Header bar */}
-              <div className="flex items-center justify-between bg-slate-900 border border-slate-700 rounded-t-2xl px-5 py-3">
+              <div className="flex items-center justify-between bg-slate-900 border border-slate-700 rounded-t-2xl px-4 py-3 gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="text-xl">
-                    {rulebook.file_type === 'application/pdf' ? '📄'
-                      : rulebook.file_type.startsWith('image/') ? '🖼'
+                  <span className="text-lg shrink-0">
+                    {rulebookModal.file_type === 'application/pdf' ? '📄'
+                      : rulebookModal.file_type?.startsWith('image/') ? '🖼'
                       : '📋'}
                   </span>
-                  <span className="text-white text-sm font-semibold truncate">{rulebook.file_name}</span>
+                  <span className="text-white text-sm font-semibold truncate">{rulebookModal.file_name}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    onClick={() => {
-                      const a = document.createElement('a');
-                      a.href = rulebook.file_data;
-                      a.download = rulebook.file_name;
-                      a.click();
-                    }}
+                  <a
+                    href={`/api/rulebook/${rulebookModal.id}/download`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
-                    ⬇ Download
-                  </button>
+                    Download
+                  </a>
                   <button
-                    onClick={() => setRulebookModal(false)}
+                    onClick={() => setRulebookModal(null)}
                     className="w-8 h-8 bg-slate-700 hover:bg-red-600 border border-white/10 text-white
-                               rounded-full flex items-center justify-center text-sm transition-colors">
+                               rounded-full flex items-center justify-center text-sm transition-colors shrink-0">
                     ✕
                   </button>
                 </div>
               </div>
 
-              {/* Content area */}
+              {/* Content area — iframe uses backend URL so it loads fast & works on all browsers */}
               <div className="bg-slate-950 border-x border-b border-slate-700 rounded-b-2xl overflow-hidden"
                    style={{ height: '75vh' }}>
-                {rulebook.file_type === 'application/pdf' ? (
-                  <iframe
-                    src={rulebook.file_data}
-                    title="Rule Book"
-                    className="w-full h-full border-0"
-                  />
-                ) : rulebook.file_type.startsWith('image/') ? (
+                {rulebookModal.file_type?.startsWith('image/') ? (
                   <img
-                    src={rulebook.file_data}
+                    src={`/api/rulebook/${rulebookModal.id}/view`}
                     alt="Rule Book"
                     className="w-full h-full object-contain"
                   />
+                ) : rulebookModal.file_type === 'application/pdf' ? (
+                  <iframe
+                    src={`/api/rulebook/${rulebookModal.id}/view`}
+                    title="Rule Book"
+                    className="w-full h-full border-0"
+                  />
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4">
-                    <div className="text-6xl">📋</div>
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4 px-4 text-center">
+                    <div className="text-5xl">📋</div>
                     <p className="text-sm">Preview not available for this file type.</p>
-                    <button
-                      onClick={() => {
-                        const a = document.createElement('a');
-                        a.href = rulebook.file_data;
-                        a.download = rulebook.file_name;
-                        a.click();
-                      }}
+                    <a
+                      href={`/api/rulebook/${rulebookModal.id}/download`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
-                      ⬇ Download to view
-                    </button>
+                      Download to view
+                    </a>
                   </div>
                 )}
               </div>

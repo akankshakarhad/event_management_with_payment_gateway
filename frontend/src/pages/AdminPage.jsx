@@ -57,13 +57,14 @@ export default function AdminPage() {
   const fileInputRef = useRef(null);
 
   // ── Rule Book state ──
-  const [rulebook, setRulebook]               = useState(null);
+  const [rulebooks, setRulebooks]             = useState([]);
   const [rulebookLoading, setRulebookLoading] = useState(false);
   const [rulebookError, setRulebookError]     = useState('');
   const [rbFile, setRbFile]                   = useState(null);
+  const [rbEventId, setRbEventId]             = useState('');
   const [rbUploading, setRbUploading]         = useState(false);
   const [rbMsg, setRbMsg]                     = useState('');
-  const [rbDeleting, setRbDeleting]           = useState(false);
+  const [rbDeletingId, setRbDeletingId]       = useState('');
   const rbInputRef = useRef(null);
 
   // ── Fetch payments ──
@@ -134,13 +135,13 @@ export default function AdminPage() {
     finally { setGalleryLoading(false); }
   };
 
-  // ── Fetch rule book ──
-  const fetchRulebook = async () => {
+  // ── Fetch rule books ──
+  const fetchRulebooks = async () => {
     setRulebookLoading(true); setRulebookError('');
     try {
       const res = await api.get('/rulebook');
-      setRulebook(res.data.data);
-    } catch { setRulebookError('Failed to load rule book.'); }
+      setRulebooks(res.data.data);
+    } catch { setRulebookError('Failed to load rule books.'); }
     finally { setRulebookLoading(false); }
   };
 
@@ -148,7 +149,7 @@ export default function AdminPage() {
     if (unlocked) {
       api.get('/events').then((r) => setEvents(r.data.data));
       fetchGallery();
-      fetchRulebook();
+      fetchRulebooks();
     }
   }, [unlocked]);
 
@@ -234,11 +235,12 @@ export default function AdminPage() {
   // ── Rule Book handlers ──
   const handleRbUpload = async (e) => {
     e.preventDefault();
-    if (!rbFile) return;
+    if (!rbFile || !rbEventId) return;
     setRbUploading(true); setRbMsg('');
     try {
       const formData = new FormData();
       formData.append('file', rbFile);
+      formData.append('eventId', rbEventId);
       await api.post('/admin/rulebook', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -246,9 +248,10 @@ export default function AdminPage() {
         },
       });
       setRbFile(null);
+      setRbEventId('');
       if (rbInputRef.current) rbInputRef.current.value = '';
       setRbMsg('Rule book uploaded successfully!');
-      fetchRulebook();
+      fetchRulebooks();
     } catch {
       setRbMsg('Upload failed. Please try again.');
     } finally {
@@ -256,19 +259,19 @@ export default function AdminPage() {
     }
   };
 
-  const handleRbDelete = async () => {
-    if (!window.confirm('Delete the current rule book?')) return;
-    setRbDeleting(true);
+  const handleRbDelete = async (id) => {
+    if (!window.confirm('Delete this rule book?')) return;
+    setRbDeletingId(id);
     try {
-      await api.delete('/admin/rulebook', {
+      await api.delete(`/admin/rulebook/${id}`, {
         headers: { 'x-admin-password': ADMIN_PASSWORD },
       });
-      setRulebook(null);
-      setRbMsg('Rule book deleted.');
+      setRulebooks((prev) => prev.filter((r) => r.id !== id));
+      setRbMsg('');
     } catch {
       alert('Failed to delete rule book.');
     } finally {
-      setRbDeleting(false);
+      setRbDeletingId('');
     }
   };
 
@@ -327,49 +330,51 @@ export default function AdminPage() {
 
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="flex items-start justify-between mb-8 flex-wrap gap-4">
+          className="flex items-start justify-between mb-6 sm:mb-8 flex-wrap gap-3">
           <div>
-            <h1 className="text-4xl font-extrabold mb-1">
+            <h1 className="text-2xl sm:text-4xl font-extrabold mb-1">
               Admin <span className="shimmer-text">Dashboard</span>
             </h1>
-            <p className="text-gray-500 text-sm">Manage registrations, payments and event gallery</p>
+            <p className="text-gray-500 text-xs sm:text-sm">Manage registrations, payments and event gallery</p>
           </div>
           <div className="flex gap-2">
             {mainTab === 'registrations' && (
               <motion.button onClick={handleExport}
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition">
-                Export Registrations
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition whitespace-nowrap">
+                Export Regs
               </motion.button>
             )}
             {mainTab === 'payments' && (
               <motion.button onClick={handleExportPayments}
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-emerald-500/20 transition">
-                Export Payments
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition whitespace-nowrap">
+                Export CSV
               </motion.button>
             )}
           </div>
         </motion.div>
 
-        {/* Main Tabs */}
+        {/* Main Tabs — horizontally scrollable on mobile */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="glass rounded-xl p-1 flex gap-1 mb-8 w-fit">
-          {[
-            { label: 'Registrations', value: 'registrations' },
-            { label: 'Payments',      value: 'payments' },
-            { label: 'Gallery',       value: 'gallery' },
-            { label: 'Rule Book',     value: 'rulebook' },
-          ].map((t) => (
-            <button key={t.value} onClick={() => setMainTab(t.value)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition ${
-                mainTab === t.value
-                  ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
-                  : 'text-gray-400 hover:text-white'
-              }`}>
-              {t.label}
-            </button>
-          ))}
+          className="overflow-x-auto -mx-4 px-4 mb-6 sm:mb-8 pb-1">
+          <div className="glass rounded-xl p-1 flex gap-1 w-max">
+            {[
+              { label: 'Registrations', value: 'registrations' },
+              { label: 'Payments',      value: 'payments' },
+              { label: 'Gallery',       value: 'gallery' },
+              { label: 'Rule Book',     value: 'rulebook' },
+            ].map((t) => (
+              <button key={t.value} onClick={() => setMainTab(t.value)}
+                className={`px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition whitespace-nowrap ${
+                  mainTab === t.value
+                    ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
+                    : 'text-gray-400 hover:text-white'
+                }`}>
+                {t.label}
+              </button>
+            ))}
+          </div>
         </motion.div>
 
         {/* ── REGISTRATIONS TAB ── */}
@@ -574,18 +579,20 @@ export default function AdminPage() {
               ))}
             </div>
 
-            {/* Status filter */}
-            <div className="glass rounded-xl p-1 flex gap-1 mb-6 flex-wrap">
-              {PAYMENT_STATUS_TABS.map((t) => (
-                <button key={t.value} onClick={() => setPayStatus(t.value)}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition ${
-                    payStatus === t.value
-                      ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
-                      : 'text-gray-400 hover:text-white'
-                  }`}>
-                  {t.label}
-                </button>
-              ))}
+            {/* Status filter — scrollable on mobile */}
+            <div className="overflow-x-auto -mx-4 px-4 mb-6 pb-1">
+              <div className="glass rounded-xl p-1 flex gap-1 w-max">
+                {PAYMENT_STATUS_TABS.map((t) => (
+                  <button key={t.value} onClick={() => setPayStatus(t.value)}
+                    className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
+                      payStatus === t.value
+                        ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
+                        : 'text-gray-400 hover:text-white'
+                    }`}>
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Table */}
@@ -788,44 +795,58 @@ export default function AdminPage() {
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
 
             {/* Upload form */}
-            <div className="glass rounded-2xl p-6 border border-slate-700/60 mb-8">
-              <h2 className="text-lg font-bold mb-5">Upload Rule Book</h2>
+            <div className="glass rounded-2xl p-4 sm:p-6 border border-slate-700/60 mb-8">
+              <h2 className="text-lg font-bold mb-1">Upload Rule Book</h2>
               <p className="text-gray-500 text-xs mb-4">
-                Accepts PDF, DOC, DOCX, JPG, PNG or any format &middot; Max 20 MB.
-                Uploading a new file replaces the existing one.
+                PDF, DOC, DOCX, JPG, PNG or any format &middot; Max 20 MB.
+                Uploading for an event replaces any existing rule book for that event.
               </p>
               <form onSubmit={handleRbUpload} className="space-y-4">
+
+                {/* Event selector — required */}
+                <select
+                  value={rbEventId}
+                  onChange={(e) => setRbEventId(e.target.value)}
+                  required
+                  className="w-full bg-slate-800 border border-slate-700 text-gray-300 rounded-xl px-4 py-3 text-sm
+                             focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
+                  <option value="">Select Event *</option>
+                  {events.map((ev) => (
+                    <option key={ev.id} value={ev.id}>{ev.title}</option>
+                  ))}
+                </select>
+
+                {/* File drop zone */}
                 <div
                   onClick={() => rbInputRef.current?.click()}
-                  className="border-2 border-dashed border-slate-700 hover:border-amber-500/50 rounded-xl p-6 text-center cursor-pointer transition-colors">
+                  className="border-2 border-dashed border-slate-700 hover:border-amber-500/50 rounded-xl p-5 text-center cursor-pointer transition-colors">
                   {rbFile ? (
                     <div>
-                      <div className="text-3xl mb-2">📄</div>
-                      <p className="text-white text-sm font-medium">{rbFile.name}</p>
+                      <div className="text-3xl mb-1">📄</div>
+                      <p className="text-white text-sm font-medium truncate">{rbFile.name}</p>
                       <p className="text-gray-500 text-xs mt-1">{(rbFile.size / 1024 / 1024).toFixed(2)} MB</p>
                     </div>
                   ) : (
                     <>
-                      <div className="text-4xl mb-2">📋</div>
-                      <p className="text-gray-400 text-sm">Click to select a file</p>
-                      <p className="text-gray-600 text-xs mt-1">PDF, DOC, DOCX, JPG, PNG… &middot; Max 20 MB</p>
+                      <div className="text-3xl mb-1">📋</div>
+                      <p className="text-gray-400 text-sm">Tap to select file</p>
+                      <p className="text-gray-600 text-xs mt-1">PDF, DOC, DOCX, JPG… &middot; Max 20 MB</p>
                     </>
                   )}
                 </div>
                 <input
                   ref={rbInputRef}
                   type="file"
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
                   onChange={(e) => { setRbFile(e.target.files[0] || null); setRbMsg(''); }}
                   className="hidden"
                 />
 
                 <div className="flex items-center gap-3 flex-wrap">
-                  <motion.button type="submit" disabled={!rbFile || rbUploading}
+                  <motion.button type="submit" disabled={!rbFile || !rbEventId || rbUploading}
                     whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                    className="bg-gradient-to-r from-amber-600 to-amber-700 text-white font-semibold px-6 py-2.5
+                    className="bg-gradient-to-r from-amber-600 to-amber-700 text-white font-semibold px-5 py-2.5
                                rounded-xl text-sm shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                    {rbUploading ? 'Uploading…' : '⬆ Upload Rule Book'}
+                    {rbUploading ? 'Uploading…' : 'Upload Rule Book'}
                   </motion.button>
                   {rbFile && (
                     <button type="button"
@@ -835,7 +856,7 @@ export default function AdminPage() {
                     </button>
                   )}
                   {rbMsg && (
-                    <p className={`text-sm ${rbMsg.includes('success') || rbMsg.includes('deleted') ? 'text-emerald-400' : 'text-red-400'}`}>
+                    <p className={`text-sm ${rbMsg.includes('success') ? 'text-emerald-400' : 'text-red-400'}`}>
                       {rbMsg}
                     </p>
                   )}
@@ -843,34 +864,55 @@ export default function AdminPage() {
               </form>
             </div>
 
-            {/* Current rule book */}
-            <h2 className="text-lg font-bold mb-4">Current Rule Book</h2>
+            {/* Existing rule books list */}
+            <h2 className="text-lg font-bold mb-4">
+              Uploaded Rule Books
+              <span className="ml-2 text-gray-500 text-sm font-normal">({rulebooks.length})</span>
+            </h2>
+
             {rulebookLoading ? (
-              <div className="h-20 rounded-2xl bg-slate-800 animate-pulse" />
+              <div className="space-y-3">
+                {[1, 2].map((i) => <div key={i} className="h-16 rounded-xl bg-slate-800 animate-pulse" />)}
+              </div>
             ) : rulebookError ? (
               <p className="text-red-400">{rulebookError}</p>
-            ) : !rulebook ? (
+            ) : rulebooks.length === 0 ? (
               <div className="text-center py-16 text-gray-600">
                 <div className="text-5xl mb-4">📭</div>
-                <p>No rule book uploaded yet.</p>
+                <p>No rule books uploaded yet.</p>
               </div>
             ) : (
-              <div className="glass rounded-2xl p-5 border border-slate-700/60 flex items-center gap-4 flex-wrap">
-                <div className="text-4xl">
-                  {rulebook.file_type === 'application/pdf' ? '📄'
-                    : rulebook.file_type.startsWith('image/') ? '🖼'
-                    : '📋'}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-white truncate">{rulebook.file_name}</p>
-                  <p className="text-gray-500 text-xs mt-0.5">{rulebook.file_type} &middot; Uploaded {new Date(rulebook.uploaded_at).toLocaleString()}</p>
-                </div>
-                <button
-                  onClick={handleRbDelete}
-                  disabled={rbDeleting}
-                  className="bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl transition whitespace-nowrap">
-                  {rbDeleting ? '…' : 'Delete'}
-                </button>
+              <div className="space-y-3">
+                {rulebooks.map((rb) => (
+                  <div key={rb.id}
+                    className="glass rounded-xl p-4 border border-slate-700/60 flex items-center gap-3 flex-wrap">
+                    <span className="text-2xl shrink-0">
+                      {rb.file_type === 'application/pdf' ? '📄'
+                        : rb.file_type?.startsWith('image/') ? '🖼'
+                        : '📋'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white text-sm truncate">{rb.file_name}</p>
+                      <p className="text-gray-500 text-xs mt-0.5">
+                        {rb.event_title ? (
+                          <span className="text-amber-400 font-medium">{rb.event_title} &middot; </span>
+                        ) : null}
+                        {new Date(rb.uploaded_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <a href={`/api/rulebook/${rb.id}/view`} target="_blank" rel="noopener noreferrer"
+                      className="text-blue-400 hover:text-blue-300 text-xs font-semibold transition shrink-0">
+                      View
+                    </a>
+                    <button
+                      onClick={() => handleRbDelete(rb.id)}
+                      disabled={rbDeletingId === rb.id}
+                      className="bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-bold
+                                 px-3 py-1.5 rounded-lg transition whitespace-nowrap shrink-0">
+                      {rbDeletingId === rb.id ? '…' : 'Delete'}
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </motion.div>
