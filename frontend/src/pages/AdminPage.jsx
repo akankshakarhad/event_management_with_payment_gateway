@@ -33,7 +33,7 @@ export default function AdminPage() {
   const [error, setError]           = useState('');
 
   // ── Main tab ──
-  const [mainTab, setMainTab] = useState('registrations'); // 'registrations' | 'payments' | 'gallery'
+  const [mainTab, setMainTab] = useState('registrations'); // 'registrations' | 'payments' | 'gallery' | 'rulebook'
 
   // ── Payments state ──
   const [payments, setPayments]         = useState([]);
@@ -55,6 +55,16 @@ export default function AdminPage() {
   const [deletingId, setDeletingId]           = useState('');
   const [lightbox, setLightbox]               = useState(null); // photo object
   const fileInputRef = useRef(null);
+
+  // ── Rule Book state ──
+  const [rulebook, setRulebook]               = useState(null);
+  const [rulebookLoading, setRulebookLoading] = useState(false);
+  const [rulebookError, setRulebookError]     = useState('');
+  const [rbFile, setRbFile]                   = useState(null);
+  const [rbUploading, setRbUploading]         = useState(false);
+  const [rbMsg, setRbMsg]                     = useState('');
+  const [rbDeleting, setRbDeleting]           = useState(false);
+  const rbInputRef = useRef(null);
 
   // ── Fetch payments ──
   const fetchPayments = async () => {
@@ -124,10 +134,21 @@ export default function AdminPage() {
     finally { setGalleryLoading(false); }
   };
 
+  // ── Fetch rule book ──
+  const fetchRulebook = async () => {
+    setRulebookLoading(true); setRulebookError('');
+    try {
+      const res = await api.get('/rulebook');
+      setRulebook(res.data.data);
+    } catch { setRulebookError('Failed to load rule book.'); }
+    finally { setRulebookLoading(false); }
+  };
+
   useEffect(() => {
     if (unlocked) {
       api.get('/events').then((r) => setEvents(r.data.data));
       fetchGallery();
+      fetchRulebook();
     }
   }, [unlocked]);
 
@@ -207,6 +228,47 @@ export default function AdminPage() {
       alert('Failed to delete photo.');
     } finally {
       setDeletingId('');
+    }
+  };
+
+  // ── Rule Book handlers ──
+  const handleRbUpload = async (e) => {
+    e.preventDefault();
+    if (!rbFile) return;
+    setRbUploading(true); setRbMsg('');
+    try {
+      const formData = new FormData();
+      formData.append('file', rbFile);
+      await api.post('/admin/rulebook', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'x-admin-password': ADMIN_PASSWORD,
+        },
+      });
+      setRbFile(null);
+      if (rbInputRef.current) rbInputRef.current.value = '';
+      setRbMsg('Rule book uploaded successfully!');
+      fetchRulebook();
+    } catch {
+      setRbMsg('Upload failed. Please try again.');
+    } finally {
+      setRbUploading(false);
+    }
+  };
+
+  const handleRbDelete = async () => {
+    if (!window.confirm('Delete the current rule book?')) return;
+    setRbDeleting(true);
+    try {
+      await api.delete('/admin/rulebook', {
+        headers: { 'x-admin-password': ADMIN_PASSWORD },
+      });
+      setRulebook(null);
+      setRbMsg('Rule book deleted.');
+    } catch {
+      alert('Failed to delete rule book.');
+    } finally {
+      setRbDeleting(false);
     }
   };
 
@@ -297,6 +359,7 @@ export default function AdminPage() {
             { label: 'Registrations', value: 'registrations' },
             { label: 'Payments',      value: 'payments' },
             { label: 'Gallery',       value: 'gallery' },
+            { label: 'Rule Book',     value: 'rulebook' },
           ].map((t) => (
             <button key={t.value} onClick={() => setMainTab(t.value)}
               className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition ${
@@ -720,6 +783,99 @@ export default function AdminPage() {
             )}
           </motion.div>
         )}
+        {/* ── RULE BOOK TAB ── */}
+        {mainTab === 'rulebook' && (
+          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+
+            {/* Upload form */}
+            <div className="glass rounded-2xl p-6 border border-slate-700/60 mb-8">
+              <h2 className="text-lg font-bold mb-5">Upload Rule Book</h2>
+              <p className="text-gray-500 text-xs mb-4">
+                Accepts PDF, DOC, DOCX, JPG, PNG or any format &middot; Max 20 MB.
+                Uploading a new file replaces the existing one.
+              </p>
+              <form onSubmit={handleRbUpload} className="space-y-4">
+                <div
+                  onClick={() => rbInputRef.current?.click()}
+                  className="border-2 border-dashed border-slate-700 hover:border-amber-500/50 rounded-xl p-6 text-center cursor-pointer transition-colors">
+                  {rbFile ? (
+                    <div>
+                      <div className="text-3xl mb-2">📄</div>
+                      <p className="text-white text-sm font-medium">{rbFile.name}</p>
+                      <p className="text-gray-500 text-xs mt-1">{(rbFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-4xl mb-2">📋</div>
+                      <p className="text-gray-400 text-sm">Click to select a file</p>
+                      <p className="text-gray-600 text-xs mt-1">PDF, DOC, DOCX, JPG, PNG… &middot; Max 20 MB</p>
+                    </>
+                  )}
+                </div>
+                <input
+                  ref={rbInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/*"
+                  onChange={(e) => { setRbFile(e.target.files[0] || null); setRbMsg(''); }}
+                  className="hidden"
+                />
+
+                <div className="flex items-center gap-3 flex-wrap">
+                  <motion.button type="submit" disabled={!rbFile || rbUploading}
+                    whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                    className="bg-gradient-to-r from-amber-600 to-amber-700 text-white font-semibold px-6 py-2.5
+                               rounded-xl text-sm shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition">
+                    {rbUploading ? 'Uploading…' : '⬆ Upload Rule Book'}
+                  </motion.button>
+                  {rbFile && (
+                    <button type="button"
+                      onClick={() => { setRbFile(null); if (rbInputRef.current) rbInputRef.current.value = ''; }}
+                      className="text-gray-500 hover:text-red-400 text-sm transition">
+                      Clear
+                    </button>
+                  )}
+                  {rbMsg && (
+                    <p className={`text-sm ${rbMsg.includes('success') || rbMsg.includes('deleted') ? 'text-emerald-400' : 'text-red-400'}`}>
+                      {rbMsg}
+                    </p>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* Current rule book */}
+            <h2 className="text-lg font-bold mb-4">Current Rule Book</h2>
+            {rulebookLoading ? (
+              <div className="h-20 rounded-2xl bg-slate-800 animate-pulse" />
+            ) : rulebookError ? (
+              <p className="text-red-400">{rulebookError}</p>
+            ) : !rulebook ? (
+              <div className="text-center py-16 text-gray-600">
+                <div className="text-5xl mb-4">📭</div>
+                <p>No rule book uploaded yet.</p>
+              </div>
+            ) : (
+              <div className="glass rounded-2xl p-5 border border-slate-700/60 flex items-center gap-4 flex-wrap">
+                <div className="text-4xl">
+                  {rulebook.file_type === 'application/pdf' ? '📄'
+                    : rulebook.file_type.startsWith('image/') ? '🖼'
+                    : '📋'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-white truncate">{rulebook.file_name}</p>
+                  <p className="text-gray-500 text-xs mt-0.5">{rulebook.file_type} &middot; Uploaded {new Date(rulebook.uploaded_at).toLocaleString()}</p>
+                </div>
+                <button
+                  onClick={handleRbDelete}
+                  disabled={rbDeleting}
+                  className="bg-red-700 hover:bg-red-600 disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl transition whitespace-nowrap">
+                  {rbDeleting ? '…' : 'Delete'}
+                </button>
+              </div>
+            )}
+          </motion.div>
+        )}
+
       </div>
 
       {/* Lightbox */}

@@ -7,6 +7,7 @@ const registrationsRouter = require('./routes/registrations');
 const paymentsRouter      = require('./routes/payments');
 const adminRouter         = require('./routes/admin');
 const galleryRouter       = require('./routes/gallery');
+const rulebookRouter      = require('./routes/rulebook');
 
 const app = express();
 
@@ -18,8 +19,9 @@ app.use('/api/health',  healthRouter);
 app.use('/api/events',  eventsRouter);
 app.use('/api',         registrationsRouter);
 app.use('/api',         paymentsRouter);
-app.use('/api/admin',   adminRouter);
-app.use('/api/gallery', galleryRouter);
+app.use('/api/admin',    adminRouter);
+app.use('/api/gallery',  galleryRouter);
+app.use('/api/rulebook', rulebookRouter);
 
 // 404 handler
 app.use((req, res) => {

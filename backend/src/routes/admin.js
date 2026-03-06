@@ -13,6 +13,7 @@ const {
 } = require('../controllers/adminController');
 
 const { uploadPhoto, deletePhoto } = require('../controllers/galleryController');
+const { uploadRulebook, deleteRulebook } = require('../controllers/rulebookController');
 
 const imageUpload = multer({
   storage: multer.memoryStorage(),
@@ -21,6 +22,11 @@ const imageUpload = multer({
     if (file.mimetype.startsWith('image/')) cb(null, true);
     else cb(new Error('Only image files are allowed.'));
   },
+});
+
+const rulebookUpload = multer({
+  storage: multer.memoryStorage(),
+  limits:  { fileSize: 20 * 1024 * 1024 }, // 20 MB, any file type
 });
 
 // Registrations
@@ -37,5 +43,9 @@ router.post('/payments/:id/reject',  rejectPayment);
 // Gallery
 router.post('/gallery',       imageUpload.single('image'), uploadPhoto);
 router.delete('/gallery/:id', deletePhoto);
+
+// Rule Book
+router.post('/rulebook',   rulebookUpload.single('file'), uploadRulebook);
+router.delete('/rulebook', deleteRulebook);
 
 module.exports = router;

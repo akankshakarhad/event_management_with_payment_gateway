@@ -163,6 +163,10 @@ export default function EventsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  // ── Rule Book ──
+  const [rulebook, setRulebook]               = useState(null);
+  const [rulebookModal, setRulebookModal]     = useState(false);
+
   // ── Gallery ──
   const [activeTab, setActiveTab]           = useState('events'); // 'events' | 'gallery'
   const [galleryPhotos, setGalleryPhotos]   = useState([]);
@@ -178,6 +182,10 @@ export default function EventsPage() {
       .then((res) => setEvents(res.data.data))
       .catch(() => setError('Failed to load events.'))
       .finally(() => setLoading(false));
+
+    api.get('/rulebook')
+      .then((res) => setRulebook(res.data.data))
+      .catch(() => {}); // fail silently — no rulebook uploaded yet
   }, []);
 
   /* ── Deep-link from RegisterPage: ?tab=gallery&eventId=<id> ── */
@@ -219,6 +227,31 @@ export default function EventsPage() {
           <p className="text-gray-400 max-w-md mx-auto text-sm sm:text-base px-2">
             Pick one or combine multiple — every event counts toward your legacy.
           </p>
+
+          {/* Rule Book buttons */}
+          {rulebook && (
+            <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
+              <motion.button
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                onClick={() => setRulebookModal(true)}
+                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-600
+                           text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition shadow-lg">
+                <span>📖</span> View Rule Book
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                onClick={() => {
+                  const a = document.createElement('a');
+                  a.href = rulebook.file_data;
+                  a.download = rulebook.file_name;
+                  a.click();
+                }}
+                className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 text-white text-sm
+                           font-semibold px-5 py-2.5 rounded-xl transition shadow-lg shadow-amber-500/20">
+                <span>⬇</span> Download Rule Book
+              </motion.button>
+            </div>
+          )}
 
           {/* Tab switcher */}
           <div className="mt-8 inline-flex glass rounded-xl p-1 gap-1">
@@ -512,6 +545,90 @@ export default function EventsPage() {
                 </div>
               );
             })()}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Rule Book Modal */}
+      <AnimatePresence>
+        {rulebookModal && rulebook && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setRulebookModal(false)}
+            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6">
+            <motion.div
+              initial={{ scale: 0.88, opacity: 0, y: 24 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.88, opacity: 0, y: 16 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-4xl">
+
+              {/* Header bar */}
+              <div className="flex items-center justify-between bg-slate-900 border border-slate-700 rounded-t-2xl px-5 py-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-xl">
+                    {rulebook.file_type === 'application/pdf' ? '📄'
+                      : rulebook.file_type.startsWith('image/') ? '🖼'
+                      : '📋'}
+                  </span>
+                  <span className="text-white text-sm font-semibold truncate">{rulebook.file_name}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={() => {
+                      const a = document.createElement('a');
+                      a.href = rulebook.file_data;
+                      a.download = rulebook.file_name;
+                      a.click();
+                    }}
+                    className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition">
+                    ⬇ Download
+                  </button>
+                  <button
+                    onClick={() => setRulebookModal(false)}
+                    className="w-8 h-8 bg-slate-700 hover:bg-red-600 border border-white/10 text-white
+                               rounded-full flex items-center justify-center text-sm transition-colors">
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              {/* Content area */}
+              <div className="bg-slate-950 border-x border-b border-slate-700 rounded-b-2xl overflow-hidden"
+                   style={{ height: '75vh' }}>
+                {rulebook.file_type === 'application/pdf' ? (
+                  <iframe
+                    src={rulebook.file_data}
+                    title="Rule Book"
+                    className="w-full h-full border-0"
+                  />
+                ) : rulebook.file_type.startsWith('image/') ? (
+                  <img
+                    src={rulebook.file_data}
+                    alt="Rule Book"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-4">
+                    <div className="text-6xl">📋</div>
+                    <p className="text-sm">Preview not available for this file type.</p>
+                    <button
+                      onClick={() => {
+                        const a = document.createElement('a');
+                        a.href = rulebook.file_data;
+                        a.download = rulebook.file_name;
+                        a.click();
+                      }}
+                      className="bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold px-5 py-2.5 rounded-xl transition">
+                      ⬇ Download to view
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
