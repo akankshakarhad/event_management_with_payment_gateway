@@ -1,12 +1,12 @@
 const { pool } = require('../config/db');
 
 // Create a PENDING payment with a generated reference ID
-const createPending = async (userId, amount, referenceId, userIds = []) => {
+const createPending = async (userId, amount, referenceId, userIds = [], eventIds = []) => {
   const { rows } = await pool.query(
-    `INSERT INTO payments (user_id, amount, reference_id, user_ids, status)
-     VALUES ($1, $2, $3, $4, 'PENDING')
+    `INSERT INTO payments (user_id, amount, reference_id, user_ids, event_ids, status)
+     VALUES ($1, $2, $3, $4, $5, 'PENDING')
      RETURNING *`,
-    [userId, amount, referenceId, JSON.stringify(userIds)]
+    [userId, amount, referenceId, JSON.stringify(userIds), JSON.stringify(eventIds)]
   );
   return rows[0];
 };

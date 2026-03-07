@@ -1,8 +1,11 @@
-const QRCode       = require('qrcode');
-const nodemailer   = require('nodemailer');
-const paymentModel = require('../models/paymentModel');
+const QRCode              = require('qrcode');
+const nodemailer          = require('nodemailer');
+const paymentModel        = require('../models/paymentModel');
+const registrationModel   = require('../models/registrationModel');
+const userModel           = require('../models/userModel');
+const eventModel          = require('../models/eventModel');
 const { uploadToCloudinary } = require('../middleware/upload');
-const { pool }     = require('../config/db');
+const { pool }            = require('../config/db');
 
 const AMOUNT   = 199;
 const UPI_ID   = process.env.UPI_ID   || 'geofest@upi';
@@ -71,33 +74,55 @@ const sendAdminAlert = async ({ name, email, phone, college, referenceId, utr, s
 
 // ─────────────────────────────────────────────
 // POST /api/payment/initiate
-// Body: { userId } | { userIds: [] }
+// Body: { members: [{name,email,phone,college,participant_type,course}], eventId, projectCategory? }
+// Creates users (upsert) and a PENDING payment record — NO registrations yet.
+// Registrations are created only after payment proof is submitted.
 // Returns: referenceId, upiLink, qrCodeBase64, amount, upiId
 // ─────────────────────────────────────────────
 const initiatePayment = async (req, res, next) => {
   try {
-    const userIds = resolveUserIds(req.body);
-    if (!userIds.length) {
-      return res.status(400).json({ success: false, message: 'userId or userIds is required' });
+    const { members, eventId, projectCategory } = req.body;
+
+    if (!members || !Array.isArray(members) || !members.length) {
+      return res.status(400).json({ success: false, message: 'members array is required' });
+    }
+    if (!eventId) {
+      return res.status(400).json({ success: false, message: 'eventId is required' });
     }
 
-    // Ensure at least one pending registration exists
-    const placeholders = userIds.map((_, i) => `$${i + 1}`).join(', ');
-    const { rows: pending } = await pool.query(
-      `SELECT id FROM registrations
-       WHERE user_id IN (${placeholders}) AND status = 'PENDING'`,
-      userIds
-    );
-    if (!pending.length) {
-      return res.status(400).json({ success: false, message: 'No pending registrations found' });
+    // Validate the event exists
+    const event = await eventModel.findById(eventId);
+    if (!event) {
+      return res.status(400).json({ success: false, message: `Invalid event ID: ${eventId}` });
     }
+
+    // Upsert each member as a user
+    const userIds = await Promise.all(
+      members.map(async (m) => {
+        let user = await userModel.findByEmail(m.email);
+        if (!user) {
+          user = await userModel.create({
+            name:             m.name,
+            email:            m.email,
+            phone:            m.phone,
+            college:          m.college,
+            participant_type: m.participant_type || '',
+            course:           m.course || '',
+          });
+        }
+        return user.id;
+      })
+    );
+
+    const primaryUserId = userIds[0];
+    const eventIdList   = [eventId];
 
     // Check if a PENDING payment already exists for this user (prevent duplicates)
     const { rows: existing } = await pool.query(
       `SELECT reference_id FROM payments
        WHERE user_id = $1 AND status = 'PENDING'
        ORDER BY created_at DESC LIMIT 1`,
-      [userIds[0]]
+      [primaryUserId]
     );
 
     let referenceId;
@@ -105,7 +130,7 @@ const initiatePayment = async (req, res, next) => {
       referenceId = existing[0].reference_id;
     } else {
       referenceId = generateReferenceId();
-      await paymentModel.createPending(userIds[0], AMOUNT, referenceId, userIds);
+      await paymentModel.createPending(primaryUserId, AMOUNT, referenceId, userIds, eventIdList);
     }
 
     // Build UPI deep-link
@@ -194,6 +219,19 @@ const submitPayment = async (req, res, next) => {
     );
     if (!updated) {
       return res.status(500).json({ success: false, message: 'Failed to record payment. Try again.' });
+    }
+
+    // Create registrations now that payment proof has been submitted
+    try {
+      const userIds   = JSON.parse(payment.user_ids  || '[]');
+      const eventIds  = JSON.parse(payment.event_ids || '[]');
+      if (userIds.length && eventIds.length) {
+        await Promise.all(
+          userIds.flatMap((uid) => eventIds.map((eid) => registrationModel.create(uid, eid)))
+        );
+      }
+    } catch (regErr) {
+      console.error('[Registration] Failed to create registrations after payment submit:', regErr.message);
     }
 
     // Send admin alert email (awaited so Vercel doesn't kill it before sending)

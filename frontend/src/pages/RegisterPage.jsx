@@ -673,33 +673,26 @@ export default function RegisterPage() {
     return e;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
-    setErrors({}); setSub(true);
-    try {
-      const categoryValue = projectCategory === 'Other' ? projectCategoryOther : projectCategory;
-      const ids = await Promise.all(
-        members.map((m) =>
-          api.post('/register', {
-            ...m,
-            ...(norm(selectedEvent.title) === 'Project Display' && { project_category: categoryValue }),
-            eventIds: [selectedEvent.id],
-          }).then((r) => r.data.data.user.id)
-        )
-      );
-      setUserIds(ids);
-      setReg(true);
-    } catch (err) {
-      setErrors({ api: err.response?.data?.message || 'Registration failed. Try again.' });
-    } finally { setSub(false); }
+    setErrors({});
+    setReg(true);
   };
 
   const handleInitiatePayment = async () => {
     setPayInitLoading(true); setPayError('');
     try {
-      const res = await api.post('/payment/initiate', { userIds });
+      const categoryValue = projectCategory === 'Other' ? projectCategoryOther : projectCategory;
+      const res = await api.post('/payment/initiate', {
+        members: members.map((m) => ({
+          ...m,
+          ...(norm(selectedEvent.title) === 'Project Display' && { project_category: categoryValue }),
+        })),
+        eventId: selectedEvent.id,
+        ...(norm(selectedEvent.title) === 'Project Display' && { projectCategory: categoryValue }),
+      });
       setPaymentData(res.data.data);
     } catch (err) {
       setPayError(err.response?.data?.message || 'Could not generate payment QR. Please try again.');
@@ -1062,12 +1055,12 @@ export default function RegisterPage() {
                         </p>
                       </div>
 
-                      <motion.button type="submit" disabled={submitting}
+                      <motion.button type="submit"
                         whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                         className="w-full py-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-bold
                                    rounded-xl shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40
-                                   transition disabled:opacity-60 text-base">
-                        {submitting ? 'Registering...' : 'Register Now →'}
+                                   transition text-base">
+                        Proceed to Payment →
                       </motion.button>
                     </form>
                   )}
@@ -1080,13 +1073,14 @@ export default function RegisterPage() {
                         transition={{ repeat: 2, duration: 0.4 }} className="text-5xl mb-4">
                         🎉
                       </motion.div>
-                      <h3 className="text-xl font-extrabold mb-2">Registration Saved!</h3>
+                      <h3 className="text-xl font-extrabold mb-2">Almost there!</h3>
                       <p className="text-gray-400 text-sm mb-1">
                         <span className="text-white font-semibold">{norm(selectedEvent?.title)}</span>
                       </p>
                       <p className="text-gray-400 text-sm mb-6">
-                        {members.length} participant{members.length > 1 ? 's' : ''} registered.
+                        {members.length} participant{members.length > 1 ? 's' : ''} ready.
                         Complete payment via UPI to confirm {members.length > 1 ? 'all spots' : 'your spot'}.
+                        Your registration is only confirmed after payment.
                       </p>
                       <div className="bg-slate-800 rounded-xl px-5 py-4 mb-5">
                         <p className="text-gray-500 text-xs mb-1">Amount to Pay</p>
