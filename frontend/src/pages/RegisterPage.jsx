@@ -599,9 +599,39 @@ export default function RegisterPage() {
   const [scheduleOpen, setScheduleOpen]     = useState(false);
   const fileRef = useRef(null);
 
+  // Persist payment state to sessionStorage so UPI app redirects don't lose progress
+  const STORAGE_KEY = 'geofest_payment_state';
+
+  const savePaymentState = (data, event) => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ paymentData: data, selectedEvent: event }));
+    } catch (_) {}
+  };
+
+  const clearPaymentState = () => {
+    try { sessionStorage.removeItem(STORAGE_KEY); } catch (_) {}
+  };
+
   useEffect(() => {
     api.get('/events')
-      .then((r) => setEvents(r.data.data))
+      .then((r) => {
+        const evList = r.data.data;
+        setEvents(evList);
+
+        // Restore payment state if user returned from UPI app
+        try {
+          const saved = sessionStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const { paymentData: pd, selectedEvent: se } = JSON.parse(saved);
+            if (pd && se) {
+              const matchedEvent = evList.find((ev) => ev.id === se.id) || se;
+              setSelEv(matchedEvent);
+              setReg(true);
+              setPaymentData(pd);
+            }
+          }
+        } catch (_) {}
+      })
       .finally(() => setLoading(false));
   }, []);
 
@@ -638,6 +668,7 @@ export default function RegisterPage() {
     setSelEv(null); setReg(false); setUserIds(null); setPaymentData(null);
     setUtr(''); setScreenshot(null); setScPreview(''); setPayError(''); setPayDone(false);
     setProjectCategory(''); setProjectCatOther('');
+    clearPaymentState();
   };
 
   const selectEvent = (ev) => {
@@ -694,6 +725,7 @@ export default function RegisterPage() {
         ...(norm(selectedEvent.title) === 'Project Display' && { projectCategory: categoryValue }),
       });
       setPaymentData(res.data.data);
+      savePaymentState(res.data.data, selectedEvent);
     } catch (err) {
       setPayError(err.response?.data?.message || 'Could not generate payment QR. Please try again.');
     } finally { setPayInitLoading(false); }
@@ -715,6 +747,7 @@ export default function RegisterPage() {
       form.append('utr', utr.trim());
       form.append('screenshot', screenshot);
       await api.post('/payment/submit', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+      clearPaymentState();
       setPayDone(true);
     } catch (err) {
       setPayError(err.response?.data?.message || 'Submission failed. Please try again.');
@@ -1116,11 +1149,12 @@ export default function RegisterPage() {
                           </p>
                           <p className="text-xl font-extrabold text-amber-300 tracking-widest font-mono">{paymentData.referenceId}</p>
                         </div>
-                        <a href={paymentData.upiLink}
+                        <button
+                          onClick={() => { savePaymentState(paymentData, selectedEvent); window.location.href = paymentData.upiLink; }}
                           className="inline-flex items-center justify-center gap-2 w-full py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-xl text-sm shadow-lg hover:opacity-90 transition">
                           Pay via UPI App (mobile)
-                        </a>
-                        <p className="text-gray-600 text-[10px] mt-2">Opens your UPI app automatically on mobile</p>
+                        </button>
+                        <p className="text-gray-600 text-[10px] mt-2">Opens your UPI app automatically on mobile. Come back here to upload the screenshot.</p>
                       </div>
 
                       <div className="flex items-center gap-3">
