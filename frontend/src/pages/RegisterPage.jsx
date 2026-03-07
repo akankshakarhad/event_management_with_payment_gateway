@@ -686,6 +686,7 @@ export default function RegisterPage() {
 
   const validate = () => {
     const e = {};
+    if (!members.length) { e.api = 'At least one participant is required.'; return e; }
     members.forEach((m, i) => {
       if (!m.name.trim())                                    e[`${i}_name`]    = 'Required';
       if (!m.email.trim())                                   e[`${i}_email`]   = 'Required';
@@ -713,6 +714,10 @@ export default function RegisterPage() {
   };
 
   const handleInitiatePayment = async () => {
+    if (!members.length) {
+      setPayError('No participants found. Please close this modal and register again.');
+      return;
+    }
     setPayInitLoading(true); setPayError('');
     try {
       const categoryValue = projectCategory === 'Other' ? projectCategoryOther : projectCategory;
@@ -757,7 +762,10 @@ export default function RegisterPage() {
   const updateMember = (i, key, val) =>
     setMembers((p) => p.map((m, idx) => idx === i ? { ...m, [key]: val } : m));
   const addMember    = () => members.length < maxAllowed && setMembers((p) => [...p, { ...EMPTY_MEMBER }]);
-  const removeMember = (i) => setMembers((p) => p.filter((_, idx) => idx !== i));
+  const removeMember = (i) => {
+    if (members.length <= minAllowed) return;
+    setMembers((p) => p.filter((_, idx) => idx !== i));
+  };
 
   return (
     <div className="pt-14 sm:pt-16 min-h-screen text-white overflow-x-hidden">
