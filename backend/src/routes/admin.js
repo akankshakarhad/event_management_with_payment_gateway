@@ -10,6 +10,8 @@ const {
   rejectPayment,
   exportPayments,
   getGroupRegistrations,
+  deleteGroup,
+  deleteMember,
 } = require('../controllers/adminController');
 
 const { uploadPhoto, deletePhoto } = require('../controllers/galleryController');
@@ -33,6 +35,8 @@ const rulebookUpload = multer({
 router.get('/users',  getUsers);
 router.get('/groups', getGroupRegistrations);
 router.get('/export', exportCSV);
+router.delete('/groups/:paymentId',                deleteGroup);
+router.delete('/groups/:paymentId/members/:userId', deleteMember);
 
 // Payments
 router.get('/payments',              getPayments);

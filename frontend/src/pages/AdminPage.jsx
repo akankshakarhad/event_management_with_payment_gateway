@@ -125,6 +125,30 @@ export default function AdminPage() {
 
   const toggleGroup = (id) => setExpandedGroups((prev) => ({ ...prev, [id]: !prev[id] }));
 
+  const handleDeleteGroup = async (g) => {
+    if (!window.confirm(`Delete entire group "${g.reference_id}" and all their registrations? This cannot be undone.`)) return;
+    try {
+      await api.delete(`/admin/groups/${g.payment_id}`, {
+        headers: { 'x-admin-password': ADMIN_PASSWORD },
+      });
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete group.');
+    }
+  };
+
+  const handleDeleteMember = async (g, m) => {
+    if (!window.confirm(`Remove "${m.name}" from group "${g.reference_id}"? Their registrations will be deleted.`)) return;
+    try {
+      await api.delete(`/admin/groups/${g.payment_id}/members/${m.user_id}`, {
+        headers: { 'x-admin-password': ADMIN_PASSWORD },
+      });
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to remove member.');
+    }
+  };
+
   // ── Fetch gallery ──
   const fetchGallery = async () => {
     setGalleryLoading(true); setGalleryError('');
@@ -451,9 +475,10 @@ export default function AdminPage() {
                       className="glass rounded-2xl border border-slate-700/50 overflow-hidden">
 
                       {/* Group header – click to expand */}
+                      <div className="flex items-stretch">
                       <button
                         onClick={() => toggleGroup(g.payment_id)}
-                        className="w-full text-left px-5 py-4 flex flex-wrap items-center gap-3 hover:bg-slate-800/40 transition-colors">
+                        className="flex-1 text-left px-5 py-4 flex flex-wrap items-center gap-3 hover:bg-slate-800/40 transition-colors">
 
                         {/* Expand chevron */}
                         <span className={`text-gray-500 text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
@@ -489,6 +514,14 @@ export default function AdminPage() {
                           {payBadge.label}
                         </span>
                       </button>
+                      {/* Delete group button */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g); }}
+                        title="Delete entire group"
+                        className="px-4 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors border-l border-slate-700/50 text-lg">
+                        ✕
+                      </button>
+                      </div>
 
                       {/* Expanded: member details */}
                       <AnimatePresence>
@@ -503,7 +536,7 @@ export default function AdminPage() {
                               <table className="min-w-full text-sm">
                                 <thead>
                                   <tr className="bg-slate-800/60">
-                                    {['Member','Email','Phone','College','Events','Reg. Status'].map((h) => (
+                                    {['Member','Email','Phone','College','Events','Reg. Status',''].map((h) => (
                                       <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                         {h}
                                       </th>
@@ -542,6 +575,14 @@ export default function AdminPage() {
                                               {regStatus}
                                             </span>
                                           ) : <span className="text-gray-600 text-xs">—</span>}
+                                        </td>
+                                        <td className="px-3 py-3 text-right">
+                                          <button
+                                            onClick={() => handleDeleteMember(g, m)}
+                                            title="Remove member"
+                                            className="text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded px-2 py-1 text-xs transition-colors">
+                                            Remove
+                                          </button>
                                         </td>
                                       </tr>
                                     );

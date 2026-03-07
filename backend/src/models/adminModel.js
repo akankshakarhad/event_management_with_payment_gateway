@@ -44,7 +44,8 @@ const getUsers = async ({ status, eventId } = {}) => {
 
 // Get registrations grouped by payment group
 const getGroups = async ({ status, eventId } = {}) => {
-  // Step 1: Get all payments with leader info
+  // Step 1: Get payments with leader info.
+  // Exclude bare PENDING payments (payment initiated but proof never submitted).
   const { rows: payments } = await pool.query(
     `SELECT
        p.id           AS payment_id,
@@ -60,6 +61,7 @@ const getGroups = async ({ status, eventId } = {}) => {
        u.college      AS leader_college
      FROM payments p
      JOIN users u ON u.id = p.user_id
+     WHERE p.status != 'PENDING'
      ORDER BY p.created_at DESC`
   );
 

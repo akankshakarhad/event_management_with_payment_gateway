@@ -339,4 +339,81 @@ const getGroupRegistrations = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, exportCSV, getPayments, approvePayment, rejectPayment, exportPayments, getGroupRegistrations };
+// ─────────────────────────────────────────────────────
+// DELETE /api/admin/groups/:paymentId
+// Removes a payment record and all registrations for every member in the group
+// Header: x-admin-password
+// ─────────────────────────────────────────────────────
+const deleteGroup = async (req, res, next) => {
+  try {
+    if (!checkAdminPassword(req, res)) return;
+
+    const { paymentId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT user_ids, user_id FROM payments WHERE id = $1`,
+      [paymentId]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ success: false, message: 'Payment group not found' });
+    }
+
+    let userIds = [];
+    try { userIds = JSON.parse(rows[0].user_ids || '[]'); } catch (_) {}
+    if (!userIds.length) userIds = [rows[0].user_id];
+
+    const placeholders = userIds.map((_, i) => `$${i + 1}`).join(', ');
+    await pool.query(`DELETE FROM registrations WHERE user_id IN (${placeholders})`, userIds);
+    await pool.query(`DELETE FROM payments WHERE id = $1`, [paymentId]);
+
+    res.json({ success: true, message: 'Group deleted successfully.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─────────────────────────────────────────────────────
+// DELETE /api/admin/groups/:paymentId/members/:userId
+// Removes a single member's registrations from a group.
+// If it's the last member, the payment record is also deleted.
+// Header: x-admin-password
+// ─────────────────────────────────────────────────────
+const deleteMember = async (req, res, next) => {
+  try {
+    if (!checkAdminPassword(req, res)) return;
+
+    const { paymentId, userId } = req.params;
+    const { rows } = await pool.query(
+      `SELECT user_ids, user_id FROM payments WHERE id = $1`,
+      [paymentId]
+    );
+    if (!rows.length) {
+      return res.status(404).json({ success: false, message: 'Payment group not found' });
+    }
+
+    let userIds = [];
+    try { userIds = JSON.parse(rows[0].user_ids || '[]'); } catch (_) {}
+    if (!userIds.length) userIds = [rows[0].user_id];
+
+    if (!userIds.some((id) => String(id) === String(userId))) {
+      return res.status(404).json({ success: false, message: 'Member not found in this group' });
+    }
+
+    await pool.query(`DELETE FROM registrations WHERE user_id = $1`, [userId]);
+
+    const remaining = userIds.filter((id) => String(id) !== String(userId));
+    if (remaining.length === 0) {
+      await pool.query(`DELETE FROM payments WHERE id = $1`, [paymentId]);
+    } else {
+      await pool.query(
+        `UPDATE payments SET user_ids = $1 WHERE id = $2`,
+        [JSON.stringify(remaining), paymentId]
+      );
+    }
+
+    res.json({ success: true, message: 'Member removed successfully.' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getUsers, exportCSV, getPayments, approvePayment, rejectPayment, exportPayments, getGroupRegistrations, deleteGroup, deleteMember };
