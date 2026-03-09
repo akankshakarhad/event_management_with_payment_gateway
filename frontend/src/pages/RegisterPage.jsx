@@ -1198,6 +1198,7 @@ export default function RegisterPage() {
                             }
                           </div>
                           <input ref={fileRef} type="file" accept=".jpg,.jpeg,.png" onChange={handleScreenshotChange} className="hidden" />
+                          <p className="text-amber-400 text-xs mt-2 font-bold">⚠️ Your seat will NOT be registered unless you upload the payment screenshot.</p>
                         </div>
 
                         {payError && (
