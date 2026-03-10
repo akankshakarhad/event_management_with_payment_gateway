@@ -496,7 +496,12 @@ export default function LandingPage() {
                   {PRIZE_POOL[ev.title] && <TreasureBox prize={PRIZE_POOL[ev.title]} />}
                 </div>
                 <h3 className="text-base sm:text-lg font-bold mb-1">{ev.title}</h3>
-                <p className="text-gray-400 text-xs sm:text-sm mb-3 leading-relaxed flex-1">{ev.desc}</p>
+                <p className="text-gray-400 text-xs sm:text-sm mb-2 leading-relaxed flex-1">{ev.desc}</p>
+                {(ev.title === 'Midas Software Workshop' || ev.title === 'Geotalk') && (
+                  <p className="mb-3 text-[11px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2.5 py-1 rounded-lg leading-snug">
+                    🌐 Hybrid mode: online and offline participation Available
+                  </p>
+                )}
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-amber-400 font-bold">₹{ev.price}</span>
                   <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">{ev.members}</span>

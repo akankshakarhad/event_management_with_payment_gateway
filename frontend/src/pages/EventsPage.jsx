@@ -337,6 +337,12 @@ export default function EventsPage() {
                       {getDesc(ev.title) || ev.description}
                     </p>
 
+                    {(normalizeTitle(ev.title) === 'Midas Software Workshop' || normalizeTitle(ev.title) === 'Geotalk') && (
+                      <p className="mt-2 text-[11px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2.5 py-1 rounded-lg leading-snug">
+                        🌐 Hybrid mode: online and offline participation Available
+                      </p>
+                    )}
+
                     <div className="mt-4 mb-3">
                       <span className="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
                         {ev.max_members === 1 ? 'Individual only' : normalizeTitle(ev.title) === 'Connecting The Dots' ? 'Exactly 3 members' : `Upto ${ev.max_members} members`}

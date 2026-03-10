@@ -360,6 +360,12 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
         {getDesc(ev.title) || ev.description || 'Showcase your knowledge and skills in this exciting event.'}
       </p>
 
+      {(title === 'Midas Software Workshop' || title === 'Geotalk') && (
+        <p className="mt-1.5 text-[10px] text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-1 rounded-lg leading-snug">
+          🌐 Hybrid mode: online and offline participation Available
+        </p>
+      )}
+
       <div className="mt-3 flex items-center gap-2">
         {getPrize(ev.title) && norm(ev.title) === 'Project Display' && (
           <TreasureBox prize={getPrize(ev.title)} />
