@@ -979,6 +979,18 @@ export default function RegisterPage() {
                         </div>
                       )}
 
+                      {/* Hybrid mode notice — Geotalk & Midas */}
+                      {(norm(selectedEvent.title) === 'Geotalk' || norm(selectedEvent.title) === 'Midas Software Workshop') && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+                          className="flex items-center gap-2.5 rounded-xl border border-sky-500/40 bg-sky-500/8 px-4 py-3">
+                          <span className="text-lg shrink-0">🌐</span>
+                          <p className="text-xs font-semibold text-sky-300 leading-snug">
+                            Hybrid mode: online and offline participation Available
+                          </p>
+                        </motion.div>
+                      )}
+
                       {/* GeoTalk — abstract submission notice */}
                       {norm(selectedEvent.title) === 'Geotalk' && (
                         <motion.div
