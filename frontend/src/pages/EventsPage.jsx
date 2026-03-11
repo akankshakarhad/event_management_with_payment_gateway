@@ -25,7 +25,7 @@ const getLogo = (title) => EVENT_LOGOS[normalizeTitle(title)] || null;
 
 const DESC_MAP = {
   'Quiz Competition':        'Technical quiz testing Geotechnical knowledge, speed, accuracy, and analytical thinking.',
-  'Connecting The Dots':     'Solve real-world Geotechnical problems by connecting multi-disciplinary concepts.',
+  'Connecting The Dots':     'Step into the shoes of a forensic engineer to decode hidden clues, analyze catastrophic failures, and solve the ultimate geotechnical puzzle.',
   'Geotalk':                 'Present your research paper or innovative idea in Geotechnical engineering.',
   'Project Display':         'Showcase innovative Geotechnical projects, models, prototypes, and engineering solutions.',
   'Midas Software Workshop': 'Expert workshop on MIDAS applications in Geotechnical engineering and design.',
