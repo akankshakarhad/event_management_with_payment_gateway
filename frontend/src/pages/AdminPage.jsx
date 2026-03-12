@@ -534,7 +534,7 @@ export default function AdminPage() {
                               <table className="min-w-full text-sm">
                                 <thead>
                                   <tr className="bg-slate-800/60">
-                                    {['Member','Email','Phone','College','Events','Reg. Status',''].map((h) => (
+                                    {['Member','Email','Phone','College','Event','Mode','Reg. Status',''].map((h) => (
                                       <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                         {h}
                                       </th>
@@ -542,48 +542,59 @@ export default function AdminPage() {
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-800/60">
-                                  {g.members.map((m) => {
-                                    const regStatus = m.registrations.length > 0
-                                      ? (m.registrations.every((r) => r.status === 'PAID') ? 'PAID' : 'PENDING')
-                                      : '—';
-                                    return (
-                                      <tr key={m.user_id} className="hover:bg-slate-800/30 transition-colors">
+                                  {g.members.flatMap((m) => {
+                                    if (m.registrations.length === 0) {
+                                      return [(
+                                        <tr key={m.user_id} className="hover:bg-slate-800/30 transition-colors">
+                                          <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
+                                          <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
+                                          <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
+                                          <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
+                                          <td className="px-5 py-3 text-gray-600 text-xs">—</td>
+                                          <td className="px-5 py-3 text-gray-600 text-xs">—</td>
+                                          <td className="px-5 py-3 text-gray-600 text-xs">—</td>
+                                          <td className="px-3 py-3 text-right">
+                                            <button onClick={() => handleDeleteMember(g, m)} title="Remove member"
+                                              className="text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded px-2 py-1 text-xs transition-colors">
+                                              Remove
+                                            </button>
+                                          </td>
+                                        </tr>
+                                      )];
+                                    }
+                                    return m.registrations.map((r, rIdx) => (
+                                      <tr key={`${m.user_id}-${r.registration_id}`} className="hover:bg-slate-800/30 transition-colors">
                                         <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
                                         <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
                                         <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
                                         <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
-                                        <td className="px-5 py-3 text-gray-300 text-xs">
-                                          {m.registrations.length === 0
-                                            ? <span className="text-gray-600">—</span>
-                                            : m.registrations.map((r) => (
-                                                <span key={r.registration_id}
-                                                  className="inline-block bg-slate-700/60 text-gray-300 rounded-full px-2 py-0.5 text-xs mr-1 mb-0.5 whitespace-nowrap">
-                                                  {r.event_title}
-                                                </span>
-                                              ))
-                                          }
+                                        <td className="px-5 py-3 text-gray-300 text-xs whitespace-nowrap">
+                                          <span className="inline-block bg-slate-700/60 text-gray-300 rounded-full px-2 py-0.5 text-xs whitespace-nowrap">
+                                            {r.event_title}
+                                          </span>
+                                        </td>
+                                        <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">
+                                          {r.mode_of_participation || '—'}
                                         </td>
                                         <td className="px-5 py-3">
-                                          {regStatus !== '—' ? (
-                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                                              regStatus === 'PAID'
-                                                ? 'bg-emerald-500/15 text-emerald-400'
-                                                : 'bg-yellow-500/15 text-yellow-400'
-                                            }`}>
-                                              {regStatus}
-                                            </span>
-                                          ) : <span className="text-gray-600 text-xs">—</span>}
+                                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                            r.status === 'PAID'
+                                              ? 'bg-emerald-500/15 text-emerald-400'
+                                              : 'bg-yellow-500/15 text-yellow-400'
+                                          }`}>
+                                            {r.status}
+                                          </span>
                                         </td>
                                         <td className="px-3 py-3 text-right">
-                                          <button
-                                            onClick={() => handleDeleteMember(g, m)}
-                                            title="Remove member"
-                                            className="text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded px-2 py-1 text-xs transition-colors">
-                                            Remove
-                                          </button>
+                                          {rIdx === 0 && (
+                                            <button onClick={() => handleDeleteMember(g, m)} title="Remove member"
+                                              className="text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded px-2 py-1 text-xs transition-colors">
+                                              Remove
+                                            </button>
+                                          )}
                                         </td>
                                       </tr>
-                                    );
+                                    ));
                                   })}
                                 </tbody>
                               </table>
