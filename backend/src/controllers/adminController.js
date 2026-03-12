@@ -130,10 +130,8 @@ const exportCSV = async (req, res, next) => {
       'Events Registered', 'Mode of Participation', 'Reg. Status', 'Submitted At',
     ]);
     headerRow.eachCell((cell) => {
-      cell.font      = { bold: true, color: { argb: 'FFFFFFFF' } };
-      cell.fill      = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E293B' } };
+      cell.font      = { bold: true };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
-      cell.border    = { bottom: { style: 'thin', color: { argb: 'FF334155' } } };
     });
 
     const PAY_STATUS_LABEL = {
@@ -154,7 +152,7 @@ const exportCSV = async (req, res, next) => {
           : m.registrations.every((r) => r.status === 'PAID') ? 'PAID' : 'PENDING';
         const mode      = m.registrations.map((r) => r.mode_of_participation).filter(Boolean)[0] || '—';
 
-        const row = sheet.addRow([
+        sheet.addRow([
           mIdx === 0 ? g.reference_id : '',
           mIdx === 0 ? payLabel        : '',
           mIdx === 0 ? g.amount        : '',
@@ -168,30 +166,6 @@ const exportCSV = async (req, res, next) => {
           regStatus,
           mIdx === 0 ? date            : '',
         ]);
-
-        // Tint first row of each group
-        if (mIdx === 0) {
-          row.eachCell((cell) => {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF292524' } };
-          });
-          row.getCell(1).font = { bold: true, color: { argb: 'FFFBBF24' } };
-          row.getCell(2).font = {
-            bold: true,
-            color: {
-              argb: g.payment_status === 'APPROVED'             ? 'FF34D399' :
-                    g.payment_status === 'VERIFICATION_PENDING' ? 'FFFBBF24' :
-                    g.payment_status === 'REJECTED'             ? 'FFF87171' : 'FF94A3B8',
-            },
-          };
-          row.getCell(3).font = { bold: true, color: { argb: 'FF34D399' } };
-        }
-
-        // Reg. Status color (col 11)
-        if (regStatus === 'PAID') {
-          row.getCell(11).font = { bold: true, color: { argb: 'FF34D399' } };
-        } else if (regStatus === 'PENDING') {
-          row.getCell(11).font = { color: { argb: 'FFFBBF24' } };
-        }
       });
 
       sheet.addRow([]);
