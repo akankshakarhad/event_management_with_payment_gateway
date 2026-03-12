@@ -1,12 +1,12 @@
 const { pool } = require('../config/db');
 
-const create = async (userId, eventId) => {
+const create = async (userId, eventId, modeOfParticipation = '') => {
   const { rows } = await pool.query(
-    `INSERT INTO registrations (user_id, event_id)
-     VALUES ($1, $2)
+    `INSERT INTO registrations (user_id, event_id, mode_of_participation)
+     VALUES ($1, $2, $3)
      ON CONFLICT (user_id, event_id) DO NOTHING
      RETURNING *`,
-    [userId, eventId]
+    [userId, eventId, modeOfParticipation]
   );
   return rows[0] || null;
 };
