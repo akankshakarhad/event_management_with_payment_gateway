@@ -55,6 +55,7 @@ const getGroups = async ({ status, eventId } = {}) => {
        p.user_ids,
        p.user_id      AS leader_user_id,
        p.created_at,
+       p.utr,
        u.name         AS leader_name,
        u.email        AS leader_email,
        u.phone        AS leader_phone,
@@ -150,6 +151,7 @@ const getGroups = async ({ status, eventId } = {}) => {
       reference_id:   p.reference_id,
       amount:         p.amount,
       payment_status: p.payment_status,
+      utr:            p.utr || '—',
       created_at:     p.created_at,
       leader: {
         name:    p.leader_name,

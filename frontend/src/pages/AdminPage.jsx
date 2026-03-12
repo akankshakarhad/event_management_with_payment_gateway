@@ -105,9 +105,7 @@ export default function AdminPage() {
   };
 
   const handleExportPayments = () => {
-    const p = new URLSearchParams();
-    if (payStatus) p.append('status', payStatus);
-    window.open(`/api/admin/payments/export?${p.toString()}`, '_blank');
+    window.open('/api/admin/export', '_blank');
   };
 
   // ── Fetch registrations (grouped) ──

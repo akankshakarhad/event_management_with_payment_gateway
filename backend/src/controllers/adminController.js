@@ -106,11 +106,12 @@ const exportCSV = async (req, res, next) => {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet('Registrations');
 
-    // Column definitions
+    // Column definitions — all info in one sheet
     sheet.columns = [
       { key: 'ref_id',      width: 18 },
       { key: 'pay_status',  width: 20 },
       { key: 'amount',      width: 12 },
+      { key: 'utr',         width: 25 },
       { key: 'name',        width: 25 },
       { key: 'email',       width: 30 },
       { key: 'phone',       width: 15 },
@@ -123,9 +124,9 @@ const exportCSV = async (req, res, next) => {
 
     // Header row
     const headerRow = sheet.addRow([
-      'Reference ID', 'Payment Status', 'Amount (₹)',
+      'Reference ID', 'Payment Status', 'Amount (₹)', 'UTR',
       'Member Name', 'Email', 'Phone', 'College',
-      'Events Registered', 'Mode of Participation', 'Reg. Status', 'Date',
+      'Events Registered', 'Mode of Participation', 'Reg. Status', 'Submitted At',
     ]);
     headerRow.eachCell((cell) => {
       cell.font      = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -153,9 +154,10 @@ const exportCSV = async (req, res, next) => {
         const mode      = m.registrations.map((r) => r.mode_of_participation).filter(Boolean)[0] || '—';
 
         const row = sheet.addRow([
-          mIdx === 0 ? g.reference_id : '',   // show ref ID only on first member row
+          mIdx === 0 ? g.reference_id : '',
           mIdx === 0 ? payLabel        : '',
           mIdx === 0 ? g.amount        : '',
+          mIdx === 0 ? g.utr           : '',
           m.name,
           m.email,
           m.phone,
@@ -166,12 +168,12 @@ const exportCSV = async (req, res, next) => {
           mIdx === 0 ? date            : '',
         ]);
 
-        // Light amber tint on group's first row to visually separate groups
+        // Tint first row of each group
         if (mIdx === 0) {
           row.eachCell((cell) => {
             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF292524' } };
           });
-          row.getCell(1).font = { bold: true, color: { argb: 'FFFBBF24' } }; // amber ref ID
+          row.getCell(1).font = { bold: true, color: { argb: 'FFFBBF24' } };
           row.getCell(2).font = {
             bold: true,
             color: {
@@ -183,15 +185,14 @@ const exportCSV = async (req, res, next) => {
           row.getCell(3).font = { bold: true, color: { argb: 'FF34D399' } };
         }
 
-        // Registration status color (col 10 now, after Mode column)
+        // Reg. Status color (col 11)
         if (regStatus === 'PAID') {
-          row.getCell(10).font = { bold: true, color: { argb: 'FF34D399' } };
+          row.getCell(11).font = { bold: true, color: { argb: 'FF34D399' } };
         } else if (regStatus === 'PENDING') {
-          row.getCell(10).font = { color: { argb: 'FFFBBF24' } };
+          row.getCell(11).font = { color: { argb: 'FFFBBF24' } };
         }
       });
 
-      // Blank separator row between groups
       sheet.addRow([]);
     });
 
