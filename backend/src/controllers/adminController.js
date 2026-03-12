@@ -1,5 +1,6 @@
 const nodemailer  = require('nodemailer');
 const ExcelJS     = require('exceljs');
+const { pool }    = require('../config/db');
 const adminModel  = require('../models/adminModel');
 const paymentModel = require('../models/paymentModel');
 const registrationModel = require('../models/registrationModel');
@@ -97,8 +98,8 @@ const getUsers = async (req, res, next) => {
 // ─────────────────────────────────────────────────────
 const exportCSV = async (req, res, next) => {
   try {
-    const { status, eventId } = req.query;
-    const groups = await adminModel.getGroups({ status, eventId });
+    const { eventId } = req.query;
+    const groups = await adminModel.getGroups({ eventId, includeAll: true });
     if (!groups.length) {
       return res.status(404).json({ success: false, message: 'No data to export' });
     }
