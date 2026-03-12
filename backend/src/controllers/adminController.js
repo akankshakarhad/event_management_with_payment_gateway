@@ -104,36 +104,6 @@ const exportCSV = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'No data to export' });
     }
 
-    const workbook = new ExcelJS.Workbook();
-    const sheet = workbook.addWorksheet('Registrations');
-
-    // Column definitions — all info in one sheet
-    sheet.columns = [
-      { key: 'ref_id',      width: 18 },
-      { key: 'pay_status',  width: 20 },
-      { key: 'amount',      width: 12 },
-      { key: 'utr',         width: 25 },
-      { key: 'name',        width: 25 },
-      { key: 'email',       width: 30 },
-      { key: 'phone',       width: 15 },
-      { key: 'college',     width: 30 },
-      { key: 'events',      width: 40 },
-      { key: 'mode',        width: 18 },
-      { key: 'reg_status',  width: 14 },
-      { key: 'date',        width: 22 },
-    ];
-
-    // Header row
-    const headerRow = sheet.addRow([
-      'Reference ID', 'Payment Status', 'Amount (₹)', 'UTR',
-      'Member Name', 'Email', 'Phone', 'College',
-      'Events Registered', 'Mode of Participation', 'Reg. Status', 'Submitted At',
-    ]);
-    headerRow.eachCell((cell) => {
-      cell.font      = { bold: true };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' };
-    });
-
     const PAY_STATUS_LABEL = {
       APPROVED:             'Approved',
       VERIFICATION_PENDING: 'Needs Review',
@@ -141,35 +111,84 @@ const exportCSV = async (req, res, next) => {
       PENDING:              'Unpaid',
     };
 
+    const COLUMNS = [
+      { header: 'Reference ID',          key: 'ref_id',     width: 18 },
+      { header: 'Payment Status',        key: 'pay_status', width: 20 },
+      { header: 'Amount (₹)',            key: 'amount',     width: 12 },
+      { header: 'UTR',                   key: 'utr',        width: 25 },
+      { header: 'Member Name',           key: 'name',       width: 25 },
+      { header: 'Email',                 key: 'email',      width: 30 },
+      { header: 'Phone',                 key: 'phone',      width: 15 },
+      { header: 'College',               key: 'college',    width: 30 },
+      { header: 'Mode of Participation', key: 'mode',       width: 20 },
+      { header: 'Reg. Status',           key: 'reg_status', width: 14 },
+      { header: 'Submitted At',          key: 'date',       width: 22 },
+    ];
+
+    // Collect rows per event tab
+    // eventSheets: Map<eventTitle, row[]>
+    const eventSheets = new Map();
+    // Also build an "All Registrations" sheet
+    const allRows = [];
+
     groups.forEach((g) => {
       const payLabel = PAY_STATUS_LABEL[g.payment_status] || g.payment_status;
       const date     = new Date(g.created_at).toLocaleString('en-IN');
 
-      g.members.forEach((m, mIdx) => {
-        const events    = m.registrations.map((r) => r.event_title).join(', ') || '—';
-        const regStatus = m.registrations.length === 0
-          ? '—'
-          : m.registrations.every((r) => r.status === 'PAID') ? 'PAID' : 'PENDING';
-        const mode      = m.registrations.map((r) => r.mode_of_participation).filter(Boolean)[0] || '—';
+      g.members.forEach((m) => {
+        if (m.registrations.length === 0) {
+          // No event registered — add to All sheet only
+          const row = [
+            g.reference_id, payLabel, g.amount, g.utr,
+            m.name, m.email, m.phone, m.college,
+            '-', '-', date,
+          ];
+          allRows.push(row);
+          return;
+        }
 
-        sheet.addRow([
-          mIdx === 0 ? g.reference_id : '',
-          mIdx === 0 ? payLabel        : '',
-          mIdx === 0 ? g.amount        : '',
-          mIdx === 0 ? g.utr           : '',
-          m.name,
-          m.email,
-          m.phone,
-          m.college,
-          events,
-          mode,
-          regStatus,
-          mIdx === 0 ? date            : '',
-        ]);
+        m.registrations.forEach((r) => {
+          const row = [
+            g.reference_id, payLabel, g.amount, g.utr,
+            m.name, m.email, m.phone, m.college,
+            r.mode_of_participation || '-',
+            r.status || '-',
+            date,
+          ];
+
+          // Per-event tab
+          const title = r.event_title || 'Unknown Event';
+          if (!eventSheets.has(title)) eventSheets.set(title, []);
+          eventSheets.get(title).push(row);
+
+          // All sheet
+          allRows.push(row);
+        });
       });
-
-      sheet.addRow([]);
     });
+
+    const workbook = new ExcelJS.Workbook();
+
+    const addSheet = (name, rows) => {
+      // Excel sheet names max 31 chars, strip invalid chars
+      const safeName = name.replace(/[:\\/?*[\]]/g, '').slice(0, 31);
+      const sheet = workbook.addWorksheet(safeName);
+      sheet.columns = COLUMNS;
+      const headerRow = sheet.addRow(COLUMNS.map((c) => c.header));
+      headerRow.eachCell((cell) => {
+        cell.font      = { bold: true };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+      rows.forEach((r) => sheet.addRow(r));
+    };
+
+    // One tab per event (sorted alphabetically)
+    [...eventSheets.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .forEach(([title, rows]) => addSheet(title, rows));
+
+    // Last tab — all registrations combined
+    addSheet('All Registrations', allRows);
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', 'attachment; filename="geofest_registrations.xlsx"');
@@ -340,9 +359,11 @@ const deleteGroup = async (req, res, next) => {
     try { userIds = JSON.parse(rows[0].user_ids || '[]'); } catch (_) {}
     if (!userIds.length) userIds = [rows[0].user_id];
 
-    // Deleting users cascades (ON DELETE CASCADE) to registrations and payments,
-    // so the group disappears from every tab automatically.
     const placeholders = userIds.map((_, i) => `$${i + 1}`).join(', ');
+
+    // Delete in order: registrations → payment → users
+    await pool.query(`DELETE FROM registrations WHERE user_id IN (${placeholders})`, userIds);
+    await pool.query(`DELETE FROM payments WHERE id = $1`, [paymentId]);
     await pool.query(`DELETE FROM users WHERE id IN (${placeholders})`, userIds);
 
     res.json({ success: true, message: 'Group deleted successfully.' });
@@ -381,16 +402,18 @@ const deleteMember = async (req, res, next) => {
     const remaining = userIds.filter((id) => String(id) !== String(userId));
 
     if (remaining.length > 0) {
-      // Update the group payment's member list first, before deleting the user,
-      // so the payment record isn't cascade-deleted if this member is the leader.
+      // Update the group payment's member list before deleting the user.
       await pool.query(
         `UPDATE payments SET user_ids = $1 WHERE id = $2`,
         [JSON.stringify(remaining), paymentId]
       );
+    } else {
+      // Last member — delete the payment record too.
+      await pool.query(`DELETE FROM payments WHERE id = $1`, [paymentId]);
     }
 
-    // Delete user — cascades to their registrations and any payments they own.
-    // If this was the last member, the group payment cascades away too.
+    // Delete registrations then user explicitly.
+    await pool.query(`DELETE FROM registrations WHERE user_id = $1`, [userId]);
     await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
 
     res.json({ success: true, message: 'Member removed successfully.' });
