@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
 
 /* ─── Static maps ─── */
-const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '', participant_type: '', course: '' };
+const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '', participant_type: '', course: '', mode_of_participation: '' };
 
 const TITLE_MAP = {
   'GeoFest Arena Quiz':             'Quiz Competition',
@@ -89,7 +89,7 @@ const SCHEDULE = [
 ];
 
 /* ─── Single participant block ─── */
-function MemberForm({ member, idx, onChange, onRemove, removable = true, errors = {}, showParticipantType = false }) {
+function MemberForm({ member, idx, onChange, onRemove, removable = true, errors = {}, showParticipantType = false, showModeOfParticipation = false }) {
   const topFields = [
     { key: 'name',    label: 'Full Name',           placeholder: 'Arjun Kumar',              type: 'text'  },
     { key: 'email',   label: 'Email',                placeholder: 'arjun@email.com',          type: 'email' },
@@ -152,6 +152,36 @@ function MemberForm({ member, idx, onChange, onRemove, removable = true, errors 
         </div>
         {errors.participant_type && (
           <p className="text-red-400 text-xs mt-1">{errors.participant_type}</p>
+        )}
+      </div>}
+
+      {/* Mode of Participation — Midas & Geotalk only */}
+      {showModeOfParticipation && <div>
+        <label className="text-xs text-gray-400 mb-2 block">Mode of Participation</label>
+        <div className="grid grid-cols-2 gap-2">
+          {['Online', 'Offline'].map((opt) => {
+            const active = member.mode_of_participation === opt;
+            return (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => onChange('mode_of_participation', opt)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold transition-all duration-200
+                  ${active
+                    ? 'bg-amber-500/15 border-amber-500 text-amber-300'
+                    : 'bg-slate-800 border-slate-700 text-gray-400 hover:border-slate-500 hover:text-gray-200'
+                  }`}>
+                <span className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                  ${active ? 'border-amber-400 bg-amber-400' : 'border-gray-600'}`}>
+                  {active && <span className="w-1.5 h-1.5 rounded-full bg-black" />}
+                </span>
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+        {errors.mode_of_participation && (
+          <p className="text-red-400 text-xs mt-1">{errors.mode_of_participation}</p>
         )}
       </div>}
 
@@ -701,6 +731,7 @@ export default function RegisterPage() {
       else if (!/^\d{10}$/.test(m.phone))                   e[`${i}_phone`]   = '10 digits only';
       if (!m.college.trim())                                 e[`${i}_college`]           = 'Required';
       if (norm(selectedEvent?.title) === 'Midas Software Workshop' && !m.participant_type) e[`${i}_participant_type`] = 'Please select one';
+      if (['Midas Software Workshop', 'Geotalk'].includes(norm(selectedEvent?.title)) && !m.mode_of_participation) e[`${i}_mode_of_participation`] = 'Please select one';
       if (!m.course.trim())                                  e[`${i}_course`]            = 'Required';
     });
     if (norm(selectedEvent?.title) === 'Project Display') {
@@ -1021,6 +1052,7 @@ export default function RegisterPage() {
                             onChange={(key, val) => updateMember(i, key, val)}
                             onRemove={() => removeMember(i)}
                             showParticipantType={norm(selectedEvent?.title) === 'Midas Software Workshop'}
+                            showModeOfParticipation={['Midas Software Workshop', 'Geotalk'].includes(norm(selectedEvent?.title))}
                             removable={members.length > minAllowed}
                             errors={Object.fromEntries(
                               Object.entries(errors)

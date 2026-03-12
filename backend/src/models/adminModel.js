@@ -95,7 +95,8 @@ const getGroups = async ({ status, eventId } = {}) => {
       e.title        AS event_title,
       e.price,
       r.id           AS registration_id,
-      r.status       AS reg_status
+      r.status       AS reg_status,
+      r.mode_of_participation
     FROM registrations r
     JOIN users  u ON u.id = r.user_id
     JOIN events e ON e.id = r.event_id
@@ -114,11 +115,12 @@ const getGroups = async ({ status, eventId } = {}) => {
   registrations.forEach((r) => {
     if (!regByUser[r.user_id]) regByUser[r.user_id] = [];
     regByUser[r.user_id].push({
-      registration_id: r.registration_id,
-      event_id:        r.event_id,
-      event_title:     r.event_title,
-      price:           r.price,
-      status:          r.reg_status,
+      registration_id:      r.registration_id,
+      event_id:             r.event_id,
+      event_title:          r.event_title,
+      price:                r.price,
+      status:               r.reg_status,
+      mode_of_participation: r.mode_of_participation || '',
     });
     userInfo[r.user_id] = { name: r.name, email: r.email, phone: r.phone, college: r.college };
   });

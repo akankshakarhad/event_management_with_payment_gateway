@@ -116,6 +116,7 @@ const initiatePayment = async (req, res, next) => {
 
     const primaryUserId = userIds[0];
     const eventIdList   = [eventId];
+    const memberModes   = members.map((m) => m.mode_of_participation || '');
 
     // Check if a PENDING payment already exists for this user (prevent duplicates)
     const { rows: existing } = await pool.query(
@@ -130,7 +131,7 @@ const initiatePayment = async (req, res, next) => {
       referenceId = existing[0].reference_id;
     } else {
       referenceId = generateReferenceId();
-      await paymentModel.createPending(primaryUserId, AMOUNT, referenceId, userIds, eventIdList);
+      await paymentModel.createPending(primaryUserId, AMOUNT, referenceId, userIds, eventIdList, memberModes);
     }
 
     // Build UPI deep-link
@@ -223,11 +224,14 @@ const submitPayment = async (req, res, next) => {
 
     // Create registrations now that payment proof has been submitted
     try {
-      const userIds   = JSON.parse(payment.user_ids  || '[]');
-      const eventIds  = JSON.parse(payment.event_ids || '[]');
+      const userIds     = JSON.parse(payment.user_ids     || '[]');
+      const eventIds    = JSON.parse(payment.event_ids    || '[]');
+      const memberModes = JSON.parse(payment.member_modes || '[]');
       if (userIds.length && eventIds.length) {
         await Promise.all(
-          userIds.flatMap((uid) => eventIds.map((eid) => registrationModel.create(uid, eid)))
+          userIds.flatMap((uid, uidIdx) =>
+            eventIds.map((eid) => registrationModel.create(uid, eid, memberModes[uidIdx] || ''))
+          )
         );
       }
     } catch (regErr) {

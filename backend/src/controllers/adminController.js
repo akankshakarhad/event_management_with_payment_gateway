@@ -116,6 +116,7 @@ const exportCSV = async (req, res, next) => {
       { key: 'phone',       width: 15 },
       { key: 'college',     width: 30 },
       { key: 'events',      width: 40 },
+      { key: 'mode',        width: 18 },
       { key: 'reg_status',  width: 14 },
       { key: 'date',        width: 22 },
     ];
@@ -124,7 +125,7 @@ const exportCSV = async (req, res, next) => {
     const headerRow = sheet.addRow([
       'Reference ID', 'Payment Status', 'Amount (₹)',
       'Member Name', 'Email', 'Phone', 'College',
-      'Events Registered', 'Reg. Status', 'Date',
+      'Events Registered', 'Mode of Participation', 'Reg. Status', 'Date',
     ]);
     headerRow.eachCell((cell) => {
       cell.font      = { bold: true, color: { argb: 'FFFFFFFF' } };
@@ -149,6 +150,7 @@ const exportCSV = async (req, res, next) => {
         const regStatus = m.registrations.length === 0
           ? '—'
           : m.registrations.every((r) => r.status === 'PAID') ? 'PAID' : 'PENDING';
+        const mode      = m.registrations.map((r) => r.mode_of_participation).filter(Boolean)[0] || '—';
 
         const row = sheet.addRow([
           mIdx === 0 ? g.reference_id : '',   // show ref ID only on first member row
@@ -159,6 +161,7 @@ const exportCSV = async (req, res, next) => {
           m.phone,
           m.college,
           events,
+          mode,
           regStatus,
           mIdx === 0 ? date            : '',
         ]);
@@ -180,11 +183,11 @@ const exportCSV = async (req, res, next) => {
           row.getCell(3).font = { bold: true, color: { argb: 'FF34D399' } };
         }
 
-        // Registration status color
+        // Registration status color (col 10 now, after Mode column)
         if (regStatus === 'PAID') {
-          row.getCell(9).font = { bold: true, color: { argb: 'FF34D399' } };
+          row.getCell(10).font = { bold: true, color: { argb: 'FF34D399' } };
         } else if (regStatus === 'PENDING') {
-          row.getCell(9).font = { color: { argb: 'FFFBBF24' } };
+          row.getCell(10).font = { color: { argb: 'FFFBBF24' } };
         }
       });
 
