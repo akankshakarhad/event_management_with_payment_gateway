@@ -366,9 +366,10 @@ const deleteGroup = async (req, res, next) => {
     try { userIds = JSON.parse(rows[0].user_ids || '[]'); } catch (_) {}
     if (!userIds.length) userIds = [rows[0].user_id];
 
+    // Deleting users cascades (ON DELETE CASCADE) to registrations and payments,
+    // so the group disappears from every tab automatically.
     const placeholders = userIds.map((_, i) => `$${i + 1}`).join(', ');
-    await pool.query(`DELETE FROM registrations WHERE user_id IN (${placeholders})`, userIds);
-    await pool.query(`DELETE FROM payments WHERE id = $1`, [paymentId]);
+    await pool.query(`DELETE FROM users WHERE id IN (${placeholders})`, userIds);
 
     res.json({ success: true, message: 'Group deleted successfully.' });
   } catch (err) {
@@ -378,8 +379,8 @@ const deleteGroup = async (req, res, next) => {
 
 // ─────────────────────────────────────────────────────
 // DELETE /api/admin/groups/:paymentId/members/:userId
-// Removes a single member's registrations from a group.
-// If it's the last member, the payment record is also deleted.
+// Removes a single member from a group.
+// If it's the last member, the whole group is gone.
 // Header: x-admin-password
 // ─────────────────────────────────────────────────────
 const deleteMember = async (req, res, next) => {
@@ -403,17 +404,20 @@ const deleteMember = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Member not found in this group' });
     }
 
-    await pool.query(`DELETE FROM registrations WHERE user_id = $1`, [userId]);
-
     const remaining = userIds.filter((id) => String(id) !== String(userId));
-    if (remaining.length === 0) {
-      await pool.query(`DELETE FROM payments WHERE id = $1`, [paymentId]);
-    } else {
+
+    if (remaining.length > 0) {
+      // Update the group payment's member list first, before deleting the user,
+      // so the payment record isn't cascade-deleted if this member is the leader.
       await pool.query(
         `UPDATE payments SET user_ids = $1 WHERE id = $2`,
         [JSON.stringify(remaining), paymentId]
       );
     }
+
+    // Delete user — cascades to their registrations and any payments they own.
+    // If this was the last member, the group payment cascades away too.
+    await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
 
     res.json({ success: true, message: 'Member removed successfully.' });
   } catch (err) {
