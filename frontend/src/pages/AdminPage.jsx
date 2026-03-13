@@ -531,26 +531,75 @@ export default function AdminPage() {
                             transition={{ duration: 0.2 }}
                             className="overflow-hidden border-t border-slate-700/50">
                             <div className="overflow-x-auto">
-                              <table className="min-w-full text-sm">
-                                <thead>
-                                  <tr className="bg-slate-800/60">
-                                    {['Member','Email','Phone','College','Event','Mode','Reg. Status',''].map((h) => (
-                                      <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                                        {h}
-                                      </th>
-                                    ))}
-                                  </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-800/60">
-                                  {g.members.flatMap((m) => {
-                                    if (m.registrations.length === 0) {
-                                      return [(
-                                        <tr key={m.user_id} className="hover:bg-slate-800/30 transition-colors">
+                              {(() => {
+                                // Group members by event
+                                const eventMap = new Map();
+                                g.members.forEach((m) => {
+                                  m.registrations.forEach((r) => {
+                                    if (!eventMap.has(r.event_title)) eventMap.set(r.event_title, []);
+                                    eventMap.get(r.event_title).push({ member: m, registration: r });
+                                  });
+                                });
+                                // Members with no registrations
+                                const noRegMembers = g.members.filter((m) => m.registrations.length === 0);
+
+                                return (
+                                  <table className="min-w-full text-sm">
+                                    <thead>
+                                      <tr className="bg-slate-800/60">
+                                        {['Member','Email','Phone','College','Mode','Reg. Status',''].map((h) => (
+                                          <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                            {h}
+                                          </th>
+                                        ))}
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {[...eventMap.entries()].map(([eventTitle, entries]) => (
+                                        <>
+                                          {/* Event sub-header */}
+                                          <tr key={`event-header-${eventTitle}`} className="bg-slate-800/80">
+                                            <td colSpan={7} className="px-5 py-2 text-xs font-bold text-amber-400 tracking-wide uppercase">
+                                              {eventTitle}
+                                            </td>
+                                          </tr>
+                                          {/* Members for this event */}
+                                          {entries.map(({ member: m, registration: r }) => (
+                                            <tr key={`${m.user_id}-${r.registration_id}`}
+                                              className="hover:bg-slate-800/30 transition-colors border-t border-slate-800/60">
+                                              <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
+                                              <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
+                                              <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
+                                              <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
+                                              <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">
+                                                {r.mode_of_participation || '—'}
+                                              </td>
+                                              <td className="px-5 py-3">
+                                                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                                  r.status === 'PAID'
+                                                    ? 'bg-emerald-500/15 text-emerald-400'
+                                                    : 'bg-yellow-500/15 text-yellow-400'
+                                                }`}>
+                                                  {r.status}
+                                                </span>
+                                              </td>
+                                              <td className="px-3 py-3 text-right">
+                                                <button onClick={() => handleDeleteMember(g, m)} title="Remove member"
+                                                  className="text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded px-2 py-1 text-xs transition-colors">
+                                                  Remove
+                                                </button>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </>
+                                      ))}
+                                      {/* Members with no event registrations */}
+                                      {noRegMembers.map((m) => (
+                                        <tr key={m.user_id} className="hover:bg-slate-800/30 transition-colors border-t border-slate-800/60">
                                           <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
                                           <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
                                           <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
                                           <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
-                                          <td className="px-5 py-3 text-gray-600 text-xs">—</td>
                                           <td className="px-5 py-3 text-gray-600 text-xs">—</td>
                                           <td className="px-5 py-3 text-gray-600 text-xs">—</td>
                                           <td className="px-3 py-3 text-right">
@@ -560,44 +609,11 @@ export default function AdminPage() {
                                             </button>
                                           </td>
                                         </tr>
-                                      )];
-                                    }
-                                    return m.registrations.map((r, rIdx) => (
-                                      <tr key={`${m.user_id}-${r.registration_id}`} className="hover:bg-slate-800/30 transition-colors">
-                                        <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
-                                        <td className="px-5 py-3 text-gray-300 text-xs whitespace-nowrap">
-                                          <span className="inline-block bg-slate-700/60 text-gray-300 rounded-full px-2 py-0.5 text-xs whitespace-nowrap">
-                                            {r.event_title}
-                                          </span>
-                                        </td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">
-                                          {r.mode_of_participation || '—'}
-                                        </td>
-                                        <td className="px-5 py-3">
-                                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                                            r.status === 'PAID'
-                                              ? 'bg-emerald-500/15 text-emerald-400'
-                                              : 'bg-yellow-500/15 text-yellow-400'
-                                          }`}>
-                                            {r.status}
-                                          </span>
-                                        </td>
-                                        <td className="px-3 py-3 text-right">
-                                          {rIdx === 0 && (
-                                            <button onClick={() => handleDeleteMember(g, m)} title="Remove member"
-                                              className="text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded px-2 py-1 text-xs transition-colors">
-                                              Remove
-                                            </button>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ));
-                                  })}
-                                </tbody>
-                              </table>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                );
+                              })()}
                             </div>
                           </motion.div>
                         )}
