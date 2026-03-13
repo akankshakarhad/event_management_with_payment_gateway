@@ -403,42 +403,44 @@ export default function AdminPage() {
         {mainTab === 'registrations' && (
           <>
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
               {[
                 { label: 'Total Groups', value: groups.length,  color: 'text-amber-400'   },
                 { label: 'Approved',     value: paidCount,      color: 'text-emerald-400' },
                 { label: 'Pending',      value: pendingCount,   color: 'text-yellow-400'  },
               ].map((s) => (
                 <motion.div key={s.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                  className="glass rounded-2xl p-5 text-center">
-                  <div className={`text-3xl font-extrabold ${s.color}`}>{s.value}</div>
-                  <div className="text-gray-500 text-xs mt-1">{s.label}</div>
+                  className="glass rounded-2xl p-3 sm:p-5 text-center">
+                  <div className={`text-2xl sm:text-3xl font-extrabold ${s.color}`}>{s.value}</div>
+                  <div className="text-gray-500 text-[10px] sm:text-xs mt-1 leading-tight">{s.label}</div>
                 </motion.div>
               ))}
             </div>
 
             {/* Filters */}
-            <div className="flex gap-3 mb-6 flex-wrap items-center">
-              <div className="glass rounded-xl p-1 flex gap-1">
-                {STATUS_TABS.map((t) => (
-                  <button key={t.value} onClick={() => setStatus(t.value)}
-                    className={`px-4 py-2 rounded-lg text-xs font-semibold transition ${
-                      status === t.value
-                        ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
-                        : 'text-gray-400 hover:text-white'
-                    }`}>
-                    {t.label}
-                  </button>
-                ))}
-              </div>
+            <div className="overflow-x-auto -mx-4 px-4 mb-6 pb-1">
+              <div className="flex gap-3 items-center w-max">
+                <div className="glass rounded-xl p-1 flex gap-1">
+                  {STATUS_TABS.map((t) => (
+                    <button key={t.value} onClick={() => setStatus(t.value)}
+                      className={`px-3 sm:px-4 py-2 rounded-lg text-xs font-semibold transition whitespace-nowrap ${
+                        status === t.value
+                          ? 'bg-amber-600 text-white shadow shadow-amber-500/30'
+                          : 'text-gray-400 hover:text-white'
+                      }`}>
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
 
-              <select value={eventId} onChange={(e) => setEventId(e.target.value)}
-                className="bg-slate-800 border border-slate-700 text-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <option value="">All Events</option>
-                {events.map((ev) => (
-                  <option key={ev.id} value={ev.id}>{ev.title}</option>
-                ))}
-              </select>
+                <select value={eventId} onChange={(e) => setEventId(e.target.value)}
+                  className="bg-slate-800 border border-slate-700 text-gray-300 rounded-xl px-3 sm:px-4 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 whitespace-nowrap">
+                  <option value="">All Events</option>
+                  {events.map((ev) => (
+                    <option key={ev.id} value={ev.id}>{ev.title}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Group Cards */}
@@ -476,47 +478,49 @@ export default function AdminPage() {
                       <div className="flex items-stretch">
                       <button
                         onClick={() => toggleGroup(g.payment_id)}
-                        className="flex-1 text-left px-5 py-4 flex flex-wrap items-center gap-3 hover:bg-slate-800/40 transition-colors">
+                        className="flex-1 text-left px-3 sm:px-5 py-3 sm:py-4 hover:bg-slate-800/40 transition-colors">
 
-                        {/* Expand chevron */}
-                        <span className={`text-gray-500 text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
-
-                        {/* Reference ID */}
-                        <span className="font-mono text-amber-400 text-xs font-bold whitespace-nowrap">
-                          {g.reference_id}
-                        </span>
-
-                        {/* Leader */}
-                        <div className="flex-1 min-w-0">
-                          <span className="font-semibold text-white text-sm">{g.leader.name}</span>
-                          <span className="text-gray-500 text-xs ml-2">{g.leader.email}</span>
+                        {/* Mobile layout: 2 rows */}
+                        <div className="flex sm:hidden items-center gap-2 mb-1">
+                          <span className={`text-gray-500 text-xs transition-transform duration-200 shrink-0 ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
+                          <span className="font-mono text-amber-400 text-xs font-bold">{g.reference_id}</span>
+                          <span className={`ml-auto px-2 py-0.5 rounded-full text-[10px] font-bold whitespace-nowrap ${payBadge.cls}`}>
+                            {payBadge.label}
+                          </span>
+                        </div>
+                        <div className="flex sm:hidden items-center gap-2 pl-4">
+                          <span className="font-semibold text-white text-sm truncate">{g.leader.name}</span>
+                          <span className="text-gray-500 text-xs ml-auto whitespace-nowrap shrink-0">
+                            {g.members.length}m · {totalEvents}e ·{' '}
+                            <span className="text-emerald-400 font-bold">₹{g.amount}</span>
+                          </span>
                         </div>
 
-                        {/* Members count */}
-                        <span className="text-gray-400 text-xs whitespace-nowrap">
-                          {g.members.length} member{g.members.length !== 1 ? 's' : ''}
-                        </span>
-
-                        {/* Events count */}
-                        <span className="text-gray-400 text-xs whitespace-nowrap">
-                          {totalEvents} event{totalEvents !== 1 ? 's' : ''}
-                        </span>
-
-                        {/* Amount */}
-                        <span className="text-emerald-400 font-bold text-sm whitespace-nowrap">
-                          ₹{g.amount}
-                        </span>
-
-                        {/* Payment status */}
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${payBadge.cls}`}>
-                          {payBadge.label}
-                        </span>
+                        {/* Desktop layout: single row */}
+                        <div className="hidden sm:flex items-center gap-3">
+                          <span className={`text-gray-500 text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
+                          <span className="font-mono text-amber-400 text-xs font-bold whitespace-nowrap">{g.reference_id}</span>
+                          <div className="flex-1 min-w-0">
+                            <span className="font-semibold text-white text-sm">{g.leader.name}</span>
+                            <span className="text-gray-500 text-xs ml-2">{g.leader.email}</span>
+                          </div>
+                          <span className="text-gray-400 text-xs whitespace-nowrap">
+                            {g.members.length} member{g.members.length !== 1 ? 's' : ''}
+                          </span>
+                          <span className="text-gray-400 text-xs whitespace-nowrap">
+                            {totalEvents} event{totalEvents !== 1 ? 's' : ''}
+                          </span>
+                          <span className="text-emerald-400 font-bold text-sm whitespace-nowrap">₹{g.amount}</span>
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${payBadge.cls}`}>
+                            {payBadge.label}
+                          </span>
+                        </div>
                       </button>
                       {/* Delete group button */}
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g); }}
                         title="Delete entire group"
-                        className="px-4 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors border-l border-slate-700/50 text-lg">
+                        className="px-3 sm:px-4 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors border-l border-slate-700/50 text-lg">
                         ✕
                       </button>
                       </div>
@@ -535,7 +539,7 @@ export default function AdminPage() {
                                 <thead>
                                   <tr className="bg-slate-800/60">
                                     {['Member','Email','Phone','College','Events','Reg. Status',''].map((h) => (
-                                      <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                      <th key={h} className="text-left px-3 sm:px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
                                         {h}
                                       </th>
                                     ))}
@@ -548,11 +552,11 @@ export default function AdminPage() {
                                       : '—';
                                     return (
                                       <tr key={m.user_id} className="hover:bg-slate-800/30 transition-colors">
-                                        <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
-                                        <td className="px-5 py-3 text-gray-300 text-xs">
+                                        <td className="px-3 sm:px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
+                                        <td className="px-3 sm:px-5 py-3 text-gray-400 text-xs">{m.email}</td>
+                                        <td className="px-3 sm:px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
+                                        <td className="px-3 sm:px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
+                                        <td className="px-3 sm:px-5 py-3 text-gray-300 text-xs">
                                           {m.registrations.length === 0
                                             ? <span className="text-gray-600">—</span>
                                             : m.registrations.map((r) => (
@@ -563,7 +567,7 @@ export default function AdminPage() {
                                               ))
                                           }
                                         </td>
-                                        <td className="px-5 py-3">
+                                        <td className="px-3 sm:px-5 py-3">
                                           {regStatus !== '—' ? (
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                                               regStatus === 'PAID'
