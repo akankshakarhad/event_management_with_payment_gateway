@@ -54,6 +54,7 @@ const getGroups = async ({ status, eventId, includeAll } = {}) => {
        p.amount,
        p.status       AS payment_status,
        p.user_ids,
+       p.event_ids,
        p.user_id      AS leader_user_id,
        p.created_at,
        p.utr,
@@ -78,7 +79,13 @@ const getGroups = async ({ status, eventId, includeAll } = {}) => {
     }
     if (!memberIds.length) memberIds = [p.leader_user_id];
     memberIds.forEach((id) => allUserIdSet.add(id));
-    return { ...p, memberIds };
+
+    let paymentEventIds = [];
+    if (p.event_ids) {
+      try { paymentEventIds = JSON.parse(p.event_ids); } catch (_) {}
+    }
+
+    return { ...p, memberIds, paymentEventIds };
   });
 
   // Step 3: Get all registrations for these users (with optional eventId filter)
@@ -129,14 +136,20 @@ const getGroups = async ({ status, eventId, includeAll } = {}) => {
 
   // Step 5: Build group objects and apply filters
   const groups = paymentsWithMemberIds.map((p) => {
-    const members = p.memberIds.map((uid) => ({
-      user_id:       uid,
-      name:          userInfo[uid]?.name    || '—',
-      email:         userInfo[uid]?.email   || '—',
-      phone:         userInfo[uid]?.phone   || '—',
-      college:       userInfo[uid]?.college || '—',
-      registrations: regByUser[uid] || [],
-    }));
+    const members = p.memberIds.map((uid) => {
+      const allRegs = regByUser[uid] || [];
+      const regs = p.paymentEventIds.length
+        ? allRegs.filter((r) => p.paymentEventIds.includes(r.event_id))
+        : allRegs;
+      return {
+        user_id:       uid,
+        name:          userInfo[uid]?.name    || '—',
+        email:         userInfo[uid]?.email   || '—',
+        phone:         userInfo[uid]?.phone   || '—',
+        college:       userInfo[uid]?.college || '—',
+        registrations: regs,
+      };
+    });
 
     // If eventId filter is active, skip groups where no member has that event
     if (eventId && !members.some((m) => m.registrations.length > 0)) return null;
