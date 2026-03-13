@@ -457,134 +457,142 @@ export default function AdminPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {groups.flatMap((g) => {
-                  // Build one card per event within this payment group
-                  const eventMap = new Map();
-                  g.members.forEach((m) => {
-                    m.registrations.forEach((r) => {
-                      if (!eventMap.has(r.event_title)) eventMap.set(r.event_title, []);
-                      eventMap.get(r.event_title).push({ member: m, registration: r });
-                    });
-                  });
-
+                {groups.map((g, i) => {
+                  const isExpanded = !!expandedGroups[g.payment_id];
                   const payBadge =
-                    g.payment_status === 'APPROVED'             ? { label: 'Approved',    cls: 'bg-emerald-500/15 text-emerald-400' } :
-                    g.payment_status === 'VERIFICATION_PENDING' ? { label: 'Needs Review', cls: 'bg-yellow-500/15 text-yellow-400'  } :
-                    g.payment_status === 'REJECTED'             ? { label: 'Rejected',     cls: 'bg-red-500/15 text-red-400'        } :
-                                                                  { label: 'Unpaid',       cls: 'bg-slate-500/15 text-slate-400'   };
+                    g.payment_status === 'APPROVED'             ? { label: 'Approved',      cls: 'bg-emerald-500/15 text-emerald-400' } :
+                    g.payment_status === 'VERIFICATION_PENDING' ? { label: 'Needs Review',   cls: 'bg-yellow-500/15 text-yellow-400'  } :
+                    g.payment_status === 'REJECTED'             ? { label: 'Rejected',       cls: 'bg-red-500/15 text-red-400'        } :
+                                                                  { label: 'Unpaid',         cls: 'bg-slate-500/15 text-slate-400'   };
+                  const totalEvents = g.members.reduce((acc, m) => acc + m.registrations.length, 0);
 
-                  return [...eventMap.entries()].map(([eventTitle, entries], eIdx) => {
-                    const cardKey = `${g.payment_id}-${eventTitle}`;
-                    const isExpanded = !!expandedGroups[cardKey];
+                  return (
+                    <motion.div key={g.payment_id}
+                      initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.04 }}
+                      className="glass rounded-2xl border border-slate-700/50 overflow-hidden">
 
-                    return (
-                      <motion.div key={cardKey}
-                        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: eIdx * 0.03 }}
-                        className="glass rounded-2xl border border-slate-700/50 overflow-hidden">
+                      {/* Group header – click to expand */}
+                      <div className="flex items-stretch">
+                      <button
+                        onClick={() => toggleGroup(g.payment_id)}
+                        className="flex-1 text-left px-5 py-4 flex flex-wrap items-center gap-3 hover:bg-slate-800/40 transition-colors">
 
-                        {/* Card header */}
-                        <div className="flex items-stretch">
-                          <button
-                            onClick={() => toggleGroup(cardKey)}
-                            className="flex-1 text-left px-5 py-4 flex flex-wrap items-center gap-3 hover:bg-slate-800/40 transition-colors">
+                        {/* Expand chevron */}
+                        <span className={`text-gray-500 text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
 
-                            <span className={`text-gray-500 text-xs transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
+                        {/* Reference ID */}
+                        <span className="font-mono text-amber-400 text-xs font-bold whitespace-nowrap">
+                          {g.reference_id}
+                        </span>
 
-                            <span className="font-mono text-amber-400 text-xs font-bold whitespace-nowrap">
-                              {g.reference_id}
-                            </span>
-
-                            {/* Event name — prominent */}
-                            <span className="font-semibold text-white text-sm whitespace-nowrap">
-                              {eventTitle}
-                            </span>
-
-                            <div className="flex-1 min-w-0">
-                              <span className="text-gray-500 text-xs">{g.leader.name}</span>
-                            </div>
-
-                            <span className="text-gray-400 text-xs whitespace-nowrap">
-                              {entries.length} member{entries.length !== 1 ? 's' : ''}
-                            </span>
-
-                            <span className="text-emerald-400 font-bold text-sm whitespace-nowrap">
-                              ₹{g.amount}
-                            </span>
-
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${payBadge.cls}`}>
-                              {payBadge.label}
-                            </span>
-                          </button>
-
-                          {/* Delete whole group button — only show on first event card */}
-                          {eIdx === 0 && (
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g); }}
-                              title="Delete entire group"
-                              className="px-4 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors border-l border-slate-700/50 text-lg">
-                              ✕
-                            </button>
-                          )}
+                        {/* Leader */}
+                        <div className="flex-1 min-w-0">
+                          <span className="font-semibold text-white text-sm">{g.leader.name}</span>
+                          <span className="text-gray-500 text-xs ml-2">{g.leader.email}</span>
                         </div>
 
-                        {/* Expanded: members for this event */}
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="overflow-hidden border-t border-slate-700/50">
-                              <div className="overflow-x-auto">
-                                <table className="min-w-full text-sm">
-                                  <thead>
-                                    <tr className="bg-slate-800/60">
-                                      {['Member','Email','Phone','College','Mode','Reg. Status',''].map((h) => (
-                                        <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                                          {h}
-                                        </th>
-                                      ))}
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-slate-800/60">
-                                    {entries.map(({ member: m, registration: r }) => (
-                                      <tr key={`${m.user_id}-${r.registration_id}`}
-                                        className="hover:bg-slate-800/30 transition-colors">
+                        {/* Members count */}
+                        <span className="text-gray-400 text-xs whitespace-nowrap">
+                          {g.members.length} member{g.members.length !== 1 ? 's' : ''}
+                        </span>
+
+                        {/* Events count */}
+                        <span className="text-gray-400 text-xs whitespace-nowrap">
+                          {totalEvents} event{totalEvents !== 1 ? 's' : ''}
+                        </span>
+
+                        {/* Amount */}
+                        <span className="text-emerald-400 font-bold text-sm whitespace-nowrap">
+                          ₹{g.amount}
+                        </span>
+
+                        {/* Payment status */}
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold whitespace-nowrap ${payBadge.cls}`}>
+                          {payBadge.label}
+                        </span>
+                      </button>
+                      {/* Delete group button */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g); }}
+                        title="Delete entire group"
+                        className="px-4 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors border-l border-slate-700/50 text-lg">
+                        ✕
+                      </button>
+                      </div>
+
+                      {/* Expanded: member details */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="overflow-hidden border-t border-slate-700/50">
+                            <div className="overflow-x-auto">
+                              <table className="min-w-full text-sm">
+                                <thead>
+                                  <tr className="bg-slate-800/60">
+                                    {['Member','Email','Phone','College','Events','Reg. Status',''].map((h) => (
+                                      <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                                        {h}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800/60">
+                                  {g.members.map((m) => {
+                                    const regStatus = m.registrations.length > 0
+                                      ? (m.registrations.every((r) => r.status === 'PAID') ? 'PAID' : 'PENDING')
+                                      : '—';
+                                    return (
+                                      <tr key={m.user_id} className="hover:bg-slate-800/30 transition-colors">
                                         <td className="px-5 py-3 font-medium text-white whitespace-nowrap">{m.name}</td>
                                         <td className="px-5 py-3 text-gray-400 text-xs">{m.email}</td>
                                         <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">{m.phone}</td>
                                         <td className="px-5 py-3 text-gray-400 text-xs max-w-[160px] truncate">{m.college}</td>
-                                        <td className="px-5 py-3 text-gray-400 text-xs whitespace-nowrap">
-                                          {r.mode_of_participation || '—'}
+                                        <td className="px-5 py-3 text-gray-300 text-xs">
+                                          {m.registrations.length === 0
+                                            ? <span className="text-gray-600">—</span>
+                                            : m.registrations.map((r) => (
+                                                <span key={r.registration_id}
+                                                  className="inline-block bg-slate-700/60 text-gray-300 rounded-full px-2 py-0.5 text-xs mr-1 mb-0.5 whitespace-nowrap">
+                                                  {r.event_title}
+                                                </span>
+                                              ))
+                                          }
                                         </td>
                                         <td className="px-5 py-3">
-                                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                                            r.status === 'PAID'
-                                              ? 'bg-emerald-500/15 text-emerald-400'
-                                              : 'bg-yellow-500/15 text-yellow-400'
-                                          }`}>
-                                            {r.status}
-                                          </span>
+                                          {regStatus !== '—' ? (
+                                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                              regStatus === 'PAID'
+                                                ? 'bg-emerald-500/15 text-emerald-400'
+                                                : 'bg-yellow-500/15 text-yellow-400'
+                                            }`}>
+                                              {regStatus}
+                                            </span>
+                                          ) : <span className="text-gray-600 text-xs">—</span>}
                                         </td>
                                         <td className="px-3 py-3 text-right">
-                                          <button onClick={() => handleDeleteMember(g, m)} title="Remove member"
+                                          <button
+                                            onClick={() => handleDeleteMember(g, m)}
+                                            title="Remove member"
                                             className="text-red-500 hover:text-red-400 hover:bg-red-500/10 rounded px-2 py-1 text-xs transition-colors">
                                             Remove
                                           </button>
                                         </td>
                                       </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    );
-                  });
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
                 })}
               </div>
             )}
