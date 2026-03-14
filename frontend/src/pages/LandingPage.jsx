@@ -340,7 +340,12 @@ export default function LandingPage() {
 
 
   return (
-    <div className="pt-14 sm:pt-16 text-white overflow-x-hidden">
+    <div className="pt-24 sm:pt-28 text-white overflow-x-hidden">
+
+      {/* ── MAINTENANCE BANNER ── */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-black text-center py-3 px-4 font-semibold text-sm sm:text-base shadow-lg">
+        🔧 The site is under maintenance. Please try again after 11:00 AM.
+      </div>
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 py-16">
