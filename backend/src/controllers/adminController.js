@@ -446,21 +446,19 @@ const emailProjectDisplay = async (req, res, next) => {
 
     const BACKEND = process.env.BACKEND_URL || 'https://geofest-backend.onrender.com';
 
-    // Fetch ALL individual members of Project Display payments with missing category
+    // Fetch ALL individual members registered for Project Display
     const { rows } = await pool.query(`
       SELECT DISTINCT p.reference_id, u.name, u.email
-      FROM payments p
-      CROSS JOIN LATERAL jsonb_array_elements_text(p.user_ids::jsonb) AS uid
-      JOIN users u ON u.id = uid::uuid
-      JOIN registrations r ON r.user_id = u.id
+      FROM registrations r
+      JOIN users u ON u.id = r.user_id
       JOIN events e ON e.id = r.event_id
+      LEFT JOIN payments p ON p.user_id = u.id
+        OR (p.user_ids IS NOT NULL AND p.user_ids::jsonb @> to_jsonb(u.id::text))
       WHERE e.title = 'Project Display'
-        AND p.user_ids IS NOT NULL
-        AND (p.project_category IS NULL OR TRIM(p.project_category) = '')
     `);
 
     if (!rows.length) {
-      return res.json({ success: true, message: 'No students with missing category found.', sent: 0 });
+      return res.json({ success: true, message: 'No Project Display students found.', sent: 0 });
     }
 
     const transporter = getTransporter();
