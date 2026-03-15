@@ -131,7 +131,7 @@ const initiatePayment = async (req, res, next) => {
       referenceId = existing[0].reference_id;
     } else {
       referenceId = generateReferenceId();
-      await paymentModel.createPending(primaryUserId, AMOUNT, referenceId, userIds, eventIdList, memberModes);
+      await paymentModel.createPending(primaryUserId, AMOUNT, referenceId, userIds, eventIdList, memberModes, projectCategory || null);
     }
 
     // Build UPI deep-link

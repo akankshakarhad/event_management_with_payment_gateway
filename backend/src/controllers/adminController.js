@@ -125,6 +125,11 @@ const exportCSV = async (req, res, next) => {
       { header: 'Submitted At',          key: 'date',       width: 22 },
     ];
 
+    const COLUMNS_PROJECT = [
+      ...COLUMNS,
+      { header: 'Project Submission Category', key: 'proj_cat', width: 30 },
+    ];
+
     // Collect rows per event tab
     // eventSheets: Map<eventTitle, row[]>
     const eventSheets = new Map();
@@ -148,7 +153,7 @@ const exportCSV = async (req, res, next) => {
         }
 
         m.registrations.forEach((r) => {
-          const row = [
+          const baseRow = [
             g.reference_id, payLabel, g.amount, g.utr,
             m.name, m.email, m.phone, m.college,
             r.mode_of_participation || '-',
@@ -159,22 +164,27 @@ const exportCSV = async (req, res, next) => {
           // Per-event tab
           const title = r.event_title || 'Unknown Event';
           if (!eventSheets.has(title)) eventSheets.set(title, []);
-          eventSheets.get(title).push(row);
 
-          // All sheet
-          allRows.push(row);
+          if (title === 'Project Display') {
+            eventSheets.get(title).push([...baseRow, g.project_category || '-']);
+          } else {
+            eventSheets.get(title).push(baseRow);
+          }
+
+          // All sheet (no extra column here)
+          allRows.push(baseRow);
         });
       });
     });
 
     const workbook = new ExcelJS.Workbook();
 
-    const addSheet = (name, rows) => {
+    const addSheet = (name, rows, columns = COLUMNS) => {
       // Excel sheet names max 31 chars, strip invalid chars
       const safeName = name.replace(/[:\\/?*[\]]/g, '').slice(0, 31);
       const sheet = workbook.addWorksheet(safeName);
-      sheet.columns = COLUMNS;
-      const headerRow = sheet.addRow(COLUMNS.map((c) => c.header));
+      sheet.columns = columns;
+      const headerRow = sheet.addRow(columns.map((c) => c.header));
       headerRow.eachCell((cell) => {
         cell.font      = { bold: true };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -185,7 +195,9 @@ const exportCSV = async (req, res, next) => {
     // One tab per event (sorted alphabetically)
     [...eventSheets.entries()]
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .forEach(([title, rows]) => addSheet(title, rows));
+      .forEach(([title, rows]) =>
+        addSheet(title, rows, title === 'Project Display' ? COLUMNS_PROJECT : COLUMNS)
+      );
 
     // Last tab — all registrations combined
     addSheet('All Registrations', allRows);
