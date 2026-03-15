@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
+import NicmarUPI from '../../assets/Nicmar_UPI.jpeg';
 
 /* ─── Static maps ─── */
 const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '', participant_type: '', course: '', mode_of_participation: '' };
@@ -1194,7 +1195,7 @@ export default function RegisterPage() {
                       <div className="bg-slate-800 rounded-2xl p-5 text-center border border-slate-700/60">
                         <p className="text-xs text-amber-400 font-semibold uppercase tracking-widest mb-3">Scan QR to Pay</p>
                         <div className="flex justify-center mb-3">
-                          <img src={paymentData.qrCodeBase64} alt="UPI QR Code" className="w-52 h-52 rounded-xl border-4 border-white" />
+                          <img src={NicmarUPI} alt="UPI QR Code" className="w-72 h-72 rounded-xl border-4 border-white" />
                         </div>
                         <div className="text-3xl font-extrabold text-amber-400 mb-1">Rs.{paymentData.amount}</div>
                         <div className="flex items-center justify-center gap-2 mb-3">
