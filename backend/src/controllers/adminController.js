@@ -446,14 +446,16 @@ const emailProjectDisplay = async (req, res, next) => {
 
     const BACKEND = process.env.BACKEND_URL || 'https://geofest-backend.onrender.com';
 
-    // Fetch all Project Display payments with missing category
+    // Fetch ALL individual members of Project Display payments with missing category
     const { rows } = await pool.query(`
       SELECT DISTINCT p.reference_id, u.name, u.email
       FROM payments p
-      JOIN users u ON u.id = p.user_id
+      CROSS JOIN LATERAL jsonb_array_elements_text(p.user_ids::jsonb) AS uid
+      JOIN users u ON u.id = uid::uuid
       JOIN registrations r ON r.user_id = u.id
       JOIN events e ON e.id = r.event_id
       WHERE e.title = 'Project Display'
+        AND p.user_ids IS NOT NULL
         AND (p.project_category IS NULL OR TRIM(p.project_category) = '')
     `);
 
