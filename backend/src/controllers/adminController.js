@@ -444,16 +444,22 @@ const emailProjectDisplay = async (req, res, next) => {
   try {
     if (!checkAdminPassword(req, res)) return;
 
-    const BACKEND = process.env.BACKEND_URL || 'https://geofest-backend.onrender.com';
+    const BACKEND = process.env.BACKEND_URL || 'https://geofest-2026.vercel.app';
 
     // Fetch ALL individual members registered for Project Display
+    // LATERAL ensures exactly one payment row per user (no duplicates)
     const { rows } = await pool.query(`
-      SELECT DISTINCT p.reference_id, u.name, u.email
+      SELECT DISTINCT u.name, u.email, pay.reference_id
       FROM registrations r
       JOIN users u ON u.id = r.user_id
       JOIN events e ON e.id = r.event_id
-      LEFT JOIN payments p ON p.user_id = u.id
-        OR (p.user_ids IS NOT NULL AND p.user_ids::jsonb @> to_jsonb(u.id::text))
+      LEFT JOIN LATERAL (
+        SELECT p2.reference_id FROM payments p2
+        WHERE p2.user_id = u.id
+           OR (p2.user_ids IS NOT NULL AND p2.user_ids::jsonb @> jsonb_build_array(u.id::text))
+        ORDER BY p2.created_at DESC
+        LIMIT 1
+      ) pay ON true
       WHERE e.title = 'Project Display'
     `);
 
@@ -463,8 +469,10 @@ const emailProjectDisplay = async (req, res, next) => {
 
     const transporter = getTransporter();
     let sent = 0;
+    let skipped = 0;
 
     for (const student of rows) {
+      if (!student.reference_id) { skipped++; continue; }
       const tok  = makeCategoryToken(student.reference_id);
       const base = `${BACKEND}/api/payment`;
 
@@ -511,7 +519,10 @@ const emailProjectDisplay = async (req, res, next) => {
       }
     }
 
-    res.json({ success: true, message: `Emails sent to ${sent} of ${rows.length} students.`, sent, total: rows.length });
+    const msg = skipped > 0
+      ? `Emails sent to ${sent} of ${rows.length} students. ${skipped} skipped (no payment record).`
+      : `Emails sent to ${sent} of ${rows.length} students.`;
+    res.json({ success: true, message: msg, sent, skipped, total: rows.length });
   } catch (err) {
     next(err);
   }
