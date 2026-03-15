@@ -35,6 +35,10 @@ export default function AdminPage() {
   // ── Main tab ──
   const [mainTab, setMainTab] = useState('registrations'); // 'registrations' | 'payments' | 'gallery' | 'rulebook'
 
+  // ── Email Project Display ──
+  const [emailingPD, setEmailingPD]   = useState(false);
+  const [emailPDMsg, setEmailPDMsg]   = useState('');
+
   // ── Payments state ──
   const [payments, setPayments]         = useState([]);
   const [payStatus, setPayStatus]       = useState('');
@@ -201,6 +205,21 @@ export default function AdminPage() {
     window.open(`/api/admin/export?${p.toString()}`, '_blank');
   };
 
+  const handleEmailProjectDisplay = async () => {
+    if (!window.confirm('Send category-selection emails to all Project Display students with missing category?')) return;
+    setEmailingPD(true); setEmailPDMsg('');
+    try {
+      const res = await api.post('/admin/email-project-display', {}, {
+        headers: { 'x-admin-password': ADMIN_PASSWORD },
+      });
+      setEmailPDMsg(res.data.message);
+    } catch (err) {
+      setEmailPDMsg(err.response?.data?.message || 'Failed to send emails.');
+    } finally {
+      setEmailingPD(false);
+    }
+  };
+
   // ── Gallery handlers ──
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -360,13 +379,21 @@ export default function AdminPage() {
             <p className="text-gray-500 text-xs sm:text-sm">Manage registrations, payments and event gallery</p>
           </div>
           <div className="flex gap-2">
-            {mainTab === 'registrations' && (
+            {mainTab === 'registrations' && (<>
               <motion.button onClick={handleExport}
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
                 className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-emerald-500/20 transition whitespace-nowrap">
                 Export Regs
               </motion.button>
-            )}
+              <div className="flex flex-col items-end gap-1">
+                <motion.button onClick={handleEmailProjectDisplay} disabled={emailingPD}
+                  whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+                  className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-violet-500/20 transition whitespace-nowrap disabled:opacity-60">
+                  {emailingPD ? 'Sending…' : '📧 Email Project Display'}
+                </motion.button>
+                {emailPDMsg && <p className="text-xs text-amber-400">{emailPDMsg}</p>}
+              </div>
+            </>)}
             {mainTab === 'payments' && (
               <motion.button onClick={handleExportPayments}
                 whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}

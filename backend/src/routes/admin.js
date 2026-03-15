@@ -12,6 +12,7 @@ const {
   getGroupRegistrations,
   deleteGroup,
   deleteMember,
+  emailProjectDisplay,
 } = require('../controllers/adminController');
 
 const { uploadPhoto, deletePhoto } = require('../controllers/galleryController');
@@ -43,6 +44,9 @@ router.get('/payments',              getPayments);
 router.get('/payments/export',       exportPayments);
 router.post('/payments/:id/approve', approvePayment);
 router.post('/payments/:id/reject',  rejectPayment);
+
+// Project Display category email
+router.post('/email-project-display', emailProjectDisplay);
 
 // Gallery
 router.post('/gallery',       imageUpload.single('image'), uploadPhoto);

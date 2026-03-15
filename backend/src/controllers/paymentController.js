@@ -1,3 +1,4 @@
+const crypto              = require('crypto');
 const QRCode              = require('qrcode');
 const nodemailer          = require('nodemailer');
 const paymentModel        = require('../models/paymentModel');
@@ -261,4 +262,120 @@ const submitPayment = async (req, res, next) => {
   }
 };
 
-module.exports = { initiatePayment, submitPayment };
+// ─────────────────────────────────────────────
+// Helpers for category-update-via-email flow
+// ─────────────────────────────────────────────
+const VALID_CATEGORIES = ['Prototype', 'Model', 'Case study'];
+
+const makeCategoryToken = (ref) =>
+  crypto.createHmac('sha256', process.env.ADMIN_PASSWORD || 'geofest-secret')
+    .update(ref).digest('hex').slice(0, 20);
+
+const htmlPage = (title, bodyHtml) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>${title} — GeoFest 2026</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0f172a;color:#e2e8f0;font-family:sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{background:#1e293b;border-radius:16px;padding:36px 32px;max-width:480px;width:100%;text-align:center;border:1px solid #334155}
+    h2{color:#f59e0b;font-size:1.5rem;margin-bottom:8px}
+    p{color:#94a3b8;font-size:0.9rem;line-height:1.6;margin-bottom:16px}
+    .btn{display:inline-block;background:linear-gradient(to right,#059669,#0d9488);color:#fff;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:0.95rem;margin-top:8px}
+    input[type=text]{width:100%;background:#0f172a;border:1px solid #475569;border-radius:10px;padding:12px 16px;color:#fff;font-size:1rem;margin-bottom:16px;outline:none}
+    input[type=text]:focus{border-color:#f59e0b}
+    button[type=submit]{width:100%;background:linear-gradient(to right,#7c3aed,#4f46e5);color:#fff;font-weight:700;padding:13px;border-radius:10px;border:none;font-size:1rem;cursor:pointer}
+  </style>
+</head>
+<body><div class="card">${bodyHtml}</div></body>
+</html>`;
+
+// ─────────────────────────────────────────────
+// GET /api/payment/set-category
+// ?ref=GF2026-XXXXX&cat=Prototype&tok=XXXX
+// One-click category update from email link
+// ─────────────────────────────────────────────
+const setCategoryByLink = async (req, res) => {
+  const { ref, cat, tok } = req.query;
+  if (!ref || !cat || !tok || tok !== makeCategoryToken(ref)) {
+    return res.status(400).send(htmlPage('Invalid Link',
+      '<h2>GeoFest 2026</h2><p>This link is invalid or has expired.</p>'));
+  }
+  if (!VALID_CATEGORIES.includes(cat)) {
+    return res.status(400).send(htmlPage('Invalid Category',
+      '<h2>GeoFest 2026</h2><p>Unknown category. Please use the link from your email.</p>'));
+  }
+  try {
+    await pool.query(
+      `UPDATE payments SET project_category = $1 WHERE reference_id = $2`,
+      [cat, ref]
+    );
+    return res.send(htmlPage('Category Saved', `
+      <h2>GeoFest 2026</h2>
+      <p style="color:#34d399;font-size:1.1rem;font-weight:bold;margin-bottom:8px">✅ Done!</p>
+      <p>Your project submission category has been saved as <strong style="color:#f59e0b">${cat}</strong>.</p>
+      <p>You may close this tab.</p>
+    `));
+  } catch (err) {
+    return res.status(500).send(htmlPage('Error',
+      '<h2>GeoFest 2026</h2><p>Something went wrong. Please contact the organizers.</p>'));
+  }
+};
+
+// ─────────────────────────────────────────────
+// GET /api/payment/category-form
+// ?ref=GF2026-XXXXX&tok=XXXX
+// "Other" category — shows a text input form
+// ─────────────────────────────────────────────
+const categoryForm = (req, res) => {
+  const { ref, tok } = req.query;
+  if (!ref || !tok || tok !== makeCategoryToken(ref)) {
+    return res.status(400).send(htmlPage('Invalid Link',
+      '<h2>GeoFest 2026</h2><p>This link is invalid or has expired.</p>'));
+  }
+  return res.send(htmlPage('Enter Your Category', `
+    <h2>GeoFest 2026</h2>
+    <p style="margin-bottom:24px">Please describe your project submission category below.</p>
+    <form method="POST" action="/api/payment/category-form">
+      <input type="hidden" name="ref" value="${ref}"/>
+      <input type="hidden" name="tok" value="${tok}"/>
+      <input type="text" name="category" placeholder="e.g. Remote Sensing, GIS, Tunnelling..." required maxlength="100"/>
+      <button type="submit">Save Category</button>
+    </form>
+  `));
+};
+
+// ─────────────────────────────────────────────
+// POST /api/payment/category-form  (form submit)
+// ─────────────────────────────────────────────
+const setCategoryOther = async (req, res) => {
+  const { ref, tok, category } = req.body;
+  if (!ref || !tok || tok !== makeCategoryToken(ref)) {
+    return res.status(400).send(htmlPage('Invalid Link',
+      '<h2>GeoFest 2026</h2><p>This link is invalid or has expired.</p>'));
+  }
+  const trimmed = (category || '').trim().slice(0, 100);
+  if (!trimmed) {
+    return res.status(400).send(htmlPage('Error',
+      '<h2>GeoFest 2026</h2><p>Category cannot be empty.</p>'));
+  }
+  try {
+    await pool.query(
+      `UPDATE payments SET project_category = $1 WHERE reference_id = $2`,
+      [trimmed, ref]
+    );
+    return res.send(htmlPage('Category Saved', `
+      <h2>GeoFest 2026</h2>
+      <p style="color:#34d399;font-size:1.1rem;font-weight:bold;margin-bottom:8px">✅ Done!</p>
+      <p>Your project submission category has been saved as <strong style="color:#f59e0b">${trimmed}</strong>.</p>
+      <p>You may close this tab.</p>
+    `));
+  } catch (err) {
+    return res.status(500).send(htmlPage('Error',
+      '<h2>GeoFest 2026</h2><p>Something went wrong. Please contact the organizers.</p>'));
+  }
+};
+
+module.exports = { initiatePayment, submitPayment, setCategoryByLink, categoryForm, setCategoryOther, makeCategoryToken };

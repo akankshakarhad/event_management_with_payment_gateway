@@ -1,5 +1,6 @@
 const nodemailer  = require('nodemailer');
 const ExcelJS     = require('exceljs');
+const { makeCategoryToken } = require('./paymentController');
 const { pool }    = require('../config/db');
 const adminModel  = require('../models/adminModel');
 const paymentModel = require('../models/paymentModel');
@@ -434,4 +435,86 @@ const deleteMember = async (req, res, next) => {
   }
 };
 
-module.exports = { getUsers, exportCSV, getPayments, approvePayment, rejectPayment, exportPayments, getGroupRegistrations, deleteGroup, deleteMember };
+// ─────────────────────────────────────────────────────
+// POST /api/admin/email-project-display
+// Sends category-selection email to all Project Display
+// registrants whose project_category is still NULL/empty
+// ─────────────────────────────────────────────────────
+const emailProjectDisplay = async (req, res, next) => {
+  try {
+    if (!checkAdminPassword(req, res)) return;
+
+    const BACKEND = process.env.BACKEND_URL || 'https://geofest-backend.onrender.com';
+
+    // Fetch all Project Display payments with missing category
+    const { rows } = await pool.query(`
+      SELECT DISTINCT p.reference_id, u.name, u.email
+      FROM payments p
+      JOIN users u ON u.id = p.user_id
+      JOIN registrations r ON r.user_id = u.id
+      JOIN events e ON e.id = r.event_id
+      WHERE e.title = 'Project Display'
+        AND (p.project_category IS NULL OR TRIM(p.project_category) = '')
+    `);
+
+    if (!rows.length) {
+      return res.json({ success: true, message: 'No students with missing category found.', sent: 0 });
+    }
+
+    const transporter = getTransporter();
+    let sent = 0;
+
+    for (const student of rows) {
+      const tok  = makeCategoryToken(student.reference_id);
+      const base = `${BACKEND}/api/payment`;
+
+      const makeLink = (cat) =>
+        `${base}/set-category?ref=${encodeURIComponent(student.reference_id)}&cat=${encodeURIComponent(cat)}&tok=${tok}`;
+      const otherLink = `${base}/category-form?ref=${encodeURIComponent(student.reference_id)}&tok=${tok}`;
+
+      const btnStyle = 'display:inline-block;padding:12px 24px;border-radius:10px;color:#fff;font-weight:700;font-size:14px;text-decoration:none;margin:6px 4px;';
+
+      try {
+        await transporter.sendMail({
+          from:    process.env.EMAIL_FROM || `"GeoFest 2026" <${process.env.SMTP_USER}>`,
+          to:      student.email,
+          subject: 'GeoFest 2026 — Please select your Project Submission Category',
+          html: `
+            <div style="font-family:sans-serif;max-width:540px;margin:0 auto;padding:24px;background:#0f172a;color:#e2e8f0;border-radius:12px;">
+              <h2 style="color:#f59e0b;margin-bottom:4px;">GeoFest 2026</h2>
+              <h3 style="margin-bottom:16px;">Project Submission Category Required</h3>
+              <p>Hi <strong>${student.name}</strong>,</p>
+              <p style="color:#94a3b8;margin:12px 0 20px;">
+                We noticed your <strong style="color:#fff">Project Display</strong> registration is missing a
+                project submission category. Please select yours by clicking one of the buttons below —
+                it only takes one click!
+              </p>
+
+              <div style="text-align:center;margin:24px 0;">
+                <a href="${makeLink('Prototype')}"  style="${btnStyle}background:linear-gradient(to right,#059669,#0d9488)">Prototype</a>
+                <a href="${makeLink('Model')}"      style="${btnStyle}background:linear-gradient(to right,#2563eb,#4f46e5)">Model</a>
+                <a href="${makeLink('Case study')}" style="${btnStyle}background:linear-gradient(to right,#7c3aed,#a21caf)">Case study</a>
+                <a href="${otherLink}"              style="${btnStyle}background:linear-gradient(to right,#d97706,#b45309)">Other</a>
+              </div>
+
+              <p style="font-size:12px;color:#64748b;margin-top:8px;">
+                If you click <strong>Other</strong>, you will be taken to a short form to describe your category.<br/>
+                Reference ID: <strong style="color:#f59e0b;">${student.reference_id}</strong>
+              </p>
+              <p style="font-size:12px;color:#64748b;margin-top:16px;">— The GeoFest Team, NICMAR University</p>
+            </div>
+          `,
+        });
+        sent++;
+      } catch (emailErr) {
+        console.error(`[Email] Failed for ${student.email}:`, emailErr.message);
+      }
+    }
+
+    res.json({ success: true, message: `Emails sent to ${sent} of ${rows.length} students.`, sent, total: rows.length });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { getUsers, exportCSV, getPayments, approvePayment, rejectPayment, exportPayments, getGroupRegistrations, deleteGroup, deleteMember, emailProjectDisplay };
