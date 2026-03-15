@@ -1,7 +1,11 @@
 const nodemailer  = require('nodemailer');
 const ExcelJS     = require('exceljs');
-const { makeCategoryToken } = require('./paymentController');
+const crypto      = require('crypto');
 const { pool }    = require('../config/db');
+
+const makeCategoryToken = (ref) =>
+  crypto.createHmac('sha256', process.env.ADMIN_PASSWORD || 'geofest-secret')
+    .update(ref).digest('hex').slice(0, 20);
 const adminModel  = require('../models/adminModel');
 const paymentModel = require('../models/paymentModel');
 const registrationModel = require('../models/registrationModel');
