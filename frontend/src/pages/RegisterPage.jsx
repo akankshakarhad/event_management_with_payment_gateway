@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import api from '../api';
 import NicmarUPI from '../../assets/Nicmar_UPI.jpeg';
 
+const SCHEDULE_PDF_URL = '/GEOFEST_2026_Event_Schedule%20_16th%20March%202026.pdf';
+
 /* ─── Static maps ─── */
 const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '', participant_type: '', course: '', mode_of_participation: '' };
 
@@ -903,11 +905,11 @@ export default function RegisterPage() {
               transition={{ duration: 0.25, ease: 'easeOut' }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
 
-              <div className="relative w-full max-w-2xl max-h-[88vh] overflow-y-auto pointer-events-auto
-                              bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl">
+              <div className="relative w-full max-w-4xl h-[90vh] pointer-events-auto
+                              bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col">
 
                 {/* Header */}
-                <div className="sticky top-0 z-10 bg-slate-900 border-b border-slate-700/60 px-5 py-4 flex items-center justify-between">
+                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/60">
                   <div className="flex items-center gap-2.5">
                     <span className="text-xl">🗓</span>
                     <div>
@@ -922,26 +924,13 @@ export default function RegisterPage() {
                   </button>
                 </div>
 
-                {/* Body */}
-                <div className="p-5 space-y-5">
-                  {SCHEDULE.map((day, i) => (
-                    <motion.div key={day.day}
-                      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.1 }}>
-                      <div className={`rounded-t-2xl bg-gradient-to-r ${day.color} px-5 py-3`}>
-                        <h3 className="text-base font-extrabold">{day.day}</h3>
-                        <p className="text-white/80 text-xs">{day.date}</p>
-                      </div>
-                      <div className="glass rounded-b-2xl p-4 space-y-3">
-                        {day.items.map((item, j) => (
-                          <div key={j} className="flex items-start gap-3">
-                            <span className="text-xs text-white w-36 shrink-0 mt-0.5 font-mono font-bold leading-relaxed">{item.time}</span>
-                            <span className="text-sm text-gray-200 leading-relaxed">{item.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  ))}
+                {/* PDF Viewer */}
+                <div className="flex-1 p-3">
+                  <iframe
+                    src={SCHEDULE_PDF_URL}
+                    className="w-full h-full rounded-xl border-0"
+                    title="Event Schedule"
+                  />
                 </div>
               </div>
             </motion.div>

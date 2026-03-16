@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+const SCHEDULE_PDF_URL = '/GEOFEST_2026_Event_Schedule%20_16th%20March%202026.pdf';
+
 /* ── Countdown ── */
 const EVENT_DATE        = new Date('2026-03-17T09:00:00');
 const INAUGURATION_DATE = new Date('2026-03-17T09:30:00');
@@ -337,6 +339,7 @@ export default function LandingPage() {
   const navigate       = useNavigate();
   const countdown      = useCountdown(EVENT_DATE);
   const inaugCountdown = useCountdown(INAUGURATION_DATE);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
 
 
   return (
@@ -521,29 +524,76 @@ export default function LandingPage() {
             <p className="text-white font-bold text-sm sm:text-base">Two days of engineering excellence — 17 & 18 March 2026</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-            {SCHEDULE.map((day, i) => (
-              <motion.div key={day.day}
-                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }} transition={{ delay: i * 0.15 }}
-                className="flex flex-col">
-                <div className={`rounded-t-2xl bg-gradient-to-r ${day.color} px-5 sm:px-6 py-3 sm:py-4`}>
-                  <h3 className="text-lg sm:text-xl font-extrabold">{day.day}</h3>
-                  <p className="text-white/80 text-sm">{day.date}</p>
-                </div>
-                <div className="glass rounded-b-2xl p-4 space-y-3 flex-1">
-                  {day.items.map((item, j) => (
-                    <div key={j} className="flex items-start gap-3">
-                      <span className="text-xs sm:text-sm text-white w-28 sm:w-44 shrink-0 mt-0.5 font-mono font-bold">{item.time}</span>
-                      <span className="text-sm sm:text-base text-gray-200 leading-relaxed">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+            className="flex justify-center">
+            <button
+              onClick={() => setScheduleOpen(true)}
+              className="flex items-center gap-3 glass border border-amber-500/40 hover:border-amber-500/80
+                         rounded-2xl px-8 py-4 transition-all duration-200 group">
+              <span className="text-2xl">📄</span>
+              <div className="text-left">
+                <p className="text-base font-bold text-white">View Event Schedule</p>
+                <p className="text-xs text-gray-400">17 & 18 March 2026 — Two-day programme</p>
+              </div>
+              <span className="text-amber-400 font-bold text-sm group-hover:translate-x-1 transition-transform duration-200 ml-2">
+                Open →
+              </span>
+            </button>
+          </motion.div>
         </div>
       </section>
+
+      {/* ── Schedule PDF Modal ── */}
+      <AnimatePresence>
+        {scheduleOpen && (
+          <>
+            <motion.div
+              key="sched-backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setScheduleOpen(false)}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+            />
+            <motion.div
+              key="sched-modal"
+              initial={{ opacity: 0, scale: 0.95, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 24 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+
+              <div className="relative w-full max-w-4xl h-[90vh] pointer-events-auto
+                              bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col">
+
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/60">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">📄</span>
+                    <div>
+                      <h2 className="text-base font-extrabold text-white">Event Schedule</h2>
+                      <p className="text-[11px] text-gray-400">17 & 18 March 2026 — NICMAR University, Pune</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setScheduleOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full
+                               text-gray-400 hover:text-white hover:bg-slate-700 transition text-lg">
+                    ✕
+                  </button>
+                </div>
+
+                {/* PDF Viewer */}
+                <div className="flex-1 p-3">
+                  <iframe
+                    src={SCHEDULE_PDF_URL}
+                    className="w-full h-full rounded-xl border-0"
+                    title="Event Schedule"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
 
       {/* ── INAUGURATION VENUE ── */}
