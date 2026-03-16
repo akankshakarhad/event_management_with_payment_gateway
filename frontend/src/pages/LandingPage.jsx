@@ -340,6 +340,12 @@ export default function LandingPage() {
   const countdown      = useCountdown(EVENT_DATE);
   const inaugCountdown = useCountdown(INAUGURATION_DATE);
   const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const handle = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handle);
+    return () => window.removeEventListener('resize', handle);
+  }, []);
 
 
   return (
@@ -582,12 +588,30 @@ export default function LandingPage() {
                 </div>
 
                 {/* PDF Viewer */}
-                <div className="flex-1 p-3">
-                  <iframe
-                    src={SCHEDULE_PDF_URL}
-                    className="w-full h-full rounded-xl border-0"
-                    title="Event Schedule"
-                  />
+                <div className="flex-1 p-3 flex flex-col">
+                  {isMobile ? (
+                    <div className="flex flex-col items-center justify-center flex-1 gap-5 text-center px-4">
+                      <span className="text-5xl">📄</span>
+                      <p className="text-gray-300 text-sm leading-relaxed">
+                        PDF preview is not available on mobile browsers.<br />
+                        Tap below to open the schedule.
+                      </p>
+                      <a
+                        href={SCHEDULE_PDF_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-amber-500 hover:bg-amber-400
+                                   text-black font-bold text-sm rounded-xl px-6 py-3 transition-colors duration-200">
+                        Open Event Schedule ↗
+                      </a>
+                    </div>
+                  ) : (
+                    <iframe
+                      src={SCHEDULE_PDF_URL}
+                      className="w-full h-full rounded-xl border-0"
+                      title="Event Schedule"
+                    />
+                  )}
                 </div>
               </div>
             </motion.div>
