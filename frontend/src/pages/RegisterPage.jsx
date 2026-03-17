@@ -6,6 +6,8 @@ import NicmarUPI from '../../assets/Nicmar_UPI.jpeg';
 
 const SCHEDULE_PDF_URL = '/GEOFEST_2026_Event_Schedule%20_16th%20March%202026.pdf';
 
+const REGISTRATIONS_CLOSED = true;
+
 /* ─── Static maps ─── */
 const EMPTY_MEMBER = { name: '', email: '', phone: '', college: '', participant_type: '', course: '', mode_of_participation: '' };
 
@@ -343,18 +345,21 @@ function EventTile({ ev, index, isSelected, isBlocked, onClick }) {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: isBlocked ? 0.4 : 1, y: 0 }}
       transition={{ delay: index * 0.07 }}
-      whileHover={!isBlocked && !isSelected ? { scale: 1.03, y: -4 } : {}}
-      whileTap={!isBlocked ? { scale: 0.97 } : {}}
+      whileHover={!isBlocked && !isSelected && !REGISTRATIONS_CLOSED ? { scale: 1.03, y: -4 } : {}}
+      whileTap={!isBlocked && !REGISTRATIONS_CLOSED ? { scale: 0.97 } : {}}
       onClick={() => !isBlocked && onClick(ev)}
       onMouseEnter={() => isBlocked && setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={`relative glass rounded-2xl p-5 flex flex-col transition-all duration-300
-        ${isBlocked ? 'cursor-not-allowed grayscale' : 'cursor-pointer'}
+        ${isBlocked || REGISTRATIONS_CLOSED ? 'cursor-not-allowed' : 'cursor-pointer'}
+        ${isBlocked ? 'grayscale' : ''}
         ${isSelected
           ? 'border border-amber-500 ring-2 ring-amber-500/30 bg-amber-600/10'
           : isBlocked
             ? 'border border-slate-700'
-            : 'border border-transparent hover:border-amber-500/40 card-hover'
+            : REGISTRATIONS_CLOSED
+              ? 'border border-slate-700 opacity-70'
+              : 'border border-transparent hover:border-amber-500/40 card-hover'
         }`}>
 
       {isSelected && (
@@ -538,15 +543,16 @@ function FeaturedCard({ ev, onRegister }) {
               </motion.button>
 
               <motion.button
-                onClick={() => onRegister(ev)}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="px-10 py-4 text-base font-extrabold rounded-xl
-                           bg-gradient-to-r from-amber-500 to-yellow-400 text-black
-                           shadow-[0_4px_20px_rgba(251,191,36,0.45)]
-                           hover:shadow-[0_4px_32px_rgba(251,191,36,0.65)]
-                           transition-all duration-200">
-                Register for Project Display →
+                onClick={() => !REGISTRATIONS_CLOSED && onRegister(ev)}
+                whileHover={REGISTRATIONS_CLOSED ? {} : { scale: 1.03 }}
+                whileTap={REGISTRATIONS_CLOSED ? {} : { scale: 0.97 }}
+                disabled={REGISTRATIONS_CLOSED}
+                className={`px-10 py-4 text-base font-extrabold rounded-xl transition-all duration-200
+                           ${REGISTRATIONS_CLOSED
+                             ? 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'
+                             : 'bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-[0_4px_20px_rgba(251,191,36,0.45)] hover:shadow-[0_4px_32px_rgba(251,191,36,0.65)]'
+                           }`}>
+                {REGISTRATIONS_CLOSED ? 'Registrations Closed' : 'Register for Project Display →'}
               </motion.button>
             </div>
           </div>
@@ -636,6 +642,7 @@ export default function RegisterPage() {
   const [payError, setPayError]             = useState('');
   const [payDone, setPayDone]               = useState(false);
   const [scheduleOpen, setScheduleOpen]     = useState(false);
+  const [closedNoticeOpen, setClosedNoticeOpen] = useState(REGISTRATIONS_CLOSED);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
   useEffect(() => {
     const handle = () => setIsMobile(window.innerWidth < 768);
@@ -717,6 +724,7 @@ export default function RegisterPage() {
   };
 
   const selectEvent = (ev) => {
+    if (REGISTRATIONS_CLOSED) return;
     if (selectedEvent?.id === ev.id) { closeModal(); return; }
     setSelEv(ev);
     const initCount = norm(ev.title) === 'Connecting The Dots' ? 3 : 1;
@@ -823,7 +831,9 @@ export default function RegisterPage() {
             Register for <span className="shimmer-text">GeoFest 2026</span>
           </h1>
           <p className="text-gray-400 max-w-lg mx-auto text-sm sm:text-base">
-            Click on an event card to register — fill your details and pay to confirm your spot.
+            {REGISTRATIONS_CLOSED
+              ? 'Online registrations are closed. On spot registrations available at the venue.'
+              : 'Click on an event card to register — fill your details and pay to confirm your spot.'}
           </p>
         </motion.div>
       </div>
@@ -891,6 +901,63 @@ export default function RegisterPage() {
           </>
         )}
       </div>
+
+      {/* ── Registrations Closed Notice Modal ── */}
+      <AnimatePresence>
+        {closedNoticeOpen && (
+          <>
+            <motion.div
+              key="closed-backdrop"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setClosedNoticeOpen(false)}
+              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+            />
+            <motion.div
+              key="closed-modal"
+              initial={{ opacity: 0, scale: 0.92, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 24 }}
+              transition={{ duration: 0.28, ease: 'easeOut' }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+
+              <div className="relative w-full max-w-md pointer-events-auto
+                              bg-slate-900 border border-amber-500/40 rounded-2xl shadow-2xl
+                              shadow-amber-500/10 p-8 text-center">
+
+                {/* Icon */}
+                <div className="text-5xl mb-4">🔒</div>
+
+                {/* Title */}
+                <h2 className="text-2xl font-extrabold text-white mb-3">
+                  Registrations Closed
+                </h2>
+
+                {/* Message */}
+                <p className="text-gray-300 text-sm leading-relaxed mb-2">
+                  Online registrations for GeoFest 2026 are now closed.
+                </p>
+                <p className="text-amber-400 font-semibold text-base mb-6">
+                  On spot registrations available at the venue.
+                </p>
+
+                {/* Close button */}
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setClosedNoticeOpen(false)}
+                  className="w-full py-3 rounded-xl font-bold text-sm
+                             bg-gradient-to-r from-amber-500 to-yellow-400 text-black
+                             shadow-[0_4px_16px_rgba(251,191,36,0.4)]
+                             hover:shadow-[0_4px_24px_rgba(251,191,36,0.6)]
+                             transition-all duration-200">
+                  Got it
+                </motion.button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── Schedule Modal ── */}
       <AnimatePresence>
